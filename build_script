@@ -1,0 +1,291 @@
+#!/bin/bash
+
+red=`tput setaf 1`
+green=`tput setaf 2`
+yellow=`tput setaf 3`
+blue=`tput setaf 4`
+magenta=`tput setaf 5`
+cyan=`tput setaf 6`
+reset=`tput sgr0`
+
+printf "\n${magenta}Deleting previous build files...${reset}\n"
+cd output_files
+rm *
+cd ..
+
+printf "\n${magenta}Assembling individual PRG banks...${reset}\n\n"
+cd source_files
+../Ophis/ophis.exe PRG_Bank000.asm ../output_files/PRG_Bank000.bin
+../Ophis/ophis.exe PRG_Bank001.asm ../output_files/PRG_Bank001.bin
+../Ophis/ophis.exe PRG_Bank002.asm ../output_files/PRG_Bank002.bin
+../Ophis/ophis.exe PRG_Bank003.asm ../output_files/PRG_Bank003.bin
+../Ophis/ophis.exe PRG_Bank004.asm ../output_files/PRG_Bank004.bin
+../Ophis/ophis.exe PRG_Bank005.asm ../output_files/PRG_Bank005.bin
+../Ophis/ophis.exe PRG_Bank006.asm ../output_files/PRG_Bank006.bin
+../Ophis/ophis.exe PRG_Bank007.asm ../output_files/PRG_Bank007.bin
+../Ophis/ophis.exe PRG_Bank008.asm ../output_files/PRG_Bank008.bin
+../Ophis/ophis.exe PRG_Bank009.asm ../output_files/PRG_Bank009.bin
+../Ophis/ophis.exe PRG_Bank00A.asm ../output_files/PRG_Bank00A.bin
+../Ophis/ophis.exe PRG_Bank00B.asm ../output_files/PRG_Bank00B.bin
+../Ophis/ophis.exe PRG_Bank00C.asm ../output_files/PRG_Bank00C.bin
+../Ophis/ophis.exe PRG_BankDEF.asm ../output_files/PRG_BankDEF.bin
+cd ..
+
+printf "\n${magenta}Calculating checksums of individual PRG banks...${reset}\n\n"
+printf -- "${yellow}-------------------PRG Bank 000--------------------${reset}\n"
+out000=($(md5sum output_files/PRG_Bank000.bin))
+org000=($(md5sum original_files/PRG_Bank000.bin))
+printf "Assembled md5sum = $out000\n"
+printf "Original  md5sum = $org000\n"
+if [ "$out000" = "$org000" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 001--------------------${reset}\n"
+out001=($(md5sum output_files/PRG_Bank001.bin))
+org001=($(md5sum original_files/PRG_Bank001.bin))
+printf "Assembled md5sum = $out001\n"
+printf "Original  md5sum = $org001\n"
+if [ "$out001" = "$org001" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 002--------------------${reset}\n"
+out002=($(md5sum output_files/PRG_Bank002.bin))
+org002=($(md5sum original_files/PRG_Bank002.bin))
+printf "Assembled md5sum = $out002\n"
+printf "Original  md5sum = $org002\n"
+if [ "$out002" = "$org002" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 003--------------------${reset}\n"
+out003=($(md5sum output_files/PRG_Bank003.bin))
+org003=($(md5sum original_files/PRG_Bank003.bin))
+printf "Assembled md5sum = $out003\n"
+printf "Original  md5sum = $org003\n"
+if [ "$out003" = "$org003" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 004--------------------${reset}\n"
+out004=($(md5sum output_files/PRG_Bank004.bin))
+org004=($(md5sum original_files/PRG_Bank004.bin))
+printf "Assembled md5sum = $out004\n"
+printf "Original  md5sum = $org004\n"
+if [ "$out004" = "$org004" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 005--------------------${reset}\n"
+out005=($(md5sum output_files/PRG_Bank005.bin))
+org005=($(md5sum original_files/PRG_Bank005.bin))
+printf "Assembled md5sum = $out005\n"
+printf "Original  md5sum = $org005\n"
+if [ "$out005" = "$org005" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 006--------------------${reset}\n"
+out006=($(md5sum output_files/PRG_Bank006.bin))
+org006=($(md5sum original_files/PRG_Bank006.bin))
+printf "Assembled md5sum = $out006\n"
+printf "Original  md5sum = $org006\n"
+if [ "$out006" = "$org006" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 007--------------------${reset}\n"
+out007=($(md5sum output_files/PRG_Bank007.bin))
+org007=($(md5sum original_files/PRG_Bank007.bin))
+printf "Assembled md5sum = $out007\n"
+printf "Original  md5sum = $org007\n"
+if [ "$out007" = "$org007" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 008--------------------${reset}\n"
+out008=($(md5sum output_files/PRG_Bank008.bin))
+org008=($(md5sum original_files/PRG_Bank008.bin))
+printf "Assembled md5sum = $out008\n"
+printf "Original  md5sum = $org008\n"
+if [ "$out008" = "$org008" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 009--------------------${reset}\n"
+out009=($(md5sum output_files/PRG_Bank009.bin))
+org009=($(md5sum original_files/PRG_Bank009.bin))
+printf "Assembled md5sum = $out009\n"
+printf "Original  md5sum = $org009\n"
+if [ "$out009" = "$org009" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 00A--------------------${reset}\n"
+out00A=($(md5sum output_files/PRG_Bank00A.bin))
+org00A=($(md5sum original_files/PRG_Bank00A.bin))
+printf "Assembled md5sum = $out00A\n"
+printf "Original  md5sum = $org00A\n"
+if [ "$out00A" = "$org00A" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 00B--------------------${reset}\n"
+out00B=($(md5sum output_files/PRG_Bank00B.bin))
+org00B=($(md5sum original_files/PRG_Bank00B.bin))
+printf "Assembled md5sum = $out00B\n"
+printf "Original  md5sum = $org00B\n"
+if [ "$out00B" = "$org00B" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank 00C--------------------${reset}\n"
+out00C=($(md5sum output_files/PRG_Bank00C.bin))
+org00C=($(md5sum original_files/PRG_Bank00C.bin))
+printf "Assembled md5sum = $out00C\n"
+printf "Original  md5sum = $org00C\n"
+if [ "$out00C" = "$org00C" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+printf -- "${yellow}-------------------PRG Bank DEF--------------------${reset}\n"
+outDEF=($(md5sum output_files/PRG_BankDEF.bin))
+orgDEF=($(md5sum original_files/PRG_BankDEF.bin))
+printf "Assembled md5sum = $outDEF\n"
+printf "Original  md5sum = $orgDEF\n"
+if [ "$outDEF" = "$orgDEF" ]; then
+    printf "${green}Pass${reset}\n\n"
+else
+    printf "${red}Fail${reset}\n\n"
+fi
+
+#printf "${magenta}Combining Assembled banks into a ROM...${reset}\n"
+#cat original_files/header.bin \
+#	output_files/PRG_Bank000.bin \
+#	output_files/PRG_Bank001.bin \
+#	output_files/PRG_Bank002.bin \
+#	output_files/PRG_Bank003.bin \
+#	output_files/PRG_Bank004.bin \
+#	output_files/PRG_Bank005.bin \
+#	output_files/PRG_Bank006.bin \
+#	output_files/PRG_Bank007.bin \
+#	output_files/PRG_Bank008.bin \
+#	output_files/PRG_Bank009.bin \
+#	output_files/PRG_Bank00A.bin \
+#	output_files/PRG_Bank00B.bin \
+#	output_files/PRG_Bank00C.bin \
+#	output_files/PRG_BankDEF.bin \
+#	original_files/CHR_Bank000.bin \
+#	original_files/CHR_Bank001.bin \
+#	original_files/CHR_Bank002.bin \
+#	original_files/CHR_Bank003.bin \
+#	original_files/CHR_Bank004.bin \
+#	original_files/CHR_Bank005.bin \
+#	original_files/CHR_Bank006.bin \
+#	original_files/CHR_Bank007.bin \
+#	original_files/CHR_Bank008.bin \
+#	original_files/CHR_Bank009.bin \
+#	original_files/CHR_Bank00A.bin \
+#	original_files/CHR_Bank00B.bin \
+#	original_files/CHR_Bank00C.bin \
+#	original_files/CHR_Bank00D.bin \
+#	original_files/CHR_Bank00E.bin \
+#	original_files/CHR_Bank00F.bin \
+#	original_files/CHR_Bank010.bin \
+#	original_files/CHR_Bank011.bin \
+#	original_files/CHR_Bank012.bin \
+#	original_files/CHR_Bank013.bin \
+#	original_files/CHR_Bank014.bin \
+#	original_files/CHR_Bank015.bin \
+#	original_files/CHR_Bank016.bin \
+#	original_files/CHR_Bank017.bin \
+#	original_files/CHR_Bank018.bin \
+#	original_files/CHR_Bank019.bin \
+#	original_files/CHR_Bank01A.bin \
+#	original_files/CHR_Bank01B.bin \
+#	original_files/CHR_Bank01C.bin \
+#	original_files/CHR_Bank01D.bin \
+#	original_files/CHR_Bank01E.bin \
+#	original_files/CHR_Bank01F.bin \
+#	> assembled_mike_tysons_punchout.nes
+
+#printf "\n${magenta}Combining original banks and header into a ROM...${reset}\n\n"
+#cat original_files/Header.bin      \
+#	original_files/PRG_Bank000.bin \
+#	original_files/PRG_Bank001.bin \
+#	original_files/PRG_Bank002.bin \
+#	original_files/PRG_Bank003.bin \
+#	original_files/PRG_Bank004.bin \
+#	original_files/PRG_Bank005.bin \
+#	original_files/PRG_Bank006.bin \
+#	original_files/PRG_Bank007.bin \
+#	original_files/PRG_Bank008.bin \
+#	original_files/PRG_Bank009.bin \
+#	original_files/PRG_Bank00A.bin \
+#	original_files/PRG_Bank00B.bin \
+#	original_files/PRG_Bank00C.bin \
+#	original_files/PRG_BankDEF.bin \
+#	original_files/CHR_Bank000.bin \
+#	original_files/CHR_Bank001.bin \
+#	original_files/CHR_Bank002.bin \
+#	original_files/CHR_Bank003.bin \
+#	original_files/CHR_Bank004.bin \
+#	original_files/CHR_Bank005.bin \
+#	original_files/CHR_Bank006.bin \
+#	original_files/CHR_Bank007.bin \
+#	original_files/CHR_Bank008.bin \
+#	original_files/CHR_Bank009.bin \
+#	original_files/CHR_Bank00A.bin \
+#	original_files/CHR_Bank00B.bin \
+#	original_files/CHR_Bank00C.bin \
+#	original_files/CHR_Bank00D.bin \
+#	original_files/CHR_Bank00E.bin \
+#	original_files/CHR_Bank00F.bin \
+#	original_files/CHR_Bank010.bin \
+#	original_files/CHR_Bank011.bin \
+#	original_files/CHR_Bank012.bin \
+#	original_files/CHR_Bank013.bin \
+#	original_files/CHR_Bank014.bin \
+#	original_files/CHR_Bank015.bin \
+#	original_files/CHR_Bank016.bin \
+#	original_files/CHR_Bank017.bin \
+#	original_files/CHR_Bank018.bin \
+#	original_files/CHR_Bank019.bin \
+#	original_files/CHR_Bank01A.bin \
+#	original_files/CHR_Bank01B.bin \
+#	original_files/CHR_Bank01C.bin \
+#	original_files/CHR_Bank01D.bin \
+#	original_files/CHR_Bank01E.bin \
+#	original_files/CHR_Bank01F.bin \
+#	> stitched_mike_tysons_punchout.nes
+
+#md5sum original_mike_tysons_punchout.nes
+#md5sum assembled_mike_tysons_punchout.nes
+#md5sum stitched_mike_tysons_punchout.nes
