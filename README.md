@@ -1,5 +1,5 @@
 # mike-tysons-punch-out-disassembly
-Reverse engineering effort of the NES game Mike Tyson's Punch-Out.
+Reverse engineering effort of the NES game Mike Tyson's Punch-Out. I plan on posting information on the disassembly as I progress on nesdev.com.
 
 # Folder Structure
 **documentation** - various documentation for the disassembly. Contains the completion map which is a visual representation of the progress on the disassembly.  
