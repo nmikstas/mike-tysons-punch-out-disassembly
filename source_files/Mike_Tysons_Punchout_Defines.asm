@@ -53,3 +53,7 @@
 
 ;--------------------------------------------[Constants]---------------------------------------------
 
+;Sound channel indexes.
+.alias AUD_SQ0_INDEX	$00		;Square wave 0 channel index.
+.alias AUD_SQ1_INDEX	$04		;Square wave 1 channel index.
+.alias AUD_TRI_INDEX	$08		;Triangle wave channel index.

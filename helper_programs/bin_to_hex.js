@@ -17,7 +17,7 @@ let processBinDat = (data) =>
         //Get data byte from file.
         let hexString = data[i].toString(16).toUpperCase();
 
-        //If the data byte is lexx than $10, prepend a 0.
+        //If the data byte is less than $10, prepend a 0.
         if(hexString.length === 1)
         {
             hexString = "0" + hexString;

@@ -7409,33 +7409,42 @@ LF41A:  RTS
 
 LF41B:  JSR $F414
 
-LF41E:  LDX #$04
-LF420:  BNE $F42B
+UpdateSQ2Note:
+LF41E:  LDX #AUD_SQ1_INDEX
+LF420:  BNE GetChannelNote
 
-LF422:  LDX #$08
-LF424:  BNE $F42B
+UpdateTriNote:
+LF422:  LDX #AUD_TRI_INDEX
+LF424:  BNE GetChannelNote
 
 LF426:  JSR $F40B
 
-LF429:  LDX #$00
+UpdateSQ1Note:
+LF429:  LDX #AUD_SQ0_INDEX
+
+GetChannelNote:
 LF42B:  TAY
-LF42C:  LDA $F53D,Y
-LF42F:  BEQ $F44C
+LF42C:  LDA NotesTbl+1,Y
+LF42F:  BEQ GetNoteDone
 
 LF431:  STA SQ1Cntrl2,X
 LF434:  CPX #$00
 LF436:  BNE $F43D
 
 LF438:  STA $070F
-LF43B:  BNE $F444
+LF43B:  BNE GetNoteUpperBits
 
 LF43D:  CPX #$04
-LF43F:  BNE $F444
+LF43F:  BNE GetNoteUpperBits
 
 LF441:  STA $0710
-LF444:  LDA $F53C,Y
+
+GetNoteUpperBits:
+LF444:  LDA NotesTbl,Y
 LF447:  ORA #$08
 LF449:  STA SQ1Cntrl3,X
+
+GetNoteDone:
 LF44C:  RTS
 
 LF44D:  LSR
@@ -7571,14 +7580,78 @@ LF536:  LDA #$01
 LF538:  STA $0724
 LF53B:  RTS
 
-LF53C:  .byte $00, $00, $00, $00, $06, $AE, $06, $4E, $05, $F3, $05, $9E, $05, $4D, $05, $02
-LF54C:  .byte $04, $B9, $04, $75, $04, $35, $03, $F8, $03, $BF, $03, $89, $03, $57, $03, $27
-LF55C:  .byte $02, $F9, $02, $CF, $02, $A6, $02, $80, $02, $5C, $02, $3A, $02, $1A, $01, $FC
-LF56C:  .byte $01, $DF, $01, $C4, $01, $AB, $01, $93, $01, $7C, $01, $67, $01, $52, $01, $3F
-LF57C:  .byte $01, $2D, $01, $1C, $01, $0C, $00, $FD, $00, $EE, $00, $E1, $00, $D4, $00, $C8
-LF58C:  .byte $00, $BD, $00, $B2, $00, $A8, $00, $9F, $00, $96, $00, $8D, $00, $85, $00, $7E
-LF59C:  .byte $00, $76, $00, $70, $00, $6A, $00, $64, $00, $5F, $00, $59, $00, $54, $00, $50
-LF5AC:  .byte $00, $4B, $00, $47, $00, $43, $00, $3F, $00, $3B, $00, $38, $00, $35, $00, $32
+;----------------------------------------------------------------------------------------------------
+
+;The following table contains the musical notes in the game. The first byte is
+;the period high information(3 bits) and the second byte is the period low information(8 bits).
+;The formula for figuring out the frequency is as follows: 1789773/(16*(hhhllllllll+1))
+
+NotesTbl:
+LF53C:  .byte $00, $00			;Index #$00 - No sound.
+LF53E:  .byte $00, $00			;Index #$02 - No sound.
+LF540:  .byte $06, $AE			;Index #$04 - 65.38Hz   - C2.
+LF542:  .byte $06, $4E			;Index #$06 - 69.26Hz   - C#2.
+LF544:  .byte $05, $F3			;Index #$08 - 73.40Hz   - D2.
+LF546:  .byte $05, $9E			;Index #$0A - 77.74Hz   - D#2.
+LF548:  .byte $05, $4D			;Index #$0C - 82.37Hz   - E2.
+LF54A:  .byte $05, $02			;Index #$0E - 87.19Hz   - F2.
+LF54C:  .byte $04, $B9			;Index #$10 - 92.45Hz   - F#2.
+LF54E:  .byte $04, $75			;Index #$12 - 97.95Hz   - G2.
+LF550:  .byte $04, $35			;Index #$14 - 103.77Hz  - G#2.
+LF552:  .byte $03, $F8			;Index #$16 - 109.99Hz  - A2.
+LF554:  .byte $03, $BF			;Index #$18 - 116.52Hz  - A#2.
+LF556:  .byte $03, $89			;Index #$1A - 123.47Hz  - B2.
+LF558:  .byte $03, $57			;Index #$1C - 130.68Hz  - C3.
+LF55A:  .byte $03, $27			;Index #$1E - 138.44Hz  - C#3.
+LF55C:  .byte $02, $F9			;Index #$20 - 146.80Hz  - D3.
+LF55E:  .byte $02, $CF			;Index #$22 - 155.36Hz  - D#3.
+LF560:  .byte $02, $A6			;Index #$24 - 164.74Hz  - E3.
+LF562:  .byte $02, $80			;Index #$26 - 174.51Hz  - F3.
+LF564:  .byte $02, $5C			;Index #$28 - 184.89Hz  - F#3.
+LF565:  .byte $02, $3A			;Index #$2A - 195.90Hz  - G3.
+LF566:  .byte $02, $1A			;Index #$2C - 207.53Hz  - G#3.
+LF56A:  .byte $01, $FC			;Index #$2E - 219.77Hz  - A3.
+LF56C:  .byte $01, $DF			;Index #$30 - 233.04Hz  - A#3.
+LF56E:  .byte $01, $C4			;Index #$32 - 246.93Hz  - B3.
+LF570:  .byte $01, $AB			;Index #$34 - 261.36Hz  - C4.
+LF572:  .byte $01, $93			;Index #$36 - 276.88Hz  - C#4.
+LF573:  .byte $01, $7C			;Index #$38 - 293.60Hz  - D4.
+LF574:  .byte $01, $67			;Index #$3A - 310.72Hz  - D#4.
+LF575:  .byte $01, $52			;Index #$3C - 329.97Hz  - E4.
+LF57A:  .byte $01, $3F			;Index #$3E - 349.57Hz  - F4.
+LF57C:  .byte $01, $2D			;Index #$40 - 370.40Hz  - F#4.
+LF57E:  .byte $01, $1C			;Index #$42 - 392.49Hz  - G4.
+LF580:  .byte $01, $0C			;Index #$44 - 415.84Hz  - G#4.
+LF582:  .byte $00, $FD			;Index #$46 - 440.40Hz  - A4.
+LF583:  .byte $00, $EE			;Index #$48 - 468.04Hz  - A#4.
+LF584:  .byte $00, $E1			;Index #$4A - 494.96Hz  - B4.
+LF585:  .byte $00, $D4			;Index #$4C - 525.17Hz  - C5.
+LF58A:  .byte $00, $C8			;Index #$4E - 556.52Hz  - C#5.
+LF58C:  .byte $00, $BD			;Index #$50 - 588.74Hz  - D5.
+LF58E:  .byte $00, $B2			;Index #$52 - 624.92Hz  - D#5.
+LF590:  .byte $00, $A8			;Index #$54 - 661.90Hz  - E5.
+LF592:  .byte $00, $9F			;Index #$56 - 699.13Hz  - F5.
+LF594:  .byte $00, $96			;Index #$58 - 740.80Hz  - F#5.
+LF596:  .byte $00, $8D			;Index #$5A - 787.75Hz  - G5.
+LF598:  .byte $00, $85			;Index #$5C - 834.78Hz  - G#5.
+LF59A:  .byte $00, $7E			;Index #$5E - 880.79Hz  - A5.
+LF59C:  .byte $00, $76			;Index #$60 - 940.01Hz  - A#5.
+LF59E:  .byte $00, $70			;Index #$62 - 989.92Hz  - B5.
+LF5A0:  .byte $00, $6A			;Index #$64 - 1045.43Hz - C6.
+LF5A2:  .byte $00, $64			;Index #$66 - 1107.53Hz - C#6.
+LF5A4:  .byte $00, $5F			;Index #$68 - 1165.22Hz - D6.
+LF5A6:  .byte $00, $59			;Index #$6A - 1242.90Hz - D#6.
+LF5A8:  .byte $00, $54			;Index #$6C - 1316.01Hz - E6.
+LF5AA:  .byte $00, $50			;Index #$6E - 1381.00Hz - F6.
+LF5AC:  .byte $00, $4B			;Index #$70 - 1471.85Hz - F#6.
+LF5AE:  .byte $00, $47			;Index #$72 - 1553.62Hz - G6.
+LF5B0:  .byte $00, $43			;Index #$74 - 1645.01Hz - G#6.
+LF5B2:  .byte $00, $3F			;Index #$76 - 1747.83Hz - A6.
+LF5B4:  .byte $00, $3B			;Index #$78 - 1864.35Hz - A#6.
+LF5B6:  .byte $00, $38			;Index #$7A - 1962.47Hz - B6.
+LF5B8:  .byte $00, $35			;Index #$7C - 2071.50Hz - C7.
+LF5BA:  .byte $00, $32			;Index #$7E - 2193.35Hz - C#7.
+
 LF5BC:  .byte $08, $18, $10, $20, $30, $40, $60, $80, $0B, $0A, $15, $16, $50, $FF, $05, $06
 LF5CC:  .byte $16, $00, $00, $00, $00, $00, $00, $07, $15, $0E, $1C, $2A, $38, $54, $70, $09
 LF5DC:  .byte $0A, $13, $12, $46, $E0, $05, $04, $12, $00, $00, $10, $04, $00, $00, $06, $13
