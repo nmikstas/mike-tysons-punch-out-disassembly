@@ -1,5 +1,7 @@
 ;-------------------------------------[General Purpose Variables]------------------------------------
 
+.alias GenByteE0        $E0     ;General purpose byte.
+
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
 .alias RoundMinute      $0302   ;Current minute in round.
@@ -7,6 +9,70 @@
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
 
 ;--------------------------------------[Sound Engine Variables]--------------------------------------
+
+;$E0
+
+;$F0
+;$F1
+;$F2
+;$F3
+;$F4
+;$F5
+;$F6
+;$F7
+
+;$F8
+;$F9
+
+;$FC
+;$FD
+
+;$0700
+;$0701
+;$0702
+;$0703
+;$0704
+;$0705
+;$0706
+;$0707
+;$0708
+;$0709
+;$070A
+;$070B
+;$070C
+;$070D
+;$070E
+.alias SQ0LoFreqBits    $070F   ;Lower frequency bits of SQ0.
+.alias SQ1LoFreqBits    $0710   ;Lower frequency bits of SQ1.
+;$0711
+;$0712
+;$0713
+
+;$0715
+;$0716
+;$0717
+;$0718
+;$0719
+;$071A
+;$071B
+;$071C
+;$071D
+;$071E
+;$071F
+;$0720
+;$0721
+;$0722
+;$0723
+;$0724
+;$0725
+;$0726
+
+;$0728
+;$0729
+;$072A
+;$072B
+;$072C
+
 
 ;-------------------------------------[Hardware Registers]-------------------------------------------
 
@@ -54,6 +120,6 @@
 ;--------------------------------------------[Constants]---------------------------------------------
 
 ;Sound channel indexes.
-.alias AUD_SQ0_INDEX	$00		;Square wave 0 channel index.
-.alias AUD_SQ1_INDEX	$04		;Square wave 1 channel index.
-.alias AUD_TRI_INDEX	$08		;Triangle wave channel index.
+.alias AUD_SQ0_INDEX    $00     ;Square wave 0 channel index.
+.alias AUD_SQ1_INDEX    $04     ;Square wave 1 channel index.
+.alias AUD_TRI_INDEX    $08     ;Triangle wave channel index.

@@ -11,9 +11,9 @@ LA000:  SEI                     ;Disable interrupts.
 LA001:  CLD                     ;Put processor in binary mode.
 
 LA002:  LDX #$FF                ;Manually reset stack pointer.
-LA004:  TXS						;
+LA004:  TXS                     ;
 
-LA005:  JMP DoReset				;($A1C4)Continue with the game reset.
+LA005:  JMP DoReset             ;($A1C4)Continue with the game reset.
 
 NMI:
 LA008:  PHA
@@ -43,6 +43,7 @@ LA02B:  JMP $A6DF
 
 LA02E:  JSR $AA40
 LA031:  JSR $8000
+
 LA034:  JSR $AA6A
 LA037:  JMP $A6DF
 
@@ -144,45 +145,48 @@ LA1B1:  .byte $44, $4F, $2E, $31, $39, $38, $37, $52, $44, $33, $FF, $02, $E0, $
 LA1C1:  .byte $01, $01, $20
 
 DoReset:
-LA1C4:  LDA #%00010000			;bg pt=$1000, sprt pt=$0000, base nt=$2000, row write, disable NMI.
-LA1C6:  STA PPUControl0			;
-LA1C9:  LDA #%00000110			;Turn off screen, enable bg and sprites on left 8 pixel columns.
-LA1CB:  STA PPUControl1			;
+LA1C4:  LDA #%00010000          ;bg pt=$1000, sprt pt=$0000, base nt=$2000, row write, disable NMI.
+LA1C6:  STA PPUControl0         ;
+LA1C9:  LDA #%00000110          ;Turn off screen, enable bg and sprites on left 8 pixel columns.
+LA1CB:  STA PPUControl1         ;
 
-LA1CE:  LDA PPUStatus			;Wait for the vblank period.
-LA1D1:  BPL DoReset				;
+LA1CE:  LDA PPUStatus           ;Wait for the vblank period.
+LA1D1:  BPL DoReset             ;
 
-LA1D3:* LDA PPUStatus			;Wait for the vblank period.
-LA1D6:  BPL -					;
+LA1D3:* LDA PPUStatus           ;Wait for the vblank period.
+LA1D6:  BPL -                   ;
 
-LA1D8:  LDA #%00010000			;bg pt=$1000, sprt pt=$0000, base nt=$2000, row write, disable NMI.
-LA1DA:  STA PPUControl0			;
-LA1DD:  LDA #%00000110			;Turn off screen, enable bg and sprites on left 8 pixel columns.
-LA1DF:  STA PPUControl1			;
+LA1D8:  LDA #%00010000          ;bg pt=$1000, sprt pt=$0000, base nt=$2000, row write, disable NMI.
+LA1DA:  STA PPUControl0         ;
+LA1DD:  LDA #%00000110          ;Turn off screen, enable bg and sprites on left 8 pixel columns.
+LA1DF:  STA PPUControl1         ;
 
 LA1E2:  JSR $AA54
 
 LA1E5:  LDA #$00
 LA1E7:  STA $013E
 
-LA1EA:  STA DMCCntrl0			;Disable the DMC audio channel.
-LA1ED:  STA DMCCntrl1			;
+LA1EA:  STA DMCCntrl0           ;Disable the DMC audio channel.
+LA1ED:  STA DMCCntrl1           ;
 
-LA1F0:  LDA #$40
-LA1F2:  STA APUCommonCntrl1
-LA1F5:  LDA #$0F
-LA1F7:  STA APUCommonCntrl0
+LA1F0:  LDA #$40                ;Set APU into 4-step mode with interrupt disabled.
+LA1F2:  STA APUCommonCntrl1     ;
+
+LA1F5:  LDA #$0F                ;Turn on SQ1, SQ2, TRI and noise channels.
+LA1F7:  STA APUCommonCntrl0     ;
 
 LA1FA:  LDX #$00
 LA1FC:  LDY #$0F
 LA1FE:  LDA $0160,Y
 LA201:  CMP $A1AB,Y
 LA204:  BNE $A211
+
 LA206:  DEY
 LA207:  BPL $A1FE
 LA209:  JSR $8030
 LA20C:  BEQ $A215
 LA20E:  LDX $013F
+
 LA211:  TXS
 LA212:  TXA
 LA213:  BPL $A234
@@ -664,12 +668,15 @@ LA64F:  JSR $8012
 LA652:  LDA $04
 LA654:  BMI $A659
 LA656:  JMP $A73D
+
 LA659:  JSR $AF8D
 LA65C:  LDA $1C
 LA65E:  BEQ $A669
+
 LA660:  JSR $AFBD
 LA663:  JSR $A09A
 LA666:  JMP $A6D9
+
 LA669:  LDA #$01
 LA66B:  STA $1D
 LA66D:  JSR $8009
@@ -684,8 +691,10 @@ LA684:  INX
 LA685:  BEQ $A68D
 LA687:  JSR $A75B
 LA68A:  JSR $A750
+
 LA68D:  JSR $AA40
 LA690:  JSR $8000
+
 LA693:  JSR $A09A
 LA696:  JSR $AA48
 LA699:  JSR $B069
@@ -751,8 +760,10 @@ LA71E:  STA $04A0
 LA721:  JSR $A9DF
 LA724:  JSR $AA3C
 LA727:  JSR $8012
+
 LA72A:  JSR $AA40
 LA72D:  JSR $8000
+
 LA730:  JSR $AA6A
 LA733:  LDA $04
 LA735:  BMI $A6D9
@@ -1145,15 +1156,17 @@ LAA64:  LDA #$0C
 LAA66:  STA $0E
 LAA68:  BNE $AA4A
 
+;----------------------------------------------------------------------------------------------------
+
 LAA6A:  LDA $0E
 LAA6C:  BNE $AA4A
-
-;----------------------------------------------------------------------------------------------------
 
 LAA6E:  LDX #$00
 LAA70:  TAY
 LAA71:  BEQ $AA75
+
 LAA73:  LDY #$03
+
 LAA75:  LDA $AA81,Y
 LAA78:  STA $80,X
 LAA7A:  INY
@@ -1161,11 +1174,10 @@ LAA7B:  INX
 LAA7C:  CPX #$03
 LAA7E:  BNE $AA75
 LAA80:  RTS
-LAA81:  PHP
-LAA82:  ORA ($FF,X)
-LAA84:  BPL $AA88
-LAA86:  INC $4420,X
-LAA89:  TAX
+
+LAA81:  .byte $08, $01, $FF, $10, $02, $FE
+
+LAA87:  JSR $AA44
 LAA8A:  JSR $8003
 LAA8D:  JSR $8006
 LAA90:  JSR $8009
@@ -7398,84 +7410,110 @@ LF406:  TAY
 LF407:  LDA $F5BC,Y
 LF40A:  RTS
 
-LF40B:  STX SQ1Cntrl0
-LF40E:  STY SQ1Cntrl1
-LF411:  RTS
+SetSQ1Control:
+LF40B:  STX SQ1Cntrl0           ;Set duty cycle, length counter and volume control bits on SQ1.
+LF40E:  STY SQ1Cntrl1           ;Set sweep unit control bits on SQ1.
+LF411:  RTS                     ;
 
-LF412:  LDY #$7F
-LF414:  STX SQ2Cntrl0
-LF417:  STY SQ2Cntrl1
-LF41A:  RTS
+SQ2CntrlAndSwpDis:
+LF412:  LDY #$7F                ;Disable the sweep unit on SQ2.
 
-LF41B:  JSR $F414
+SetSQ2Control:
+LF414:  STX SQ2Cntrl0           ;Set duty cycle, length counter and volume control bits on SQ2.
+LF417:  STY SQ2Cntrl1           ;Set sweep unit control bits on SQ2.
+LF41A:  RTS                     ;
+
+UpdateSQ2:
+LF41B:  JSR SetSQ2Control       ;($F414)Set SQ2 control registers.
 
 UpdateSQ2Note:
-LF41E:  LDX #AUD_SQ1_INDEX
-LF420:  BNE GetChannelNote
+LF41E:  LDX #AUD_SQ1_INDEX      ;Prepare to update SQ2 note.
+LF420:  BNE GetChannelNote      ;Branch always.
 
 UpdateTriNote:
-LF422:  LDX #AUD_TRI_INDEX
-LF424:  BNE GetChannelNote
+LF422:  LDX #AUD_TRI_INDEX      ;Prepare to update triangle note.
+LF424:  BNE GetChannelNote      ;Branch always.
 
-LF426:  JSR $F40B
+UpdateSQ1:
+LF426:  JSR SetSQ1Control       ;($F40B)Set control registers for SQ1.
 
 UpdateSQ1Note:
-LF429:  LDX #AUD_SQ0_INDEX
+LF429:  LDX #AUD_SQ0_INDEX      ;Prepare to update SQ1 note.
 
 GetChannelNote:
-LF42B:  TAY
-LF42C:  LDA NotesTbl+1,Y
-LF42F:  BEQ GetNoteDone
+LF42B:  TAY                     ;Get lower bits of next note to play for given channel.
+LF42C:  LDA NotesTbl+1,Y        ;Is there a next note to play?
+LF42F:  BEQ GetNoteDone         ;If not, branch to exit.
 
-LF431:  STA SQ1Cntrl2,X
-LF434:  CPX #$00
-LF436:  BNE $F43D
+LF431:  STA SQ1Cntrl2,X         ;Update channel frequency lower bits hardware.
 
-LF438:  STA $070F
-LF43B:  BNE GetNoteUpperBits
+LF434:  CPX #AUD_SQ0_INDEX      ;Is this SQ0?
+LF436:  BNE +                   ;If not, branch.
 
-LF43D:  CPX #$04
-LF43F:  BNE GetNoteUpperBits
+LF438:  STA SQ0LoFreqBits       ;Save lower frequenct bits of SQ0.
+LF43B:  BNE GetNoteUpperBits    ;
 
-LF441:  STA $0710
+LF43D:* CPX #AUD_SQ1_INDEX      ;Is this SQ1?
+LF43F:  BNE GetNoteUpperBits    ;If not, branch.
+
+LF441:  STA SQ1LoFreqBits       ;Save lower frequenct bits of SQ1.
 
 GetNoteUpperBits:
-LF444:  LDA NotesTbl,Y
-LF447:  ORA #$08
-LF449:  STA SQ1Cntrl3,X
+LF444:  LDA NotesTbl,Y          ;Get the upper bits of next note to play for given channel.
+LF447:  ORA #$08                ;Set length counter to 1(turn on output of channel).
+LF449:  STA SQ1Cntrl3,X         ;Update channel frequency upper bits hardware.
 
 GetNoteDone:
-LF44C:  RTS
+LF44C:  RTS                     ;Done updating the given channel's note to play.
 
-LF44D:  LSR
-LF44E:  LSR
-LF44F:  LSR
-LF450:  LSR
-LF451:  LSR
-LF452:  LSR
-LF453:  STA $E0
-LF455:  BNE $F459
+;----------------------------------------------------------------------------------------------------
 
-LF457:  INC $E0
-LF459:  TYA
-LF45A:  SEC
-LF45B:  SBC $E0
-LF45D:  RTS
+;The following arelogarithmic sweep functions.  They increase the frequency.  As the frequency -->
+;gets higher, the change in frequency gets less. The functions set the delta frequency to -->
+;different amounts. The higher the divide number, the slower the frequency sweeps. These -->
+;functions are used in the opponent punch SFX.
+
+LogDiv64:
+LF44D:  LSR                     ;Slowest logarithmic sweep.
+
+LogDiv32:
+LF44E:  LSR                     ;Next slowest logarithmic sweep.
+
+LogDiv16:
+LF44F:  LSR                     ;A faster logarithmic sweep.
+
+LogDiv8:
+LF450:  LSR                     ;
+LF451:  LSR                     ;Divide by 8.
+LF452:  LSR                     ;
+LF453:  STA GenByteE0           ;Is there anything left to subtract?
+LF455:  BNE +                   ;If so, branch. Frequency must increase a minimal amount.
+
+LF457:  INC GenByteE0           ;Set amount to subtract to 1.
+
+LF459:* TYA                     ;
+LF45A:  SEC                     ;Return the logarithmic increase in the frequency in A.
+LF45B:  SBC GenByteE0           ;
+LF45D:  RTS                     ;
+
+;----------------------------------------------------------------------------------------------------
 
 LF45E:  LDA $0712
 LF461:  BNE $F466
 
 LF463:  LDA $0701
 LF466:  LDX #$00
-LF468:  LDY $070F
+LF468:  LDY SQ0LoFreqBits
 LF46B:  BNE $F47A
 
 LF46D:  LDA $0715
 LF470:  BNE $F475
 
 LF472:  LDA $0700
+
 LF475:  LDX #$04
-LF477:  LDY $0710
+LF477:  LDY SQ1LoFreqBits
+
 LF47A:  STY $0711
 LF47D:  LSR
 LF47E:  LSR
@@ -7490,6 +7528,7 @@ LF488:  BNE $F490
 LF48A:  LDA #$01
 LF48C:  CLC
 LF48D:  ADC $0711
+
 LF490:  STA SQ1Cntrl2,X
 LF493:  RTS
 
@@ -7587,70 +7626,70 @@ LF53B:  RTS
 ;The formula for figuring out the frequency is as follows: 1789773/(16*(hhhllllllll+1))
 
 NotesTbl:
-LF53C:  .byte $00, $00			;Index #$00 - No sound.
-LF53E:  .byte $00, $00			;Index #$02 - No sound.
-LF540:  .byte $06, $AE			;Index #$04 - 65.38Hz   - C2.
-LF542:  .byte $06, $4E			;Index #$06 - 69.26Hz   - C#2.
-LF544:  .byte $05, $F3			;Index #$08 - 73.40Hz   - D2.
-LF546:  .byte $05, $9E			;Index #$0A - 77.74Hz   - D#2.
-LF548:  .byte $05, $4D			;Index #$0C - 82.37Hz   - E2.
-LF54A:  .byte $05, $02			;Index #$0E - 87.19Hz   - F2.
-LF54C:  .byte $04, $B9			;Index #$10 - 92.45Hz   - F#2.
-LF54E:  .byte $04, $75			;Index #$12 - 97.95Hz   - G2.
-LF550:  .byte $04, $35			;Index #$14 - 103.77Hz  - G#2.
-LF552:  .byte $03, $F8			;Index #$16 - 109.99Hz  - A2.
-LF554:  .byte $03, $BF			;Index #$18 - 116.52Hz  - A#2.
-LF556:  .byte $03, $89			;Index #$1A - 123.47Hz  - B2.
-LF558:  .byte $03, $57			;Index #$1C - 130.68Hz  - C3.
-LF55A:  .byte $03, $27			;Index #$1E - 138.44Hz  - C#3.
-LF55C:  .byte $02, $F9			;Index #$20 - 146.80Hz  - D3.
-LF55E:  .byte $02, $CF			;Index #$22 - 155.36Hz  - D#3.
-LF560:  .byte $02, $A6			;Index #$24 - 164.74Hz  - E3.
-LF562:  .byte $02, $80			;Index #$26 - 174.51Hz  - F3.
-LF564:  .byte $02, $5C			;Index #$28 - 184.89Hz  - F#3.
-LF565:  .byte $02, $3A			;Index #$2A - 195.90Hz  - G3.
-LF566:  .byte $02, $1A			;Index #$2C - 207.53Hz  - G#3.
-LF56A:  .byte $01, $FC			;Index #$2E - 219.77Hz  - A3.
-LF56C:  .byte $01, $DF			;Index #$30 - 233.04Hz  - A#3.
-LF56E:  .byte $01, $C4			;Index #$32 - 246.93Hz  - B3.
-LF570:  .byte $01, $AB			;Index #$34 - 261.36Hz  - C4.
-LF572:  .byte $01, $93			;Index #$36 - 276.88Hz  - C#4.
-LF573:  .byte $01, $7C			;Index #$38 - 293.60Hz  - D4.
-LF574:  .byte $01, $67			;Index #$3A - 310.72Hz  - D#4.
-LF575:  .byte $01, $52			;Index #$3C - 329.97Hz  - E4.
-LF57A:  .byte $01, $3F			;Index #$3E - 349.57Hz  - F4.
-LF57C:  .byte $01, $2D			;Index #$40 - 370.40Hz  - F#4.
-LF57E:  .byte $01, $1C			;Index #$42 - 392.49Hz  - G4.
-LF580:  .byte $01, $0C			;Index #$44 - 415.84Hz  - G#4.
-LF582:  .byte $00, $FD			;Index #$46 - 440.40Hz  - A4.
-LF583:  .byte $00, $EE			;Index #$48 - 468.04Hz  - A#4.
-LF584:  .byte $00, $E1			;Index #$4A - 494.96Hz  - B4.
-LF585:  .byte $00, $D4			;Index #$4C - 525.17Hz  - C5.
-LF58A:  .byte $00, $C8			;Index #$4E - 556.52Hz  - C#5.
-LF58C:  .byte $00, $BD			;Index #$50 - 588.74Hz  - D5.
-LF58E:  .byte $00, $B2			;Index #$52 - 624.92Hz  - D#5.
-LF590:  .byte $00, $A8			;Index #$54 - 661.90Hz  - E5.
-LF592:  .byte $00, $9F			;Index #$56 - 699.13Hz  - F5.
-LF594:  .byte $00, $96			;Index #$58 - 740.80Hz  - F#5.
-LF596:  .byte $00, $8D			;Index #$5A - 787.75Hz  - G5.
-LF598:  .byte $00, $85			;Index #$5C - 834.78Hz  - G#5.
-LF59A:  .byte $00, $7E			;Index #$5E - 880.79Hz  - A5.
-LF59C:  .byte $00, $76			;Index #$60 - 940.01Hz  - A#5.
-LF59E:  .byte $00, $70			;Index #$62 - 989.92Hz  - B5.
-LF5A0:  .byte $00, $6A			;Index #$64 - 1045.43Hz - C6.
-LF5A2:  .byte $00, $64			;Index #$66 - 1107.53Hz - C#6.
-LF5A4:  .byte $00, $5F			;Index #$68 - 1165.22Hz - D6.
-LF5A6:  .byte $00, $59			;Index #$6A - 1242.90Hz - D#6.
-LF5A8:  .byte $00, $54			;Index #$6C - 1316.01Hz - E6.
-LF5AA:  .byte $00, $50			;Index #$6E - 1381.00Hz - F6.
-LF5AC:  .byte $00, $4B			;Index #$70 - 1471.85Hz - F#6.
-LF5AE:  .byte $00, $47			;Index #$72 - 1553.62Hz - G6.
-LF5B0:  .byte $00, $43			;Index #$74 - 1645.01Hz - G#6.
-LF5B2:  .byte $00, $3F			;Index #$76 - 1747.83Hz - A6.
-LF5B4:  .byte $00, $3B			;Index #$78 - 1864.35Hz - A#6.
-LF5B6:  .byte $00, $38			;Index #$7A - 1962.47Hz - B6.
-LF5B8:  .byte $00, $35			;Index #$7C - 2071.50Hz - C7.
-LF5BA:  .byte $00, $32			;Index #$7E - 2193.35Hz - C#7.
+LF53C:  .byte $00, $00          ;Index #$00 - No sound.
+LF53E:  .byte $00, $00          ;Index #$02 - No sound.
+LF540:  .byte $06, $AE          ;Index #$04 - 65.38Hz   - C2.
+LF542:  .byte $06, $4E          ;Index #$06 - 69.26Hz   - C#2.
+LF544:  .byte $05, $F3          ;Index #$08 - 73.40Hz   - D2.
+LF546:  .byte $05, $9E          ;Index #$0A - 77.74Hz   - D#2.
+LF548:  .byte $05, $4D          ;Index #$0C - 82.37Hz   - E2.
+LF54A:  .byte $05, $02          ;Index #$0E - 87.19Hz   - F2.
+LF54C:  .byte $04, $B9          ;Index #$10 - 92.45Hz   - F#2.
+LF54E:  .byte $04, $75          ;Index #$12 - 97.95Hz   - G2.
+LF550:  .byte $04, $35          ;Index #$14 - 103.77Hz  - G#2.
+LF552:  .byte $03, $F8          ;Index #$16 - 109.99Hz  - A2.
+LF554:  .byte $03, $BF          ;Index #$18 - 116.52Hz  - A#2.
+LF556:  .byte $03, $89          ;Index #$1A - 123.47Hz  - B2.
+LF558:  .byte $03, $57          ;Index #$1C - 130.68Hz  - C3.
+LF55A:  .byte $03, $27          ;Index #$1E - 138.44Hz  - C#3.
+LF55C:  .byte $02, $F9          ;Index #$20 - 146.80Hz  - D3.
+LF55E:  .byte $02, $CF          ;Index #$22 - 155.36Hz  - D#3.
+LF560:  .byte $02, $A6          ;Index #$24 - 164.74Hz  - E3.
+LF562:  .byte $02, $80          ;Index #$26 - 174.51Hz  - F3.
+LF564:  .byte $02, $5C          ;Index #$28 - 184.89Hz  - F#3.
+LF565:  .byte $02, $3A          ;Index #$2A - 195.90Hz  - G3.
+LF566:  .byte $02, $1A          ;Index #$2C - 207.53Hz  - G#3.
+LF56A:  .byte $01, $FC          ;Index #$2E - 219.77Hz  - A3.
+LF56C:  .byte $01, $DF          ;Index #$30 - 233.04Hz  - A#3.
+LF56E:  .byte $01, $C4          ;Index #$32 - 246.93Hz  - B3.
+LF570:  .byte $01, $AB          ;Index #$34 - 261.36Hz  - C4.
+LF572:  .byte $01, $93          ;Index #$36 - 276.88Hz  - C#4.
+LF573:  .byte $01, $7C          ;Index #$38 - 293.60Hz  - D4.
+LF574:  .byte $01, $67          ;Index #$3A - 310.72Hz  - D#4.
+LF575:  .byte $01, $52          ;Index #$3C - 329.97Hz  - E4.
+LF57A:  .byte $01, $3F          ;Index #$3E - 349.57Hz  - F4.
+LF57C:  .byte $01, $2D          ;Index #$40 - 370.40Hz  - F#4.
+LF57E:  .byte $01, $1C          ;Index #$42 - 392.49Hz  - G4.
+LF580:  .byte $01, $0C          ;Index #$44 - 415.84Hz  - G#4.
+LF582:  .byte $00, $FD          ;Index #$46 - 440.40Hz  - A4.
+LF583:  .byte $00, $EE          ;Index #$48 - 468.04Hz  - A#4.
+LF584:  .byte $00, $E1          ;Index #$4A - 494.96Hz  - B4.
+LF585:  .byte $00, $D4          ;Index #$4C - 525.17Hz  - C5.
+LF58A:  .byte $00, $C8          ;Index #$4E - 556.52Hz  - C#5.
+LF58C:  .byte $00, $BD          ;Index #$50 - 588.74Hz  - D5.
+LF58E:  .byte $00, $B2          ;Index #$52 - 624.92Hz  - D#5.
+LF590:  .byte $00, $A8          ;Index #$54 - 661.90Hz  - E5.
+LF592:  .byte $00, $9F          ;Index #$56 - 699.13Hz  - F5.
+LF594:  .byte $00, $96          ;Index #$58 - 740.80Hz  - F#5.
+LF596:  .byte $00, $8D          ;Index #$5A - 787.75Hz  - G5.
+LF598:  .byte $00, $85          ;Index #$5C - 834.78Hz  - G#5.
+LF59A:  .byte $00, $7E          ;Index #$5E - 880.79Hz  - A5.
+LF59C:  .byte $00, $76          ;Index #$60 - 940.01Hz  - A#5.
+LF59E:  .byte $00, $70          ;Index #$62 - 989.92Hz  - B5.
+LF5A0:  .byte $00, $6A          ;Index #$64 - 1045.43Hz - C6.
+LF5A2:  .byte $00, $64          ;Index #$66 - 1107.53Hz - C#6.
+LF5A4:  .byte $00, $5F          ;Index #$68 - 1165.22Hz - D6.
+LF5A6:  .byte $00, $59          ;Index #$6A - 1242.90Hz - D#6.
+LF5A8:  .byte $00, $54          ;Index #$6C - 1316.01Hz - E6.
+LF5AA:  .byte $00, $50          ;Index #$6E - 1381.00Hz - F6.
+LF5AC:  .byte $00, $4B          ;Index #$70 - 1471.85Hz - F#6.
+LF5AE:  .byte $00, $47          ;Index #$72 - 1553.62Hz - G6.
+LF5B0:  .byte $00, $43          ;Index #$74 - 1645.01Hz - G#6.
+LF5B2:  .byte $00, $3F          ;Index #$76 - 1747.83Hz - A6.
+LF5B4:  .byte $00, $3B          ;Index #$78 - 1864.35Hz - A#6.
+LF5B6:  .byte $00, $38          ;Index #$7A - 1962.47Hz - B6.
+LF5B8:  .byte $00, $35          ;Index #$7C - 2071.50Hz - C7.
+LF5BA:  .byte $00, $32          ;Index #$7E - 2193.35Hz - C#7.
 
 LF5BC:  .byte $08, $18, $10, $20, $30, $40, $60, $80, $0B, $0A, $15, $16, $50, $FF, $05, $06
 LF5CC:  .byte $16, $00, $00, $00, $00, $00, $00, $07, $15, $0E, $1C, $2A, $38, $54, $70, $09
@@ -7663,7 +7702,9 @@ LF62C:  .byte $00, $05, $10, $05, $0F, $0A, $14, $1E, $28, $3C, $50, $07, $06, $
 LF63C:  .byte $A0, $03, $04, $0E, $5A, $46, $00, $00, $00, $00, $05, $0E, $09, $12, $1B, $24
 LF64C:  .byte $36, $48, $06, $06, $0C, $0C, $2D, $90, $03, $03, $0C, $00, $00, $00, $00, $04
 LF65C:  .byte $0D, $04, $0C, $08, $10, $18, $20, $30, $40, $05, $06, $0B, $0A, $28, $80, $03
-LF66C:  .byte $02, $0A, $48, $38, $00, $00, $00, $00, $DA, $DA, $DA, $D9, $D9, $D9, $D8, $D8
+LF66C:  .byte $02, $0A, $48, $38, $00, $00, $00, $00
+
+LF674:  .byte $DA, $DA, $DA, $D9, $D9, $D9, $D8, $D8
 LF67C:  .byte $D8, $D7, $D7, $D7, $D6, $D6, $D6, $D5, $9A, $9A, $9A, $99, $99, $99, $98, $98
 LF68C:  .byte $98, $97, $97, $97, $96, $1E, $03, $48, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3
 LF69C:  .byte $D3, $D3, $D4, $D4, $D4, $D5, $D5, $D6, $53, $53, $53, $53, $53, $53, $53, $53
@@ -7678,9 +7719,13 @@ LF71C:  .byte $11, $12, $11, $12, $11, $12, $13, $12, $13, $12, $13, $12, $13, $
 LF72C:  .byte $13, $14, $15, $14, $15, $14, $15, $16, $15, $16, $17, $18, $19, $1A, $1B, $1D
 LF73C:  .byte $1D, $03, $48, $00, $19, $06, $38, $00, $19, $08, $38, $00, $19, $0A, $38, $00
 LF74C:  .byte $16, $07, $98, $00, $10, $00, $00, $00, $80, $00, $08, $00, $80, $01, $08, $00
-LF75C:  .byte $81, $01, $08, $00, $1D, $02, $08, $00, $1D, $03, $08, $00, $80, $C0, $B3, $1C
+LF75C:  .byte $81, $01, $08, $00, $1D, $02, $08, $00, $1D, $03
+
+LF766:  .byte $08, $00, $80, $C0, $B3, $1C
 LF76C:  .byte $BA, $18, $C0, $14, $C5, $18, $CB, $0F, $B0, $0C, $8D, $84, $84, $84, $84, $8C
-LF77C:  .byte $8C, $8C, $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F
+LF77C:  .byte $8C, $8C
+
+LF77E:  .byte $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F
 LF78C:  .byte $2F, $1F, $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F, $93, $95, $97, $99
 LF79C:  .byte $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64
 LF7AC:  .byte $4C, $42, $58, $50, $3E, $54, $4E, $5E, $4E, $48, $52, $44, $5C, $4A, $60, $40
@@ -7821,13 +7866,13 @@ LFFD0:  JMP $B27A
 LFFD3:  JMP $B283
 LFFD6:  JMP $B28F
 
-LFFD9:  .byte $00, $00, $00		;Unused.
+LFFD9:  .byte $00, $00, $00     ;Unused.
 
 Spinlock1:
-LFFDC:  JMP Spinlock1			;($FFDC)Spinlock the game. Reset required.
+LFFDC:  JMP Spinlock1           ;($FFDC)Spinlock the game. Reset required.
 
-LFFDF:  .byte $00, $00, $00		;Unused.
-LFFE2:  .byte $00, $00, $00		;
+LFFDF:  .byte $00, $00, $00     ;Unused.
+LFFE2:  .byte $00, $00, $00     ;
 
 ;              P    U    N    C    H    -    O    U    T    !    !
 LFFE5:  .byte $50, $55, $4E, $43, $48, $2D, $4F, $55, $54, $21, $21

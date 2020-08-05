@@ -278,6 +278,7 @@ L9018:  INC $07FF
 L901B:  INC $07FF
 L901E:  INC $07FF
 L9021:  JMP $9057
+
 L9024:  INC $FE
 L9026:  BNE $9018
 L9028:  INC $FF
@@ -297,8 +298,10 @@ L9046:  INC $07E1
 L9049:  LDY $07E2
 L904C:  CMP $90F6,Y
 L904F:  BNE $9057
+
 L9051:  INC $07E2
-L9054:  JSR $90FF
+L9054:  JSR IntroBellSFX        ;($90FF)bell SFX on NES power cycle.
+
 L9057:  LDY #$00
 L9059:  LDA ($FE),Y
 L905B:  STA $07C2
@@ -346,24 +349,33 @@ L90BF:  BNE $9086
 L90C1:  RTS
 
 L90C2:  .byte $01, $02, $03, $04, $06, $0C, $11, $14, $16, $17, $18, $1A, $1C, $20, $25, $28
-L90D2:  .byte $29, $2A, $2B, $2C, $2D, $2E, $2F, $30, $31, $32, $20, $40, $60, $70, $78, $70
-L90E2:  .byte $68, $60, $58, $50, $58, $60, $68, $70, $68, $60, $58, $50, $48, $40, $38, $30
-L90F2:  .byte $28, $20, $10, $00, $01, $06, $0B, $10, $20, $25, $2A, $2F, $78
+L90D2:  .byte $29, $2A, $2B, $2C, $2D, $2E, $2F, $30, $31, $32, $20
 
-L90FF:  LDA #$88
-L9101:  STA SQ1Cntrl0
-L9104:  STA SQ2Cntrl0
-L9107:  LDA #$7F
-L9109:  STA SQ1Cntrl1
-L910C:  STA SQ2Cntrl1
-L910F:  LDA #$08
-L9111:  STA SQ1Cntrl3
-L9114:  STA SQ2Cntrl3
-L9117:  LDA #$96
-L9119:  STA SQ1Cntrl2
-L911C:  LDA #$22
-L911E:  STA SQ2Cntrl2
-L9121:  RTS
+L90DB:  .byte $40, $60, $70, $78, $70
+L90E2:  .byte $68, $60, $58, $50, $58, $60, $68, $70, $68, $60, $58, $50, $48, $40, $38, $30
+L90F2:  .byte $28, $20, $10, $00, $01, $06
+
+L90F6:  .byte $0B, $10, $20, $25, $2A, $2F, $78
+
+IntroBellSFX:
+L90FF:  LDA #$88                ;Set SQ1, SQ2 to 25% duty cycle, enable -->
+L9101:  STA SQ1Cntrl0           ;length counter, disable constant volume.
+L9104:  STA SQ2Cntrl0           ;
+
+L9107:  LDA #$7F                ;
+L9109:  STA SQ1Cntrl1           ;Disable the SQ1 and SQ2 sweep generator.
+L910C:  STA SQ2Cntrl1           ;
+
+L910F:  LDA #$08                ;
+L9111:  STA SQ1Cntrl3           ;Set length counter to 1(enable channel output, SQ1 and SQ2).
+L9114:  STA SQ2Cntrl3           ;
+
+L9117:  LDA #$96                ;Set SQ1 frequency to 740.80Hz - F#5.
+L9119:  STA SQ1Cntrl2           ;
+
+L911C:  LDA #$22                ;
+L911E:  STA SQ2Cntrl2           ;Set SQ2 frequency to 3196.02Hz - G7.
+L9121:  RTS                     ;
 
 L9122:  .byte $FF, $00, $00, $01, $FE, $00, $00, $01, $FE, $FF, $01, $02, $FD, $FF, $01, $02
 L9132:  .byte $FD, $FF, $01, $03, $FC, $FF, $01, $03, $FC, $FF, $01, $04, $FB, $FF, $01, $04
@@ -397,6 +409,7 @@ L91DD:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $
 L91ED:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 L91FD:  .byte $00, $00, $00
 
+IntroCrowdDMCDat:
 L9200:  .byte $AA, $55, $55, $A5, $1B, $40, $FE, $46, $E5, $6E, $44, $44, $FF, $96, $47, $94
 L9210:  .byte $AE, $04, $F1, $FF, $03, $00, $F8, $FF, $1B, $40, $54, $FE, $2F, $65, $40, $FD
 L9220:  .byte $0F, $40, $FE, $BE, $01, $A0, $FF, $0B, $00, $FC, $BF, $00, $90, $FF, $3F, $00

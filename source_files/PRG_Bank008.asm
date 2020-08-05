@@ -3,8 +3,20 @@
 
 .include "Mike_Tysons_Punchout_Defines.asm"
 
-L8000:  LDA #$C0
-L8002:  STA APUCommonCntrl1
+;--------------------------------------[ Forward Declarations ]--------------------------------------
+
+.alias SetSQ1Control            $F40B
+.alias SQ2CntrlAndSwpDis        $F412
+.alias UpdateSQ2Note            $F41E
+.alias UpdateTriNote            $F422
+.alias UpdateSQ1Note            $F429
+.alias LogDiv32                 $F44E
+.alias LogDiv16                 $F44F
+
+;-----------------------------------------[ Start Of Code ]------------------------------------------
+
+L8000:  LDA #$C0                ;Set APU into 5-step mode.
+L8002:  STA APUCommonCntrl1     ;
 
 L8005:  JSR $8025
 L8008:  JSR $80CA
@@ -21,21 +33,28 @@ L801B:  RTS
 L801C:  LDY $F7
 L801E:  CPY #$06
 L8020:  BCS $807B
+
 L8022:  INY
 L8023:  STY $F3
 
 L8025:  LDY $F3
 L8027:  BMI $807B
+
 L8029:  BNE $8040
+
 L802B:  LDA $F7
 L802D:  CMP #$01
 L802F:  BEQ $8084
+
 L8031:  LDA $F7
 L8033:  BEQ $807F
+
 L8035:  DEC $071E
 L8038:  BEQ $801C
+
 L803A:  DEC $071F
 L803D:  BEQ $807F
+
 L803F:  RTS
 
 L8040:  STY $F7
@@ -47,13 +66,16 @@ L804B:  CMP #$07
 L804D:  BNE $8051
 L804F:  LDX #$03
 L8051:  STX $071F
+
 L8054:  TYA
 L8055:  ASL
 L8056:  TAY
+
 L8057:  LDA $F766,Y
 L805A:  STA DMCCntrl2
 L805D:  LDA $F767,Y
 L8060:  STA DMCCntrl3
+
 L8063:  LDX #$4F
 L8065:  LDA $F7
 L8067:  CMP #$01
@@ -74,11 +96,13 @@ L8084:  RTS
 
 L8085:  LDA #$40
 L8087:  JSR $F4EF
+
 L808A:  LDA #$1A
 L808C:  STA $0713
 L808F:  LDX #$9F
 L8091:  LDY #$83
-L8093:  JSR $F40B
+L8093:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
+
 L8096:  LDA $0712
 L8099:  CMP #$40
 L809B:  BCS $80A4
@@ -89,6 +113,7 @@ L80A1:  STA SQ1Cntrl0
 L80A4:  LDA $0712
 L80A7:  AND #$07
 L80A9:  BNE $80C7
+
 L80AB:  LDA $0713
 L80AE:  LSR
 L80AF:  LSR
@@ -224,30 +249,39 @@ L8188:  LDA #$24
 L818A:  JSR $F426
 
 L818D:  JMP $813E
+
 L8190:  LDA #$20
 L8192:  JSR $F4EF
+
 L8195:  LDA #$FF
 L8197:  STA $0713
+
 L819A:  LDX #$1E
 L819C:  LDY #$81
-L819E:  JSR $F40B
+L819E:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
+
 L81A1:  LDA $0713
 L81A4:  TAY
 L81A5:  JSR $F450
+
 L81A8:  STA $0713
 L81AB:  ROL
 L81AC:  ROL
 L81AD:  STA SQ1Cntrl2
+
 L81B0:  ROL
 L81B1:  AND #$03
 L81B3:  ORA #$08
 L81B5:  STA SQ1Cntrl3
+
 L81B8:  LDA $0712
 L81BB:  CMP #$0E
 L81BD:  BCS $81C4
+
 L81BF:  ORA #$90
 L81C1:  STA SQ1Cntrl0
 L81C4:  JMP $813E
+
 L81C7:  CPY #$04
 L81C9:  BEQ $8170
 L81CB:  CMP #$04
@@ -487,13 +521,15 @@ L83D5:  LDA #$8F
 L83D7:  STA $0713
 L83DA:  LDX #$9C
 L83DC:  LDY #$82
-L83DE:  JSR $F40B
+L83DE:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
+
 L83E1:  LDA $0712
 L83E4:  CMP #$12
 L83E6:  BEQ $83D2
 L83E8:  LDA $0713
 L83EB:  TAY
-L83EC:  JSR $F44F
+L83EC:  JSR LogDiv16            ;($F44F)Logarithmically increase frequency.
+
 L83EF:  STA $0713
 L83F2:  ROL
 L83F3:  ROL
@@ -503,6 +539,7 @@ L83F8:  AND #$03
 L83FA:  ORA #$08
 L83FC:  STA SQ1Cntrl3
 L83FF:  JMP $813E
+
 L8402:  CPY #$15
 L8404:  BEQ $83B2
 L8406:  CMP #$15
@@ -638,10 +675,13 @@ L850D:  LSR
 L850E:  LSR
 L850F:  ORA #$90
 L8511:  STA SQ2Cntrl0
+
 L8514:  DEC $0715
 L8517:  BNE $8522
+
 L8519:  LDA #$00
 L851B:  STA $F5
+
 L851D:  LDA #$10
 L851F:  STA SQ2Cntrl0
 L8522:  RTS
@@ -656,7 +696,7 @@ L8532:  LDA $0715
 L8535:  CMP $F816,Y
 L8538:  BNE $8550
 L853A:  LDX #$84
-L853C:  JSR $F412
+L853C:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 and set control bits.
 L853F:  LDY $0716
 L8542:  LDA $F81A,Y
 L8545:  STA SQ2Cntrl2
@@ -687,10 +727,12 @@ L857E:  BNE $8589
 L8580:  LDA $0715
 L8583:  CMP #$0C
 L8585:  BNE $8591
+
 L8587:  LDA #$44
 L8589:  LDX #$CD
 L858B:  STX SQ2Cntrl1
-L858E:  JSR $F41E
+L858E:  JSR UpdateSQ2Note       ;($F41E)Update the SQ2 channel note frequency.
+
 L8591:  LDY $0715
 L8594:  LDA $F858,Y
 L8597:  STA SQ2Cntrl0
@@ -755,7 +797,8 @@ L861B:  LDY #$81
 L861D:  JSR $F414
 L8620:  LDA $0716
 L8623:  TAY
-L8624:  JSR $F44F
+L8624:  JSR LogDiv16            ;($F44F)Logarithmically increase frequency.
+
 L8627:  STA $0716
 L862A:  ROL
 L862B:  ROL
@@ -770,6 +813,7 @@ L863C:  BCS $8643
 L863E:  ORA #$90
 L8640:  STA SQ2Cntrl0
 L8643:  JMP $8514
+
 L8646:  STY $F5
 L8648:  LDA #$10
 L864A:  STA $0715
@@ -985,7 +1029,8 @@ L8831:  LDY #$82
 L8833:  JSR $F414
 L8836:  LDA $0716
 L8839:  TAY
-L883A:  JSR $F44F
+L883A:  JSR LogDiv16            ;($F44F)Logarithmically increase frequency.
+
 L883D:  STA $0716
 L8840:  ROL
 L8841:  ROL
@@ -994,12 +1039,14 @@ L8845:  ROL
 L8846:  AND #$03
 L8848:  ORA #$08
 L884A:  STA SQ2Cntrl3
+
 L884D:  LDA $0715
 L8850:  CMP #$0C
 L8852:  BCS $8859
 L8854:  ORA #$90
 L8856:  STA SQ2Cntrl0
 L8859:  JMP $8514
+
 L885C:  STY $F5
 L885E:  LDA #$10
 L8860:  STA $0715
@@ -1029,7 +1076,8 @@ L8898:  CMP #$10
 L889A:  BEQ $8886
 L889C:  LDA $0716
 L889F:  TAY
-L88A0:  JSR $F44E
+L88A0:  JSR LogDiv32            ;($F44E)Logarithmically increase frequency.
+
 L88A3:  STA $0716
 L88A6:  ROL
 L88A7:  ROL
@@ -1039,6 +1087,7 @@ L88AC:  AND #$03
 L88AE:  ORA #$08
 L88B0:  STA SQ2Cntrl3
 L88B3:  JMP $8514
+
 L88B6:  CPY #$13
 L88B8:  BEQ $885C
 L88BA:  CMP #$13
@@ -1200,7 +1249,9 @@ L8A26:  LDA #$00
 L8A28:  STA $0708
 L8A2B:  DEC $0700
 L8A2E:  BEQ $8A38
+
 L8A30:  BNE $8A69
+
 L8A32:  JSR $F400
 L8A35:  STA $0704
 L8A38:  LDY $FC
@@ -1225,13 +1276,17 @@ L8A5E:  LDA #$3F
 L8A60:  STA $0708
 L8A63:  LDA $0704
 L8A66:  STA $0700
+
 L8A69:  LDA $F5
 L8A6B:  BNE $8AB1
+
 L8A6D:  LDA $0725
 L8A70:  BNE $8AB1
+
 L8A72:  LDA $071C
 L8A75:  CMP #$40
 L8A77:  BCS $8A98
+
 L8A79:  LDA $0718
 L8A7C:  CMP #$02
 L8A7E:  BEQ $8A94
@@ -1258,7 +1313,7 @@ L8AA6:  ADC $071C
 L8AA9:  TAY
 L8AAA:  LDA $F674,Y
 L8AAD:  TAX
-L8AAE:  JSR $F412
+L8AAE:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 sweep and set control bits.
 L8AB1:  LDA $FD
 L8AB3:  BNE $8AB8
 L8AB5:  JMP $8B63
@@ -1277,6 +1332,7 @@ L8AD1:  STA $0709
 L8AD4:  DEC $0701
 L8AD7:  BEQ $8AE1
 L8AD9:  BNE $8B18
+
 L8ADB:  JSR $F400
 L8ADE:  STA $0705
 L8AE1:  LDY $FD
@@ -1289,18 +1345,22 @@ L8AED:  INC $FD
 L8AEF:  LDA ($F8),Y
 L8AF1:  STA $070E
 L8AF4:  BNE $8AE1
+
 L8AF6:  STA $0719
 L8AF9:  LDY $F4
 L8AFB:  BNE $8B12
-L8AFD:  JSR $F429
+L8AFD:  JSR UpdateSQ1Note       ;($F429)Update the SQ1 channel note frequency.
+
 L8B00:  BEQ $8B12
 L8B02:  LDA $071D
 L8B05:  CMP #$80
 L8B07:  BCC $8B0D
+
 L8B09:  LDA #$7F
 L8B0B:  BNE $8B0F
 L8B0D:  LDA #$3F
 L8B0F:  STA $0709
+
 L8B12:  LDA $0705
 L8B15:  STA $0701
 L8B18:  LDA $F4
@@ -1330,10 +1390,13 @@ L8B4C:  DEC $0709
 L8B4F:  CLC
 L8B50:  ADC $071D
 L8B53:  TAY
+
 L8B54:  LDA $F674,Y
 L8B57:  TAX
+
 L8B58:  LDY $070E
-L8B5B:  JSR $F40B
+L8B5B:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
+
 L8B5E:  BNE $8B63
 L8B60:  JMP $8C1B
 L8B63:  LDY $0722
@@ -1342,6 +1405,7 @@ L8B68:  DEC $072A
 L8B6B:  DEC $0702
 L8B6E:  BEQ $8B78
 L8B70:  BNE $8BD2
+
 L8B72:  JSR $F400
 L8B75:  STA $0706
 L8B78:  LDY $0722
@@ -1349,6 +1413,7 @@ L8B7B:  INC $0722
 L8B7E:  LDA ($F8),Y
 L8B80:  BMI $8B72
 L8B82:  LDY $F5
+
 L8B84:  CPY #$0D
 L8B86:  BEQ $8BA1
 L8B88:  LDY $F4
@@ -1356,12 +1421,15 @@ L8B8A:  CPY #$18
 L8B8C:  BEQ $8BA1
 L8B8E:  CMP #$02
 L8B90:  BNE $8B99
+
 L8B92:  LDY #$00
 L8B94:  STY TriangleCntrl0
 L8B97:  BEQ $8BA1
+
 L8B99:  LDY #$81
 L8B9B:  STY TriangleCntrl0
-L8B9E:  JSR $F422
+L8B9E:  JSR UpdateTriNote       ;($F422)Update the triangle channel note frequency.
+
 L8BA1:  LDA $0706
 L8BA4:  STA $0702
 L8BA7:  LDY $F6
