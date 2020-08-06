@@ -15,6 +15,7 @@
 
 ;-----------------------------------------[ Start Of Code ]------------------------------------------
 
+SoundEngine:
 L8000:  LDA #$C0                ;Set APU into 5-step mode.
 L8002:  STA APUCommonCntrl1     ;
 
@@ -1110,6 +1111,7 @@ L88D8:  LDY #$AC
 L88DA:  LDA #$42
 L88DC:  JSR $F41B
 L88DF:  JMP $8514
+
 L88E2:  LDA $F2
 L88E4:  BMI $8902
 L88E6:  CMP #$1B
@@ -1122,6 +1124,7 @@ L88F2:  LDA $F6
 L88F4:  BEQ $8960
 L88F6:  JMP $8A0A
 L88F9:  JMP $8964
+
 L88FC:  LDA $F6
 L88FE:  CMP #$1A
 L8900:  BCS $8969
@@ -1153,8 +1156,10 @@ L8939:  LDA #$10
 L893B:  BNE $894D
 L893D:  LDA $F5
 L893F:  BEQ $8945
+
 L8941:  LDA #$10
 L8943:  BNE $894A
+
 L8945:  LDA #$10
 L8947:  STA SQ2Cntrl0
 L894A:  STA SQ1Cntrl0
@@ -1164,10 +1169,15 @@ L8952:  STA TriangleCntrl0
 L8955:  LDA #$00
 L8957:  STA $0708
 L895A:  STA $0709
-L895D:  STA $0720
+L895D:  STA NoiseVolIndex
 L8960:  RTS
 
 L8961:  JMP $88FC
+
+
+
+
+
 L8964:  TAX
 L8965:  JSR $8906
 L8968:  TXA
@@ -1184,46 +1194,64 @@ L8980:  TAY
 L8981:  LDA $9000,Y
 L8984:  TAY
 L8985:  BEQ $8961
+
 L8987:  LDA $F6
 L8989:  CMP #$10
 L898B:  BCS $89C3
+
 L898D:  LDA $9069,Y
 L8990:  STA $070D
+
 L8993:  LDA $906A,Y
 L8996:  STA $F8
 L8998:  LDA $906B,Y
 L899B:  STA $F9
+
 L899D:  LDA $906C,Y
 L89A0:  STA $0722
+
 L89A3:  LDA $906D,Y
 L89A6:  STA $FD
+
 L89A8:  LDA $906E,Y
 L89AB:  STA $0723
 L89AE:  STA $070C
+
 L89B1:  LDA $906F,Y
 L89B4:  STA $071C
+
 L89B7:  LDA $9070,Y
 L89BA:  STA $071D
+
 L89BD:  JMP $89F3
 L89C0:  JMP $8973
 
+;
+
 L89C3:  LDA $90DE,Y
 L89C6:  STA $070D
+
 L89C9:  LDA $90DF,Y
 L89CC:  STA $F8
 L89CE:  LDA $90E0,Y
 L89D1:  STA $F9
+
 L89D3:  LDA $90E1,Y
 L89D6:  STA $0722
+
 L89D9:  LDA $90E2,Y
 L89DC:  STA $FD
+
 L89DE:  LDA $90E3,Y
 L89E1:  STA $0723
 L89E4:  STA $070C
+
 L89E7:  LDA $90E4,Y
 L89EA:  STA $071C
+
 L89ED:  LDA $90E5,Y
 L89F0:  STA $071D
+
 L89F3:  LDA #$00
 L89F5:  STA $FC
 L89F7:  LDA #$01
@@ -1231,8 +1259,10 @@ L89F9:  STA $0700
 L89FC:  STA $0701
 L89FF:  STA $0702
 L8A02:  STA $0703
-L8A05:  LDA #$7F
-L8A07:  STA $070E
+
+L8A05:  LDA #$7F				;Disable SQ1 sweep function.
+L8A07:  STA SQ1SweepCntrl		;
+
 L8A0A:  LDA $F5
 L8A0C:  BNE $8A13
 L8A0E:  LDA $0725
@@ -1252,8 +1282,14 @@ L8A2E:  BEQ $8A38
 
 L8A30:  BNE $8A69
 
+
+
+
+
+
 L8A32:  JSR $F400
 L8A35:  STA $0704
+
 L8A38:  LDY $FC
 L8A3A:  INC $FC
 L8A3C:  LDA ($F8),Y
@@ -1314,6 +1350,7 @@ L8AA9:  TAY
 L8AAA:  LDA $F674,Y
 L8AAD:  TAX
 L8AAE:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 sweep and set control bits.
+
 L8AB1:  LDA $FD
 L8AB3:  BNE $8AB8
 L8AB5:  JMP $8B63
@@ -1333,17 +1370,28 @@ L8AD4:  DEC $0701
 L8AD7:  BEQ $8AE1
 L8AD9:  BNE $8B18
 
+
+
+
+
+
 L8ADB:  JSR $F400
 L8ADE:  STA $0705
+
 L8AE1:  LDY $FD
 L8AE3:  INC $FD
+
 L8AE5:  LDA ($F8),Y
 L8AE7:  BMI $8ADB
+
 L8AE9:  BNE $8AF6
+
 L8AEB:  LDY $FD
 L8AED:  INC $FD
+
 L8AEF:  LDA ($F8),Y
-L8AF1:  STA $070E
+L8AF1:  STA SQ1SweepCntrl		;Set SQ1 sweep control byte.
+
 L8AF4:  BNE $8AE1
 
 L8AF6:  STA $0719
@@ -1394,44 +1442,66 @@ L8B53:  TAY
 L8B54:  LDA $F674,Y
 L8B57:  TAX
 
-L8B58:  LDY $070E
+L8B58:  LDY SQ1SweepCntrl		;Prepare to set sweep control byte for SQ1.
 L8B5B:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
 
-L8B5E:  BNE $8B63
-L8B60:  JMP $8C1B
+L8B5E:  BNE UpdateTRIMusic		;Done updating SQ1. Update triangle channel.
+
+DoNoiseMusic:
+L8B60:  JMP UpdateNoiseMusic	;($8C1B)Update noise channel music.
+
+
+
+
+;---------------------------------[ Triangle Music Channel Update ]----------------------------------
+
+UpdateTRIMusic:
 L8B63:  LDY $0722
-L8B66:  BEQ $8B60
+L8B66:  BEQ DoNoiseMusic
+
 L8B68:  DEC $072A
 L8B6B:  DEC $0702
 L8B6E:  BEQ $8B78
+
 L8B70:  BNE $8BD2
+
+
+
+
+
 
 L8B72:  JSR $F400
 L8B75:  STA $0706
+
 L8B78:  LDY $0722
 L8B7B:  INC $0722
+
 L8B7E:  LDA ($F8),Y
 L8B80:  BMI $8B72
-L8B82:  LDY $F5
 
+L8B82:  LDY $F5
 L8B84:  CPY #$0D
 L8B86:  BEQ $8BA1
+
 L8B88:  LDY $F4
 L8B8A:  CPY #$18
 L8B8C:  BEQ $8BA1
-L8B8E:  CMP #$02
-L8B90:  BNE $8B99
 
-L8B92:  LDY #$00
-L8B94:  STY TriangleCntrl0
-L8B97:  BEQ $8BA1
+L8B8E:  CMP #$02				;Should triangle note be silenced?
+L8B90:  BNE PlayTriNote			;If not, branch to play new note.
 
-L8B99:  LDY #$81
-L8B9B:  STY TriangleCntrl0
+L8B92:  LDY #$00				;Disable the triangle channel.
+L8B94:  STY TriangleCntrl0		;
+L8B97:  BEQ +					;Branch always.
+
+PlayTriNote:
+L8B99:  LDY #$81				;Enable the triangle channel.
+L8B9B:  STY TriangleCntrl0		;
 L8B9E:  JSR UpdateTriNote       ;($F422)Update the triangle channel note frequency.
 
-L8BA1:  LDA $0706
+L8BA1:* LDA $0706
 L8BA4:  STA $0702
+
 L8BA7:  LDY $F6
 L8BA9:  CPY #$15
 L8BAB:  BEQ $8BB1
@@ -1457,6 +1527,7 @@ L8BCF:  STA $072C
 L8BD2:  LDA $F5
 L8BD4:  CMP #$0D
 L8BD6:  BEQ $8C1B
+
 L8BD8:  LDA $F4
 L8BDA:  CMP #$18
 L8BDC:  BEQ $8C1B
@@ -1482,30 +1553,52 @@ L8C06:  LDA $0702
 L8C09:  CMP #$07
 L8C0B:  BNE $8C1B
 L8C0D:  BEQ $8C16
+
 L8C0F:  LDA $0702
 L8C12:  CMP #$02
 L8C14:  BNE $8C1B
-L8C16:  LDA #$00
-L8C18:  STA TriangleCntrl0
+
+L8C16:  LDA #$00				;Disable the triangle channel.
+L8C18:  STA TriangleCntrl0		;
+
+
+
+
+
+;-----------------------------------[ Noise Channel Music Update ]-----------------------------------
+
+UpdateNoiseMusic:
 L8C1B:  LDA $0723
-L8C1E:  BEQ $8C8B
+L8C1E:  BEQ MusicUpdateEnd
+
 L8C20:  LDA $0724
 L8C23:  BEQ $8C2A
+
 L8C25:  LDA #$00
-L8C27:  STA $0720
+L8C27:  STA NoiseVolIndex
+
 L8C2A:  DEC $0703
 L8C2D:  BEQ $8C37
+
 L8C2F:  BNE $8C71
+
+
+
+
+
 L8C31:  JSR $F400
 L8C34:  STA $0707
+
 L8C37:  LDY $0723
 L8C3A:  INC $0723
 L8C3D:  LDA ($F8),Y
 L8C3F:  BMI $8C31
+
 L8C41:  BNE $8C4B
 L8C43:  LDA $070C
 L8C46:  STA $0723
 L8C49:  BNE $8C37
+
 L8C4B:  TAY
 L8C4C:  STA $0721
 L8C4F:  LDA $0724
@@ -1516,21 +1609,28 @@ L8C5A:  LDA $F73B,Y
 L8C5D:  STA NoiseCntrl2
 L8C60:  LDA $F73C,Y
 L8C63:  STA NoiseCntrl3
+
 L8C66:  LDA #$27
-L8C68:  STA $0720
+L8C68:  STA NoiseVolIndex
 L8C6B:  LDA $0707
 L8C6E:  STA $0703
+
 L8C71:  LDA $0721
 L8C74:  CMP #$26
-L8C76:  BCC $8C8B
+L8C76:  BCC MusicUpdateEnd
+
 L8C78:  LDA $0724
-L8C7B:  BNE $8C8B
-L8C7D:  LDY $0720
+L8C7B:  BNE MusicUpdateEnd
+
+L8C7D:  LDY NoiseVolIndex
 L8C80:  BEQ $8C85
-L8C82:  DEC $0720
+
+L8C82:  DEC NoiseVolIndex
 L8C85:  LDA $F714,Y
 L8C88:  STA NoiseCntrl0
-L8C8B:  RTS
+
+MusicUpdateEnd:
+L8C8B:  RTS						;End the music updating routines.
 
 ;Unused.
 L8C8C:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -1596,23 +1696,87 @@ L9020:  .byte $0D, $15, $05, $0D, $15, $05, $0D, $1D, $25, $2D, $00, $35, $15, $
 L9030:  .byte $00, $45, $00, $4D, $00, $55, $00, $5D, $00, $65, $6D, $00, $75, $00, $00, $05
 L9040:  .byte $0D, $15, $05, $0D, $1D, $25, $2D, $00, $05, $0D, $15, $00, $7D, $00, $00, $10
 L9050:  .byte $00, $18, $00, $20, $00, $28, $00, $30, $00, $38, $00, $00, $00, $00, $00, $40
-L9060:  .byte $48, $50, $00, $00, $00, $78, $00, $80, $00, $58, $60, $68, $70, $00, $17, $66
+L9060:  .byte $48, $50, $00, $00, $00, $78, $00, $80, $00
+
+L9069:  .byte $58
+L906A:  .byte $60, $68, $70, $00, $17, $66
 L9070:  .byte $91, $5D, $40, $7B, $00, $60, $17, $EF, $91, $5D, $24, $7E, $70, $60, $17, $96
 L9080:  .byte $92, $4B, $1A, $71, $70, $60, $17, $38, $93, $38, $15, $52, $70, $60, $17, $B7
 L9090:  .byte $93, $11, $09, $19, $70, $60, $17, $D8, $93, $05, $03, $08, $70, $60, $17, $E2
 L90A0:  .byte $93, $05, $03, $00, $70, $60, $45, $E9, $93, $3F, $20, $76, $10, $10, $45, $6A
 L90B0:  .byte $94, $43, $22, $00, $00, $00, $45, $D9, $94, $31, $19, $00, $00, $00, $45, $02
 L90C0:  .byte $96, $21, $11, $00, $00, $00, $45, $29, $95, $2F, $18, $4B, $00, $00, $73, $3C
-L90D0:  .byte $96, $35, $1B, $59, $00, $00, $73, $AC, $96, $35, $1B, $59, $00, $00, $45, $D4
-L90E0:  .byte $95, $25, $0D, $00, $00, $60, $45, $92, $95, $27, $14, $2F, $00, $00, $45, $2D
-L90F0:  .byte $97, $47, $1F, $65, $00, $00, $45, $A0, $97, $63, $31, $8D, $00, $00, $45, $66
-L9100:  .byte $98, $82, $41, $93, $00, $00, $45, $3C, $99, $21, $11, $33, $80, $00, $45, $7C
-L9110:  .byte $99, $35, $1B, $62, $00, $00, $45, $F2, $99, $51, $16, $00, $00, $00, $73, $80
-L9120:  .byte $9A, $73, $3D, $D4, $10, $00, $73, $61, $9B, $8C, $34, $BD, $80, $10, $73, $2B
-L9130:  .byte $9C, $14, $12, $22, $80, $10, $5C, $5A, $9C, $41, $21, $00, $20, $20, $5C, $CD
-L9140:  .byte $9C, $47, $24, $00, $20, $20, $5C, $35, $9D, $4D, $27, $00, $20, $20, $5C, $A3
-L9150:  .byte $9D, $59, $2D, $00, $20, $20, $73, $43, $9E, $41, $21, $00, $20, $20, $73, $A5
-L9160:  .byte $9E, $51, $29, $00, $20, $20, $93, $02, $94, $4C, $4C, $4C, $88, $4C, $42, $89
+L90D0:  .byte $96, $35, $1B, $59, $00, $00, $73, $AC, $96, $35, $1B, $59, $00, $00
+
+L90DE:  .byte $45
+L90DF:	.word $95D4
+L90E1:  .byte $25, $0D, $00, $00, $60
+
+L90E6:  .byte $45
+L90E7:  .word $9592
+L90E9:  .byte $27, $14, $2F, $00, $00
+
+L90EE:  .byte $45
+L90EF:	.word $972D
+L90F1:  .byte $47, $1F, $65, $00, $00
+
+L90F6:  .byte $45
+L90F7:  .word $97A0
+L90F9:  .byte $63, $31, $8D, $00, $00
+
+L90FE:  .byte $45
+L90FF:  .word $9866
+L9101:  .byte $82, $41, $93, $00, $00
+
+L9106:  .byte $45
+L9107:  .word $993C
+L9109:  .byte $21, $11, $33, $80, $00
+
+L910E:  .byte $45
+L910F:  .word $997C
+L9111:  .byte $35, $1B, $62, $00, $00
+
+L9116:  .byte $45
+L9117:  .word $99F2
+L9119:  .byte $51, $16, $00, $00, $00
+
+L911E:  .byte $73
+L911F:  .word $9A80
+L9121:  .byte $73, $3D, $D4, $10, $00
+
+L9126:  .byte $73
+L9127:  .word $9B61
+L9129:  .byte $8C, $34, $BD, $80, $10
+
+L912E:  .byte $73
+L912F:  .word $9C2B
+L9131:  .byte $14, $12, $22, $80, $10
+
+L9136:  .byte $5C
+L9137:  .word $9C5A
+L9139:  .byte $41, $21, $00, $20, $20
+
+L913E:  .byte $5C
+L913F:  .word $9CCD
+L9141:  .byte $47, $24, $00, $20, $20
+
+L9146:  .byte $5C
+L9147:  .word $9D35
+L9149:  .byte $4D, $27, $00, $20, $20
+
+L914E:  .byte $5C
+L914F:  .word $9DA3
+L9151:  .byte $59, $2D, $00, $20, $20
+
+L9156:  .byte $73
+L9157:  .word $9E43
+L9159:  .byte $41, $21, $00, $20, $20
+
+L915E:  .byte $73
+L915F:  .word $9EA5
+L9161:  .byte $51, $29, $00, $20, $20
+
+L9166:	.byte $93, $02, $94, $4C, $4C, $4C, $88, $4C, $42, $89
 L9170:  .byte $4C, $88, $54, $4C, $89, $42, $83, $4C, $93, $02, $94, $54, $54, $54, $88, $54
 L9180:  .byte $4C, $89, $54, $88, $5A, $54, $89, $4C, $83, $54, $82, $02, $80, $4C, $54, $83
 L9190:  .byte $5A, $88, $42, $4C, $89, $54, $81, $5A, $80, $5E, $81, $62, $80, $60, $81, $5E
@@ -1631,14 +1795,20 @@ L9250:  .byte $42, $34, $42, $2A, $42, $34, $42, $2A, $42, $34, $42, $2A, $42, $
 L9260:  .byte $42, $38, $42, $2A, $42, $38, $42, $2A, $42, $38, $42, $2A, $42, $82, $1A, $1A
 L9270:  .byte $83, $26, $82, $1A, $80, $1A, $1A, $82, $1E, $1A, $1A, $1A, $1E, $1A, $1A, $1A
 L9280:  .byte $1E, $1A, $1A, $1A, $83, $26, $82, $1A, $1A, $1E, $80, $1A, $1A, $82, $1A, $1A
-L9290:  .byte $1E, $1A, $1A, $1A, $1E, $1A, $83, $5A, $84, $54, $82, $02, $4A, $4C, $83, $50
+L9290:  .byte $1E, $1A, $1A, $1A, $1E, $1A, $83
+
+L9296:  .byte $5A, $84, $54, $82, $02, $4A, $4C, $83, $50
 L92A0:  .byte $4C, $4A, $82, $46, $44, $42, $44, $46, $48, $83, $4A, $54, $85, $4C, $02, $00
 L92B0:  .byte $80, $58, $5A, $58, $5A, $58, $5A, $58, $5A, $5A, $5C, $5A, $5C, $5A, $5C, $5A
 L92C0:  .byte $5C, $5C, $5E, $5C, $5E, $5C, $5E, $5C, $5E, $83, $40, $82, $40, $40, $42, $40
 L92D0:  .byte $3E, $3C, $83, $38, $32, $82, $34, $80, $50, $54, $56, $5A, $5E, $62, $83, $64
-L92E0:  .byte $02, $82, $34, $42, $2A, $42, $34, $44, $3C, $44, $26, $3E, $34, $3E, $28, $40
+L92E0:  .byte $02, $82
+
+L93E2:	.byte $34, $42, $2A, $42, $34, $44, $3C, $44, $26, $3E, $34, $3E, $28, $40
 L92F0:  .byte $34, $40, $2A, $2C, $2E, $30, $32, $42, $3C, $42, $34, $80, $20, $24, $26, $2A
-L9300:  .byte $2E, $32, $82, $34, $02, $34, $02, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E
+L9300:  .byte $2E, $32, $82, $34, $02, $34, $02
+
+L9307:	.byte $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E
 L9310:  .byte $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E
 L9320:  .byte $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $85
 L9330:  .byte $26, $83, $26, $26, $86, $26, $83, $26, $83, $5A, $84, $54, $82, $02, $4A, $4C
@@ -1652,7 +1822,11 @@ L93A0:  .byte $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $
 L93B0:  .byte $1E, $1E, $85, $26, $83, $26, $26, $83, $4C, $88, $34, $88, $34, $89, $34, $00
 L93C0:  .byte $83, $42, $88, $2A, $88, $2A, $89, $2A, $83, $4C, $88, $34, $88, $34, $89, $34
 L93D0:  .byte $83, $26, $88, $2A, $88, $2A, $89, $2A, $85, $34, $00, $85, $2A, $83, $34, $02
-L93E0:  .byte $85, $2A, $83, $42, $00, $83, $02, $83, $02, $85, $4C, $83, $42, $4C, $81, $50
+L93E0:  .byte $85, $2A, $83, $42, $00, $83, $02
+
+L93E7:  .byte $83, $02
+
+L93E9:  .byte $85, $4C, $83, $42, $4C, $81, $50
 L93F0:  .byte $80, $50, $85, $50, $82, $4C, $50, $85, $54, $83, $4C, $54, $81, $56, $80, $56
 L9400:  .byte $85, $56, $82, $54, $56, $87, $5A, $02, $00, $85, $3C, $83, $3C, $3C, $81, $3E
 L9410:  .byte $80, $3E, $85, $3E, $82, $3E, $3E, $85, $42, $83, $42, $42, $81, $50, $80, $50

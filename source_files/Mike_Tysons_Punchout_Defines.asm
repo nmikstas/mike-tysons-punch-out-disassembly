@@ -41,7 +41,7 @@
 ;$070B
 ;$070C
 ;$070D
-;$070E
+.alias SQ1SweepCntrl	$070E	;Control byte for SQ1 sweep hardware.
 .alias SQ0LoFreqBits    $070F   ;Lower frequency bits of SQ0.
 .alias SQ1LoFreqBits    $0710   ;Lower frequency bits of SQ1.
 ;$0711
@@ -59,9 +59,9 @@
 ;$071D
 ;$071E
 ;$071F
-;$0720
+.alias NoiseVolIndex	$0720	;Index to noise channel control byte for volume/envelope.
 ;$0721
-;$0722
+.alias TriNoteIndex		$0722	;Index to current triangle musical note data.
 ;$0723
 ;$0724
 ;$0725
