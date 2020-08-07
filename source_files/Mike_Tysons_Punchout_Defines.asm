@@ -10,16 +10,15 @@
 
 ;--------------------------------------[Sound Engine Variables]--------------------------------------
 
-;$E0
+.alias SFXInitSQ1		$F0		;The SFX index to be started that uses SQ1.
+.alias SFXInitSQ2       $F1		;The SFX index to be started that uses SQ2.
+.alias MusicInit		$F2		;The music index to be started.
+.alias DMCInit			$F3		;The DMC SFX index to be started.
 
-;$F0
-;$F1
-;$F2
-;$F3
-;$F4
-;$F5
-;$F6
-;$F7
+.alias SFXIndexSQ1		$F4		;The SFX currently being played that uses SQ1.
+.alias SFXIndexSQ2		$F5		;The SFX currently being played that uses SQ2.
+.alias MusicIndex		$F6		;The music currently being played.
+.alias DMCIndex			$F7		;The DMC SFX currently being played.
 
 .alias MusicDataPtr		$F8		;Pointer base of music data.
 .alias MusicDataPtrLB	$F8		;Pointer base of music data, lower byte.
@@ -38,8 +37,9 @@
 .alias TriNoteLength	$0706	;The total length of the of the current triangle note.
 .alias NoiseNoteLength	$0707	;The total length of the of the current noise note.
 
-;$0708
-;$0709
+.alias SQ2EnvIndex		$0708	;The current index to SQ2 envelope data while playing music.
+.alias SQ1EnvIndex		$0709	;The current index to SQ1 envelope data while playing music.
+
 ;$070A
 ;$070B
 .alias NoiseIndexReload	$070C	;Reload address to repeat drum beatsin song background.
@@ -59,8 +59,10 @@
 ;$0719
 ;$071A
 ;$071B
-;$071C
-;$071D
+
+.alias SQ2EnvBase		$071C	;Base index for SQ2 envelope data while playing music.
+.alias SQ1EnvBase		$071D	;Base index for SQ1 envelope data while playing music.
+
 ;$071E
 ;$071F
 .alias NoiseVolIndex	$0720	;Index to noise channel control byte for volume/envelope.
@@ -127,3 +129,34 @@
 .alias AUD_SQ0_INDEX    $00     ;Square wave 0 channel index.
 .alias AUD_SQ1_INDEX    $04     ;Square wave 1 channel index.
 .alias AUD_TRI_INDEX    $08     ;Triangle wave channel index.
+
+;Music and SFX numbers.
+.alias MUS_END_RPT		$01		;End music, repeats.
+.alias MUS_INTRO		$02		;Intro music, no repeat.
+.alias MUS_ATTRACT		$03		;Attract music. Same as end music but does not repeat.
+.alias MUS_NEWSPAPER	$04		;Music that plays newspaper is displayed.
+.alias MUS_CHAMP		$05		;Circuit champion music.
+.alias MUS_FIGHT_WIN	$06		;Fight win music.
+.alias MUS_FIGHT_LOSS	$07		;Fight loss music.
+.alias MUS_TITLE_BOUT	$08		;Title bout music.
+.alias MUS_GAME_OVER	$09		;Game over music.
+.alias MUS_PRE_FIGHT	$0A		;Pre-fight music.
+.alias MUS_NONE			$0B		;No music.
+.alias MUS_END_RPT2		$0C		;End music, repeats. Same as above.
+.alias MUS_ATTRACT2		$0D		;Attract music. Same as above.
+.alias MUS_DREAM_FIGHT	$0E		;Dream fight music.
+.alias MUS_NONE2		$0F		;No music.
+.alias MUS_VON_KAISER	$10		;Von Kaiser/Macho Man intro music.
+.alias MUS_GLASS_JOE	$11		;Glass Joe intro music.
+.alias MUS_DON_FLAM		$12		;Don Flamenco intro music.
+.alias MUS_KING_HIPPO	$13		;King Hippo intro music.
+.alias MUS_SODA_POP		$14		;Soda popinski intro music.
+.alias MUS_PISTON_HON	$15		;Piston Honda intro music.
+.alias MUS_NONE3		$16		;No music.
+.alias MUS_NONE4		$17		;No music.
+.alias MUS_NONE5		$18		;No music.
+.alias MUS_NONE6		$19		;No music.
+.alias MUS_TRAIN_RPT	$1A		;Training music, repeats.
+
+;Misc. items.
+.alias SND_OFF			$80		;Silences sound channel.

@@ -30,29 +30,29 @@ L800B:  JSR $84B1
 L800E:  JSR $88E2
 
 L8011:  LDA #$00
-L8013:  STA $F0
-L8015:  STA $F1
-L8017:  STA $F2
-L8019:  STA $F3
+L8013:  STA SFXInitSQ1
+L8015:  STA SFXInitSQ2
+L8017:  STA MusicInit
+L8019:  STA DMCInit
 L801B:  RTS
 
-L801C:  LDY $F7
+L801C:  LDY DMCIndex
 L801E:  CPY #$06
 L8020:  BCS $807B
 
 L8022:  INY
-L8023:  STY $F3
+L8023:  STY DMCInit
 
-L8025:  LDY $F3
+L8025:  LDY DMCInit
 L8027:  BMI $807B
 
 L8029:  BNE $8040
 
-L802B:  LDA $F7
+L802B:  LDA DMCIndex
 L802D:  CMP #$01
 L802F:  BEQ $8084
 
-L8031:  LDA $F7
+L8031:  LDA DMCIndex
 L8033:  BEQ $807F
 
 L8035:  DEC $071E
@@ -63,13 +63,15 @@ L803D:  BEQ $807F
 
 L803F:  RTS
 
-L8040:  STY $F7
+L8040:  STY DMCIndex
 L8042:  LDA #$0E
 L8044:  STA $071E
+
 L8047:  LDX #$05
-L8049:  LDA $F7
+L8049:  LDA DMCIndex
 L804B:  CMP #$07
 L804D:  BNE $8051
+
 L804F:  LDX #$03
 L8051:  STX $071F
 
@@ -83,7 +85,7 @@ L805D:  LDA $F767,Y
 L8060:  STA DMCCntrl3
 
 L8063:  LDX #$4F
-L8065:  LDA $F7
+L8065:  LDA DMCIndex
 L8067:  CMP #$01
 L8069:  BEQ $806D
 L806B:  LDX #$0F
@@ -95,7 +97,7 @@ L8077:  STA APUCommonCntrl0
 L807A:  RTS
 
 L807B:  LDA #$00
-L807D:  STA $F7
+L807D:  STA DMCIndex
 L807F:  LDA #$0F
 L8081:  STA APUCommonCntrl0
 L8084:  RTS
@@ -138,10 +140,10 @@ L80C2:  ORA #$08
 L80C4:  STA SQ1Cntrl3
 L80C7:  JMP $813E
 
-L80CA:  LDY $F0
+L80CA:  LDY SFXInitSQ1
 L80CC:  BMI $8143
 
-L80CE:  LDA $F4
+L80CE:  LDA SFXIndexSQ1
 L80D0:  CPY #$01
 L80D2:  BEQ $8085
 
@@ -234,7 +236,7 @@ L8161:  LDA #$00
 L8163:  STA $0726
 
 L8166:  LDA #$00
-L8168:  STA $F4
+L8168:  STA SFXIndexSQ1
 
 L816A:  LDA #$10
 L816C:  STA SQ1Cntrl0
@@ -242,6 +244,7 @@ L816F:  RTS
 
 L8170:  LDA #$04
 L8172:  JSR $F518
+
 L8175:  LDX #$0A
 L8177:  LDA #$1A
 L8179:  LDY #$08
@@ -309,6 +312,7 @@ L81E9:  BEQ $8222
 L81EB:  CMP #$08
 L81ED:  BEQ $8230
 L81EF:  JMP $827F
+
 L81F2:  LDA #$10
 L81F4:  JSR $F518
 L81F7:  LDY $0712
@@ -363,7 +367,7 @@ L8262:  INC $0713
 L8265:  LDA $0713
 L8268:  AND #$0F
 L826A:  TAY
-L826B:  LDA $F4
+L826B:  LDA SFXIndexSQ1
 L826D:  CMP #$0B
 L826F:  BEQ $8276
 L8271:  LDA $F7AC,Y
@@ -422,6 +426,7 @@ L82E6:  JSR $F4CD
 L82E9:  LDA $F7EB,Y
 L82EC:  JSR $F4DD
 L82EF:  JMP $813E
+
 L82F2:  LDA #$12
 L82F4:  JSR $F494
 L82F7:  LDA #$08
@@ -621,7 +626,7 @@ L8484:  ORA #$08
 L8486:  STA SQ2Cntrl3
 L8489:  RTS
 
-L848A:  STY $F5
+L848A:  STY SFXIndexSQ2
 L848C:  LDA #$40
 L848E:  STA $0715
 L8491:  LDA #$1A
@@ -641,13 +646,15 @@ L84AB:  JSR $8466
 L84AE:  JMP $8514
 L84B1:  LDA $0725
 L84B4:  BEQ $84BB
+
 L84B6:  LDA #$00
-L84B8:  STA $F5
+L84B8:  STA SFXIndexSQ2
 L84BA:  RTS
 
-L84BB:  LDY $F1
+L84BB:  LDY SFXInitSQ2
 L84BD:  BMI $8519
-L84BF:  LDA $F5
+
+L84BF:  LDA SFXIndexSQ2
 L84C1:  CPY #$01
 L84C3:  BEQ $848A
 L84C5:  CMP #$01
@@ -661,9 +668,11 @@ L84D3:  BEQ $8523
 L84D5:  CMP #$03
 L84D7:  BEQ $852F
 L84D9:  JMP $85B0
-L84DC:  STY $F5
+
+L84DC:  STY SFXIndexSQ2
 L84DE:  LDA #$7F
 L84E0:  STA $0715
+
 L84E3:  LDX #$9C
 L84E5:  LDY #$7F
 L84E7:  LDA #$62
@@ -693,13 +702,13 @@ L8514:  DEC $0715
 L8517:  BNE $8522
 
 L8519:  LDA #$00
-L851B:  STA $F5
+L851B:  STA SFXIndexSQ2
 
 L851D:  LDA #$10
 L851F:  STA SQ2Cntrl0
 L8522:  RTS
 
-L8523:  STY $F5
+L8523:  STY SFXIndexSQ2
 L8525:  LDA #$10
 L8527:  STA $0715
 L852A:  LDA #$04
@@ -717,7 +726,8 @@ L8548:  LDA #$08
 L854A:  STA SQ2Cntrl3
 L854D:  DEC $0716
 L8550:  JMP $8514
-L8553:  STY $F5
+
+L8553:  STY SFXIndexSQ2
 L8555:  LDA #$20
 L8557:  STA $0715
 L855A:  LDX #$1A
@@ -731,9 +741,9 @@ L8569:  LDX #$94
 L856B:  LDY #$C5
 L856D:  LDA #$50
 L856F:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
-
 L8572:  JMP $8514
-L8575:  STY $F5
+
+L8575:  STY SFXIndexSQ2
 L8577:  LDA #$10
 L8579:  STA $0715
 L857C:  LDA #$38
@@ -751,7 +761,8 @@ L8591:  LDY $0715
 L8594:  LDA $F858,Y
 L8597:  STA SQ2Cntrl0
 L859A:  JMP $8514
-L859D:  STY $F5
+
+L859D:  STY SFXIndexSQ2
 L859F:  LDA #$10
 L85A1:  STA $0715
 L85A4:  LDX #$43
@@ -781,7 +792,8 @@ L85D2:  BEQ $85FA
 L85D4:  CMP #$08
 L85D6:  BEQ $860A
 L85D8:  JMP $8666
-L85DB:  STY $F5
+
+L85DB:  STY SFXIndexSQ2
 L85DD:  LDA #$16
 L85DF:  STA $0715
 L85E2:  LDX #$5F
@@ -795,16 +807,17 @@ L85F0:  BCS $85F7
 L85F2:  ORA #$50
 L85F4:  STA SQ2Cntrl0
 L85F7:  JMP $8514
-L85FA:  STY $F5
+
+L85FA:  STY SFXIndexSQ2
 L85FC:  LDA #$10
 L85FE:  STA $0715
 L8601:  LDX #$85
 L8603:  LDY #$85
 L8605:  LDA #$1C
 L8607:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
-
 L860A:  JMP $8514
-L860D:  STY $F5
+
+L860D:  STY SFXIndexSQ2
 L860F:  LDA #$20
 L8611:  STA $0715
 L8614:  LDA #$8F
@@ -832,7 +845,7 @@ L863E:  ORA #$90
 L8640:  STA SQ2Cntrl0
 L8643:  JMP $8514
 
-L8646:  STY $F5
+L8646:  STY SFXIndexSQ2
 L8648:  LDA #$10
 L864A:  STA $0715
 L864D:  LDA #$FF
@@ -859,16 +872,17 @@ L8678:  BEQ $8681
 L867A:  CMP #$0B
 L867C:  BEQ $8691
 L867E:  JMP $86D9
-L8681:  STY $F5
+
+L8681:  STY SFXIndexSQ2
 L8683:  LDA #$18
 L8685:  STA $0715
 L8688:  LDX #$C8
 L868A:  LDY #$CC
 L868C:  LDA #$34
 L868E:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
-
 L8691:  JMP $8514
-L8694:  STY $F5
+
+L8694:  STY SFXIndexSQ2
 L8696:  LDA #$0C
 L8698:  STA $0715
 L869B:  LDX #$03
@@ -888,7 +902,7 @@ L86B4:  LDA #$48
 L86B6:  JMP $856F
 L86B9:  JMP $8514
 
-L86BC:  STY $F5
+L86BC:  STY SFXIndexSQ2
 L86BE:  LDA #$10
 L86C0:  STA $0715
 
@@ -920,7 +934,8 @@ L86F3:  BEQ $872B
 L86F5:  CMP #$0F
 L86F7:  BEQ $873F
 L86F9:  JMP $87D9
-L86FC:  STY $F5
+
+L86FC:  STY SFXIndexSQ2
 L86FE:  LDA #$0A
 L8700:  STA $0715
 L8703:  LDA #$1A
@@ -940,9 +955,9 @@ L871F:  LDX #$81
 L8721:  LDY #$8B
 L8723:  LDA #$34
 L8725:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
-
 L8728:  JMP $8514
-L872B:  STY $F5
+
+L872B:  STY SFXIndexSQ2
 L872D:  LDA #$18
 L872F:  STA $0715
 L8732:  LDA #$14
@@ -958,9 +973,9 @@ L8747:  LDX #$86
 L8749:  LDY #$C5
 L874B:  LDA #$5E
 L874D:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
-
 L8750:  JMP $8514
-L8753:  STY $F5
+
+L8753:  STY SFXIndexSQ2
 L8755:  LDA #$60
 L8757:  STA $0715
 L875A:  LDA #$0C
@@ -1028,7 +1043,8 @@ L87EB:  BEQ $8823
 L87ED:  CMP #$12
 L87EF:  BEQ $8836
 L87F1:  JMP $88B6
-L87F4:  STY $F5
+
+L87F4:  STY SFXIndexSQ2
 L87F6:  LDA #$08
 L87F8:  STA $0715
 L87FB:  LDA #$1F
@@ -1048,9 +1064,9 @@ L8817:  LDX #$81
 L8819:  LDY #$8B
 L881B:  LDA #$50
 L881D:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
-
 L8820:  JMP $8514
-L8823:  STY $F5
+
+L8823:  STY SFXIndexSQ2
 L8825:  LDA #$40
 L8827:  STA $0715
 L882A:  LDA #$FF
@@ -1079,7 +1095,7 @@ L8854:  ORA #$90
 L8856:  STA SQ2Cntrl0
 L8859:  JMP $8514
 
-L885C:  STY $F5
+L885C:  STY SFXIndexSQ2
 L885E:  LDA #$10
 L8860:  STA $0715
 
@@ -1093,9 +1109,9 @@ L886F:  CMP #$0E
 L8871:  BNE $8878
 L8873:  LDA #$3E
 L8875:  JSR UpdateSQ2Note		;($F41E)Update the SQ2 channel note frequency.
-
 L8878:  JMP $8514
-L887B:  STY $F5
+
+L887B:  STY SFXIndexSQ2
 L887D:  LDA #$20
 L887F:  STA $0715
 L8882:  LDA #$7F
@@ -1138,7 +1154,7 @@ L88CA:  CMP #$15
 L88CC:  BEQ $88DF
 L88CE:  RTS
 
-L88CF:  STY $F5
+L88CF:  STY SFXIndexSQ2
 L88D1:  LDA #$10
 L88D3:  STA $0715
 
@@ -1149,28 +1165,31 @@ L88DC:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
 
 L88DF:  JMP $8514
 
-L88E2:  LDA $F2
+;------------------------------------------[ Music Player ]------------------------------------------
+
+L88E2:  LDA MusicInit
 L88E4:  BMI $8902
 L88E6:  CMP #$1B
 L88E8:  BEQ $8902
 L88EA:  CMP #$1C
 L88EC:  BEQ $8902
-L88EE:  LDA $F2
+L88EE:  LDA MusicInit
 L88F0:  BNE $88F9
-L88F2:  LDA $F6
+L88F2:  LDA MusicIndex
 L88F4:  BEQ $8960
-L88F6:  JMP $8A0A
+L88F6:  JMP UpdateSQ2Music		;($8A0A)Update the music.
 L88F9:  JMP $8964
 
-L88FC:  LDA $F6
+L88FC:  LDA MusicIndex
 L88FE:  CMP #$1A
 L8900:  BCS $8969
 L8902:  LDA #$00
-L8904:  STA $F6
+L8904:  STA MusicIndex
 
 L8906:  LDA $0724
 L8909:  BEQ $8922
-L890B:  LDA $F5
+
+L890B:  LDA SFXIndexSQ2
 L890D:  BEQ $891B
 L890F:  LDA #$10
 L8911:  STA SQ1Cntrl0
@@ -1182,7 +1201,8 @@ L891D:  STA SQ2Cntrl0
 L8920:  BNE $8911
 L8922:  LDA $0726
 L8925:  BEQ $8934
-L8927:  LDA $F5
+
+L8927:  LDA SFXIndexSQ2
 L8929:  BEQ $892D
 L892B:  BNE $8939
 L892D:  LDA #$10
@@ -1192,35 +1212,33 @@ L8934:  LDA $0725
 L8937:  BEQ $893D
 L8939:  LDA #$10
 L893B:  BNE $894D
-L893D:  LDA $F5
-L893F:  BEQ $8945
+
+L893D:  LDA SFXIndexSQ2
+L893F:  BEQ SilenceAllChannels
 
 L8941:  LDA #$10
 L8943:  BNE $894A
 
-L8945:  LDA #$10
-L8947:  STA SQ2Cntrl0
-L894A:  STA SQ1Cntrl0
-L894D:  STA NoiseCntrl0
-L8950:  LDA #$00
-L8952:  STA TriangleCntrl0
-L8955:  LDA #$00
-L8957:  STA $0708
-L895A:  STA $0709
-L895D:  STA NoiseVolIndex
-L8960:  RTS
+SilenceAllChannels:
+L8945:  LDA #$10				;
+L8947:  STA SQ2Cntrl0			;
+L894A:  STA SQ1Cntrl0			;
+L894D:  STA NoiseCntrl0			;
+L8950:  LDA #$00				;
+L8952:  STA TriangleCntrl0		;Silence all the audio channels.
+L8955:  LDA #$00				;
+L8957:  STA SQ2EnvIndex			;
+L895A:  STA SQ1EnvIndex			;
+L895D:  STA NoiseVolIndex		;
+L8960:  RTS						;
 
 L8961:  JMP $88FC
-
-
-
-
 
 L8964:  TAX
 L8965:  JSR $8906
 
 L8968:  TXA
-L8969:  STA $F6
+L8969:  STA MusicIndex
 L896B:  STA $070A
 L896E:  LDY #$00
 L8970:  STY $070B
@@ -1234,7 +1252,7 @@ L8981:  LDA $9000,Y
 L8984:  TAY
 L8985:  BEQ $8961
 
-L8987:  LDA $F6
+L8987:  LDA MusicIndex
 L8989:  CMP #$10
 L898B:  BCS $89C3
 
@@ -1257,10 +1275,10 @@ L89AB:  STA NoiseMusicIndex
 L89AE:  STA NoiseIndexReload
 
 L89B1:  LDA MusicInitTbl1+6,Y
-L89B4:  STA $071C
+L89B4:  STA SQ2EnvBase
 
 L89B7:  LDA MusicInitTbl1+7,Y
-L89BA:  STA $071D
+L89BA:  STA SQ1EnvBase
 
 L89BD:  JMP PrepMusicStart		;($89F3)Initialize remaining variables for music start.
 L89C0:  JMP $8973
@@ -1284,10 +1302,10 @@ L89E1:  STA NoiseMusicIndex
 L89E4:  STA NoiseIndexReload
 
 L89E7:  LDA MusicInitTbl2+6,Y
-L89EA:  STA $071C
+L89EA:  STA SQ2EnvBase
 
 L89ED:  LDA MusicInitTbl2+7,Y
-L89F0:  STA $071D
+L89F0:  STA SQ1EnvBase
 
 PrepMusicStart:
 L89F3:  LDA #$00				;Index to SQ2 music data always comes first.
@@ -1302,20 +1320,21 @@ L8A02:  STA NoiseNoteRemain		;
 L8A05:  LDA #$7F				;Disable SQ1 sweep function.
 L8A07:  STA SQ1SweepCntrl		;
 
-;------------------------------------------[ Music Player ]------------------------------------------
+;------------------------------------[ SQ2 Music Channel Update ]------------------------------------
 
-L8A0A:  LDA $F5
+UpdateSQ2Music:
+L8A0A:  LDA SFXIndexSQ2
 L8A0C:  BNE $8A13
 
 L8A0E:  LDA $0725
 L8A11:  BEQ $8A2B
 
-L8A13:  LDA $071C
+L8A13:  LDA SQ2EnvBase
 L8A16:  CMP #$40
 L8A18:  BCS $8A26
 
 L8A1A:  LDA #$3F
-L8A1C:  STA $0708
+L8A1C:  STA SQ2EnvIndex
 
 L8A1F:  LDA #$01
 L8A21:  STA $071A
@@ -1323,7 +1342,7 @@ L8A21:  STA $071A
 L8A24:  BNE $8A2B
 
 L8A26:  LDA #$00
-L8A28:  STA $0708
+L8A28:  STA SQ2EnvIndex
 
 L8A2B:  DEC SQ2NoteRemain		;Is it time to load a new SQ2 note?
 L8A2E:  BEQ GetNewSQ2Note		;If so, branch.
@@ -1342,7 +1361,7 @@ L8A3E:  BEQ $89C0
 L8A40:  BMI $8A32
 
 L8A42:  STA $0718
-L8A45:  LDY $F5
+L8A45:  LDY SFXIndexSQ2
 L8A47:  BNE $8A63
 
 L8A49:  LDY $0725
@@ -1351,7 +1370,7 @@ L8A4C:  BNE $8A63
 L8A4E:  JSR UpdateSQ2Note		;($F41E)Update the SQ2 channel note frequency.
 L8A51:  BEQ $8A63
 
-L8A53:  LDA $071C
+L8A53:  LDA SQ2EnvBase
 L8A56:  CMP #$80
 L8A58:  BCC $8A5E
 
@@ -1359,45 +1378,53 @@ L8A5A:  LDA #$7F
 L8A5C:  BNE $8A60
 
 L8A5E:  LDA #$3F
-L8A60:  STA $0708
+L8A60:  STA SQ2EnvIndex
+
 L8A63:  LDA SQ2NoteLength
 L8A66:  STA SQ2NoteRemain
 
 SQ2NoteContinue:
-L8A69:  LDA $F5
-L8A6B:  BNE $8AB1
+L8A69:  LDA SFXIndexSQ2
+L8A6B:  BNE UpdateSQ1Music
 
 L8A6D:  LDA $0725
-L8A70:  BNE $8AB1
+L8A70:  BNE UpdateSQ1Music
 
-L8A72:  LDA $071C
+L8A72:  LDA SQ2EnvBase
 L8A75:  CMP #$40
 L8A77:  BCS $8A98
 
 L8A79:  LDA $0718
 L8A7C:  CMP #$02
 L8A7E:  BEQ $8A94
+
 L8A80:  LDX $071A
 L8A83:  BEQ $8A8D
+
 L8A85:  JSR UpdateSQ2Note		;($F41E)Update the SQ2 note frequency.
 
 L8A88:  LDX #$00
 L8A8A:  STX $071A
+
 L8A8D:  LDA SQ2NoteRemain
 L8A90:  CMP #$02
 L8A92:  BCS $8A98
+
 L8A94:  LDX #$10
 L8A96:  BNE $8AAE
 
 L8A98:  JSR $F472
 
-L8A9B:  LDA $0708
+L8A9B:  LDA SQ2EnvIndex
 L8A9E:  BEQ $8AA5
-L8AA0:  LSR
-L8AA1:  LSR
-L8AA2:  DEC $0708
+
+L8AA0:  LSR						;/4. The envelope data will change every 4 frames.
+L8AA1:  LSR						;
+
+L8AA2:  DEC SQ2EnvIndex
+
 L8AA5:  CLC
-L8AA6:  ADC $071C
+L8AA6:  ADC SQ2EnvBase
 L8AA9:  TAY
 L8AAA:  LDA $F674,Y
 L8AAD:  TAX
@@ -1405,27 +1432,28 @@ L8AAE:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 sweep and set control bits.
 
 ;------------------------------------[ SQ1 Music Channel Update ]------------------------------------
 
+UpdateSQ1Music:
 L8AB1:  LDA SQ1NoteIndex
 L8AB3:  BNE $8AB8
 
 L8AB5:  JMP UpdateTRIMusic		;($8B63)Update triangle musical note.
 
-L8AB8:  LDA $F4
+L8AB8:  LDA SFXIndexSQ1
 L8ABA:  BEQ $8AD4
 
-L8ABC:  LDA $071D
+L8ABC:  LDA SQ1EnvBase
 L8ABF:  CMP #$40
 L8AC1:  BCS $8ACF
 
 L8AC3:  LDA #$3F
-L8AC5:  STA $0709
+L8AC5:  STA SQ1EnvIndex
 
 L8AC8:  LDA #$01
 L8ACA:  STA $071B
 L8ACD:  BNE $8AD4
 
 L8ACF:  LDA #$00
-L8AD1:  STA $0709
+L8AD1:  STA SQ1EnvIndex
 
 L8AD4:  DEC SQ1NoteRemain
 L8AD7:  BEQ $8AE1
@@ -1452,27 +1480,27 @@ L8AF1:  STA SQ1SweepCntrl		;Set SQ1 sweep control byte.
 L8AF4:  BNE $8AE1
 
 L8AF6:  STA $0719
-L8AF9:  LDY $F4
+L8AF9:  LDY SFXIndexSQ1
 L8AFB:  BNE $8B12
 
 L8AFD:  JSR UpdateSQ1Note       ;($F429)Update the SQ1 channel note frequency.
 
 L8B00:  BEQ $8B12
-L8B02:  LDA $071D
+L8B02:  LDA SQ1EnvBase
 L8B05:  CMP #$80
 L8B07:  BCC $8B0D
 
 L8B09:  LDA #$7F
 L8B0B:  BNE $8B0F
 L8B0D:  LDA #$3F
-L8B0F:  STA $0709
+L8B0F:  STA SQ1EnvIndex
 
 L8B12:  LDA SQ1NoteLength
 L8B15:  STA SQ1NoteRemain
 
-L8B18:  LDA $F4
+L8B18:  LDA SFXIndexSQ1
 L8B1A:  BNE $8B63
-L8B1C:  LDA $071D
+L8B1C:  LDA SQ1EnvBase
 L8B1F:  CMP #$40
 L8B21:  BCS $8B42
 L8B23:  LDA $0719
@@ -1490,13 +1518,13 @@ L8B3C:  BCS $8B42
 L8B3E:  LDX #$10
 L8B40:  BNE $8B58
 L8B42:  JSR $F463
-L8B45:  LDA $0709
+L8B45:  LDA SQ1EnvIndex
 L8B48:  BEQ $8B4F
 L8B4A:  LSR
 L8B4B:  LSR
-L8B4C:  DEC $0709
+L8B4C:  DEC SQ1EnvIndex
 L8B4F:  CLC
-L8B50:  ADC $071D
+L8B50:  ADC SQ1EnvBase
 L8B53:  TAY
 
 L8B54:  LDA $F674,Y
@@ -1532,11 +1560,11 @@ L8B7B:  INC TriNoteIndex
 L8B7E:  LDA (MusicDataPtr),Y
 L8B80:  BMI $8B72
 
-L8B82:  LDY $F5
+L8B82:  LDY SFXIndexSQ2
 L8B84:  CPY #$0D
 L8B86:  BEQ $8BA1
 
-L8B88:  LDY $F4
+L8B88:  LDY SFXIndexSQ1
 L8B8A:  CPY #$18
 L8B8C:  BEQ $8BA1
 
@@ -1555,7 +1583,7 @@ L8B9E:  JSR UpdateTriNote       ;($F422)Update the triangle channel note frequen
 L8BA1:* LDA TriNoteLength
 L8BA4:  STA TriNoteRemain
 
-L8BA7:  LDY $F6
+L8BA7:  LDY MusicIndex
 L8BA9:  CPY #$15
 L8BAB:  BEQ $8BB1
 
@@ -1586,15 +1614,15 @@ L8BCB:  BNE $8BCF
 L8BCD:  LDA #$02
 L8BCF:  STA $072C
 
-L8BD2:  LDA $F5
+L8BD2:  LDA SFXIndexSQ2
 L8BD4:  CMP #$0D
 L8BD6:  BEQ UpdateNoiseMusic
 
-L8BD8:  LDA $F4
+L8BD8:  LDA SFXIndexSQ1
 L8BDA:  CMP #$18
 L8BDC:  BEQ UpdateNoiseMusic
 
-L8BDE:  LDA $F6
+L8BDE:  LDA MusicIndex
 L8BE0:  CMP #$15
 L8BE2:  BEQ $8BE8
 
@@ -1772,29 +1800,33 @@ L9060:  .byte $48, $50, $00, $00, $00, $78, $00, $80, $00
 
 ;----------------------------------------------------------------------------------------------------
 
-;Unused music initialization data. Loads from work RAM but this game doesn't have that.  Maybe
-;This is remnant code from the Player's choice arcade machine?
+;The following tables are used to initialize the different songs. There are a total of 8 bytes
+;per entry. The first byte is used 
 
 MusicInitTbl1:
-L9069:  .byte $58
-L906A:  .word $6860
-L906C:  .byte $70, $00, $17, $66, $91
 
-L9071:  .byte $5D
-L9072:  .word $7B40
-L9074:  .byte $00, $60, $17, $EF, $91
+;Unused.
+L9069:  .byte $58, $60, $68, $70, $00
 
-L9079:  .byte $5D
-L907A:  .word $7E24
-L907C:  .byte $70, $60, $17, $96, $92
+;Music index #$01, #$03.
+EndMusic1:
+L906E:  .byte $17
+L906F:  .word $9166
+L9071:  .byte $5D, $40, $7B, $00, $60
 
-L9081:  .byte $4B
-L9082:  .word $711A
-L9084:  .byte $70, $60, $17, $38, $93
+EndMusic2:
+L9076:	.byte $17
+L9077:  .word $91EF
+L9079:  .byte $5D, $24, $7E, $70, $60
 
+IntroEndMusic2:
+L907E:  .byte $17
+L907F:  .word $9296
+L9081:  .byte $4B, $1A, $71, $70, $60
+
+L9086:  .byte $17
+L9087:  .word $9338
 L9089:  .byte $38, $15, $52, $70, $60
-
-;----------------------------------------------------------------------------------------------------
 
 L908E:  .byte $17
 L908F:  .word $93B7
@@ -1804,10 +1836,13 @@ L9096:  .byte $17
 L9097:  .word $93D8
 L9099:  .byte $05, $03, $08, $70, $60
 
+;Music index #$02.
+IntroEndMusic1:
 L909E:  .byte $17
 L909F:  .word $93E2
 L90A1:  .byte $05, $03, $00, $70, $60
 
+;Music index #$04.
 L90A6:  .byte $45
 L90A7:  .word $93E9
 L90A9:  .byte $3F, $20, $76, $10, $10
@@ -1869,14 +1904,18 @@ L9116:  .byte $45
 L9117:  .word $99F2
 L9119:  .byte $51, $16, $00, $00, $00
 
+;Music index #$1A.
+TrainingMusic1:
 L911E:  .byte $73
 L911F:  .word $9A80
 L9121:  .byte $73, $3D, $D4, $10, $00
 
+TrainingMusic2:
 L9126:  .byte $73
 L9127:  .word $9B61
 L9129:  .byte $8C, $34, $BD, $80, $10
 
+TrainingMusic3:
 L912E:  .byte $73
 L912F:  .word $9C2B
 L9131:  .byte $14, $12, $22, $80, $10
@@ -1905,6 +1944,8 @@ L915E:  .byte $73
 L915F:  .word $9EA5
 L9161:  .byte $51, $29, $00, $20, $20
 
+;-------------------------------------------[ Music Data ]-------------------------------------------
+
 L9166:	.byte $93, $02, $94, $4C, $4C, $4C, $88, $4C, $42, $89
 L9170:  .byte $4C, $88, $54, $4C, $89, $42, $83, $4C, $93, $02, $94, $54, $54, $54, $88, $54
 L9180:  .byte $4C, $89, $54, $88, $5A, $54, $89, $4C, $83, $54, $82, $02, $80, $4C, $54, $83
@@ -1913,7 +1954,9 @@ L91A0:  .byte $80, $5C, $83, $5A, $42, $00, $87, $02, $02, $83, $02, $80, $5A, $
 L91B0:  .byte $5A, $5E, $5A, $5E, $5A, $5E, $5A, $56, $81, $5A, $80, $58, $81, $56, $80, $54
 L91C0:  .byte $83, $50, $02, $82, $34, $02, $86, $02, $82, $3C, $02, $86, $02, $82, $42, $02
 L91D0:  .byte $85, $02, $81, $02, $80, $46, $81, $4A, $80, $48, $81, $46, $80, $44, $83, $42
-L91E0:  .byte $02, $87, $2A, $26, $26, $81, $26, $80, $22, $81, $26, $80, $22, $85, $26, $83
+L91E0:  .byte $02, $87, $2A, $26, $26, $81, $26, $80, $22, $81, $26, $80, $22, $85, $26
+
+L91EF:	.byte $83
 L91F0:  .byte $54, $84, $4C, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82, $02, $83
 L9200:  .byte $42, $56, $84, $50, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82, $02
 L9210:  .byte $83, $42, $00, $83, $02, $80, $42, $44, $46, $48, $4A, $4C, $54, $56, $54, $56
@@ -1949,8 +1992,6 @@ L9380:  .byte $40, $82, $2A, $42, $2A, $42, $2A, $42, $2A, $42, $82, $1E, $80, $
 L9390:  .byte $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E
 L93A0:  .byte $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80
 L93B0:  .byte $1E, $1E, $85, $26, $83, $26, $26
-
-;-------------------------------------------[ Music Data ]-------------------------------------------
 
 L93B7:	.byte $83, $4C, $88, $34, $88, $34, $89, $34, $00
 L93C0:  .byte $83, $42, $88, $2A, $88, $2A, $89, $2A, $83, $4C, $88, $34, $88, $34, $89, $34
@@ -2131,7 +2172,9 @@ L9E60:  .byte $3E, $8C, $3C, $00, $82, $2A, $2A, $2A, $2A, $02, $83, $34, $82, $
 L9E70:  .byte $82, $34, $8C, $32, $82, $2A, $2A, $2A, $2A, $02, $83, $32, $82, $32, $83, $34
 L9E80:  .byte $82, $34, $8C, $34, $82, $34, $34, $34, $34, $34, $34, $34, $34, $34, $34, $34
 L9E90:  .byte $34, $34, $34, $34, $34, $38, $38, $38, $38, $38, $38, $38, $38, $42, $42, $42
-L9EA0:  .byte $42, $42, $42, $42, $42, $82, $54, $4C, $46, $83, $54, $82, $3C, $3C, $02, $82
+L9EA0:  .byte $42, $42, $42, $42, $42
+
+L9EA5:	.byte $82, $54, $4C, $46, $83, $54, $82, $3C, $3C, $02, $82
 L9EB0:  .byte $56, $50, $46, $83, $56, $82, $3E, $3E, $02, $82, $54, $4C, $46, $83, $54, $82
 L9EC0:  .byte $3C, $3C, $02, $82, $50, $4A, $42, $83, $50, $82, $38, $38, $02, $00, $82, $4C
 L9ED0:  .byte $46, $3C, $83, $4C, $82, $34, $34, $02, $82, $50, $46, $3E, $83, $50, $82, $38

@@ -463,8 +463,10 @@ LA473:  LDX #$00
 LA475:  STX $0B
 LA477:  LDA $A185,X
 LA47A:  STA $01
-LA47C:  LDA #$80
-LA47E:  STA $F2
+
+LA47C:  LDA #SND_OFF			;Stop any playing music.
+LA47E:  STA MusicInit
+
 LA480:  JSR $AEA5
 LA483:  JSR $AA64
 LA486:  LDA #$81
@@ -505,7 +507,7 @@ LA4D4:  STA $1B
 LA4D6:  LDA #$FF
 LA4D8:  STA $1D
 LA4DA:  LDA #$03
-LA4DC:  STA $F2
+LA4DC:  STA MusicInit
 LA4DE:  JSR $AF02
 LA4E1:  LDA #$F1
 LA4E3:  JSR $BDA2
@@ -535,7 +537,7 @@ LA518:  STA $1D
 LA51A:  LDA $013F
 LA51D:  BNE $A528
 LA51F:  LDA #$02
-LA521:  STA $F2
+LA521:  STA MusicInit
 LA523:  LDA #$80
 LA525:  JSR $AF04
 LA528:  LDA #$FF
@@ -777,12 +779,14 @@ LA746:  LDA $04
 LA748:  BNE $A74D
 LA74A:  JSR $A75B
 LA74D:  JMP $A6D9
-LA750:  LDA #$80
+
+LA750:  LDA #SND_OFF
 LA752:  STA $F0
 LA754:  STA $F1
-LA756:  STA $F2
+LA756:  STA MusicInit
 LA758:  STA $F3
 LA75A:  RTS
+
 LA75B:  LDA $D9
 LA75D:  BMI $A760
 LA75F:  RTS
@@ -1372,7 +1376,7 @@ LAC3D:  STA $1B
 LAC3F:  LDA #$FF
 LAC41:  STA $1D
 LAC43:  LDA #$0E
-LAC45:  STA $F2
+LAC45:  STA MusicInit
 LAC47:  LDA #$20
 LAC49:  JSR $AF04
 LAC4C:  LDY #$00
@@ -1399,7 +1403,7 @@ LAC80:  STA $1B
 LAC82:  LDA #$FF
 LAC84:  STA $1D
 LAC86:  LDA #$04
-LAC88:  STA $F2
+LAC88:  STA MusicInit
 LAC8A:  LDY #$03
 LAC8C:  LDA $A1C0,Y
 LAC8F:  STA $06BF,Y
@@ -1412,7 +1416,7 @@ LAC9D:  BEQ $AC95
 LAC9F:  LDX #$05
 LACA1:  JSR $ADD1
 LACA4:  LDA #$04
-LACA6:  STA $F2
+LACA6:  STA MusicInit
 LACA8:  JSR $ADC5
 LACAB:  JSR $BF7E
 LACAE:  JMP $AE84
@@ -1446,7 +1450,7 @@ LACED:  JSR $AF02
 LACF0:  LDA $15
 LACF2:  BEQ $ACEA
 LACF4:  LDA #$08
-LACF6:  STA $F2
+LACF6:  STA MusicInit
 LACF8:  LDA #$20
 LACFA:  JSR $AF04
 LACFD:  LDY #$10
@@ -1463,7 +1467,7 @@ LAD17:  STA $1B
 LAD19:  LDA #$FF
 LAD1B:  STA $1D
 LAD1D:  LDA #$1A
-LAD1F:  STA $F2
+LAD1F:  STA MusicInit
 LAD21:  JSR $C013
 LAD24:  JSR $BE1A
 LAD27:  LDA $06C2
@@ -1613,7 +1617,7 @@ LAE7E:  RTS
 LAE7F:  ADC $0391
 LAE82:  BCC $AE70
 LAE84:  LDA #$80
-LAE86:  STA $F2
+LAE86:  STA MusicInit
 LAE88:  RTS
 LAE89:  LDY $01
 LAE8B:  LDA $A18D,Y
@@ -3426,7 +3430,7 @@ LBD7A:  STA $1B
 LBD7C:  LDA #$FF
 LBD7E:  STA $1D
 LBD80:  LDA #$1A
-LBD82:  STA $F2
+LBD82:  STA MusicInit
 LBD84:  JSR $AF02
 LBD87:  LDA #$F6
 LBD89:  JSR $BDA2
@@ -3434,7 +3438,7 @@ LBD8C:  LDA #$F7
 LBD8E:  JSR $BDA2
 LBD91:  JSR $ADC5
 LBD94:  LDA #$80
-LBD96:  STA $F2
+LBD96:  STA MusicInit
 LBD98:  JMP $BF7E
 LBD9B:  LDA #$FF
 LBD9D:  STA $1D
@@ -7748,22 +7752,26 @@ LF64F:  .byte $06, $0C, $0C, $2D, $90, $03, $03, $0C, $00, $00, $00, $00, $04, $
 LF65F:  .byte $08, $10, $18, $20, $30, $40, $05, $06, $0B, $0A, $28, $80, $03, $02, $0A, $48
 LF66F:  .byte $38, $00, $00, $00, $00
 
-LF674:  .byte $DA, $DA, $DA, $D9, $D9, $D9, $D8, $D8
-LF67C:  .byte $D8, $D7, $D7, $D7, $D6, $D6, $D6, $D5, $9A, $9A, $9A, $99, $99, $99, $98, $98
-LF68C:  .byte $98, $97, $97, $97, $96, $1E, $03, $48, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3
-LF69C:  .byte $D3, $D3, $D4, $D4, $D4, $D5, $D5, $D6, $53, $53, $53, $53, $53, $53, $53, $53
-LF6AC:  .byte $53, $53, $54, $54, $54, $15, $15, $56, $50, $50, $51, $51, $52, $52, $53, $53
-LF6BC:  .byte $54, $55, $56, $57, $58, $59, $5A, $5B, $90, $90, $91, $91, $92, $92, $93, $93
-LF6CC:  .byte $94, $95, $96, $97, $98, $99, $9A, $9B, $50, $50, $50, $50, $50, $50, $50, $50
-LF6DC:  .byte $50, $50, $51, $52, $53, $54, $55, $56, $90, $90, $90, $90, $90, $90, $90, $90
-LF6EC:  .byte $90, $91, $93, $94, $96, $97, $99, $9A, $10, $10, $10, $10, $12, $95, $D3, $14
-LF6FC:  .byte $95, $17, $D4, $15, $97, $18, $DA, $D0, $0C, $13, $D4, $15, $97, $D5, $16, $97
-LF70C:  .byte $19, $D6, $17, $99, $17, $DB, $D0, $0C, $10, $11, $11, $11, $11, $12, $11, $12
-LF71C:  .byte $11, $12, $11, $12, $11, $12, $13, $12, $13, $12, $13, $12, $13, $14, $13, $14
-LF72C:  .byte $13, $14, $15, $14, $15, $14, $15, $16, $15, $16
+;The following table id data loaded into the SQ2 channel envelope control register. A new
+;value is loaded every 4th frame.
 
-LF73A:	.byte $17, $18, $19
-LF73D:	.byte $1A, $1B, $1D
+SQ2EnvTbl:
+LF674:  .byte $DA, $DA, $DA, $D9, $D9, $D9, $D8, $D8, $D8, $D7, $D7, $D7, $D6, $D6, $D6, $D5
+LF684:  .byte $9A, $9A, $9A, $99, $99, $99, $98, $98, $98, $97, $97, $97, $96, $1E, $03, $48
+LF694:  .byte $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D4, $D4, $D4, $D5, $D5, $D6
+LF6A4:  .byte $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $54, $54, $54, $15, $15, $56
+LF6B4:  .byte $50, $50, $51, $51, $52, $52, $53, $53, $54, $55, $56, $57, $58, $59, $5A, $5B
+LF6C4:  .byte $90, $90, $91, $91, $92, $92, $93, $93, $94, $95, $96, $97, $98, $99, $9A, $9B
+LF6D4:  .byte $50, $50, $50, $50, $50, $50, $50, $50, $50, $50, $51, $52, $53, $54, $55, $56
+LF6E4:  .byte $90, $90, $90, $90, $90, $90, $90, $90, $90, $91, $93, $94, $96, $97, $99, $9A
+
+LF6F4:  .byte $10, $10, $10, $10, $12, $95, $D3, $14, $95, $17, $D4, $15, $97, $18, $DA, $D0
+LF704:  .byte $0C, $13, $D4, $15, $97, $D5, $16, $97, $19, $D6, $17, $99, $17, $DB, $D0, $0C
+LF714:  .byte $10, $11, $11, $11, $11, $12, $11, $12, $11, $12, $11, $12, $11, $12, $13, $12
+LF724:  .byte $13, $12, $13, $12, $13, $14, $13, $14, $13, $14, $15, $14, $15, $14, $15, $16
+LF734:  .byte $15, $16, $17, $18, $19, $1A
+
+LF73A:  .byte $1B, $1D
 LF73C:  .byte $1D, $03, $48, $00, $19, $06, $38, $00, $19, $08, $38, $00, $19, $0A, $38, $00
 LF74C:  .byte $16, $07, $98, $00, $10, $00, $00, $00, $80, $00, $08, $00, $80, $01, $08, $00
 LF75C:  .byte $81, $01, $08, $00, $1D, $02, $08, $00, $1D, $03
