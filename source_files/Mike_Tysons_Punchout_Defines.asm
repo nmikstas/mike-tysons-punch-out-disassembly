@@ -21,26 +21,30 @@
 ;$F6
 ;$F7
 
-;$F8
-;$F9
+.alias MusicDataPtr		$F8		;Pointer base of music data.
+.alias MusicDataPtrLB	$F8		;Pointer base of music data, lower byte.
+.alias MusicDataPtrUB	$F9		;Pointer base of music data, upper byte.
 
-;$FC
-;$FD
+.alias SQ2NoteIndex		$FC		;Index to current SQ2 musical note data.
+.alias SQ1NoteIndex		$FD		;Index to current SQ1 musical note data.
 
-;$0700
-;$0701
-;$0702
-;$0703
-;$0704
-;$0705
-;$0706
-;$0707
+.alias SQ2NoteRemain	$0700	;The counter used for remaining SQ2 note time.
+.alias SQ1NoteRemain	$0701	;The counter used for remaining SQ1 note time.
+.alias TriNoteRemain	$0702	;The counter used for remaining triangle note time.
+.alias NoiseNoteRemain	$0703	;The counter used for remaining noise note time.
+
+.alias SQ2NoteLength	$0704	;The total length of the of the current SQ2 note.
+.alias SQ1NoteLength	$0705	;The total length of the of the current SQ1 note.
+.alias TriNoteLength	$0706	;The total length of the of the current triangle note.
+.alias NoiseNoteLength	$0707	;The total length of the of the current noise note.
+
 ;$0708
 ;$0709
 ;$070A
 ;$070B
-;$070C
-;$070D
+.alias NoiseIndexReload	$070C	;Reload address to repeat drum beatsin song background.
+.alias NoteLengthsBase	$070D	;Base index for note lengths for a given piece of music.
+
 .alias SQ1SweepCntrl	$070E	;Control byte for SQ1 sweep hardware.
 .alias SQ0LoFreqBits    $070F   ;Lower frequency bits of SQ0.
 .alias SQ1LoFreqBits    $0710   ;Lower frequency bits of SQ1.
@@ -62,7 +66,7 @@
 .alias NoiseVolIndex	$0720	;Index to noise channel control byte for volume/envelope.
 ;$0721
 .alias TriNoteIndex		$0722	;Index to current triangle musical note data.
-;$0723
+.alias NoiseMusicIndex	$0723	;Index to current noise music data.
 ;$0724
 ;$0725
 ;$0726

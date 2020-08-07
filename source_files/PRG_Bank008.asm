@@ -5,13 +5,18 @@
 
 ;--------------------------------------[ Forward Declarations ]--------------------------------------
 
+.alias GetNoteLength			$F400
 .alias SetSQ1Control            $F40B
 .alias SQ2CntrlAndSwpDis        $F412
+.alias SetSQ2Control			$F414
+.alias UpdateSQ2				$F41B
 .alias UpdateSQ2Note            $F41E
 .alias UpdateTriNote            $F422
+.alias UpdateSQ1				$F426
 .alias UpdateSQ1Note            $F429
 .alias LogDiv32                 $F44E
 .alias LogDiv16                 $F44F
+.alias LogDiv8					$F450
 
 ;-----------------------------------------[ Start Of Code ]------------------------------------------
 
@@ -163,7 +168,7 @@ L80ED:  JSR $F4EF
 L80F0:  LDX #$9C
 L80F2:  LDY #$7F
 L80F4:  LDA #$62
-L80F6:  JSR $F426
+L80F6:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L80F9:  LDA $0712
 L80FC:  CMP #$6C
@@ -197,7 +202,7 @@ L8126:  JSR $F4EF
 L8129:  LDX #$5F
 L812B:  LDY #$8B
 L812D:  LDA #$12
-L812F:  JSR $F426
+L812F:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L8132:  LDA $0712
 L8135:  CMP #$10
@@ -247,7 +252,7 @@ L8181:  STA NoiseCntrl0
 L8184:  LDX #$DA
 L8186:  LDY #$85
 L8188:  LDA #$24
-L818A:  JSR $F426
+L818A:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L818D:  JMP $813E
 
@@ -263,7 +268,7 @@ L819E:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
 
 L81A1:  LDA $0713
 L81A4:  TAY
-L81A5:  JSR $F450
+L81A5:  JSR LogDiv8				;($F450)Logarithmically increase frequency.
 
 L81A8:  STA $0713
 L81AB:  ROL
@@ -332,7 +337,7 @@ L8224:  JSR $F4EF
 L8227:  LDX #$43
 L8229:  LDY #$84
 L822B:  LDA #$4C
-L822D:  JSR $F426
+L822D:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L8230:  JMP $813E
 L8233:  LDA #$04
@@ -344,7 +349,8 @@ L8240:  LDA $0713
 L8243:  AND #$0F
 L8245:  TAY
 L8246:  LDA $F79C,Y
-L8249:  JSR $F429
+L8249:  JSR UpdateSQ1Note		;($F429)Update SQ1 note frequency.
+
 L824C:  LDY $0712
 L824F:  LDA $F797,Y
 L8252:  STA SQ1Cntrl0
@@ -363,7 +369,8 @@ L826F:  BEQ $8276
 L8271:  LDA $F7AC,Y
 L8274:  BNE $8279
 L8276:  LDA $F7BC,Y
-L8279:  JSR $F429
+L8279:  JSR UpdateSQ1Note		;($F429)Update SQ1 note frequency.
+
 L827C:  JMP $824C
 L827F:  CPY #$09
 L8281:  BEQ $8233
@@ -388,7 +395,8 @@ L82A7:  LDX #$88
 L82A9:  STX SQ1Cntrl0
 L82AC:  STX SQ2Cntrl0
 L82AF:  LDA #$58
-L82B1:  JSR $F429
+L82B1:  JSR UpdateSQ1Note		;($F429)Update SQ1 note frequency.
+
 L82B4:  LDA #$22
 L82B6:  STA SQ2Cntrl2
 L82B9:  LDA #$08
@@ -473,7 +481,7 @@ L8369:  JSR $F4EF
 L836C:  LDX #$98
 L836E:  LDY #$7F
 L8370:  LDA #$64
-L8372:  JSR $F426
+L8372:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L8375:  JMP $813E
 L8378:  LDA #$12
@@ -482,7 +490,7 @@ L837A:  JSR $F4EF
 L837D:  LDX #$5F
 L837F:  LDY #$8B
 L8381:  LDA #$0E
-L8383:  JSR $F426
+L8383:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L8386:  LDA $0712
 L8389:  CMP #$0C
@@ -496,13 +504,14 @@ L8397:  JSR $F4EF
 L839A:  LDX #$95
 L839C:  LDY #$7F
 L839E:  LDA #$4A
-L83A0:  JSR $F426
+L83A0:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L83A3:  LDA $0712
 L83A6:  CMP #$03
 L83A8:  BNE $83AF
 L83AA:  LDA #$42
-L83AC:  JSR $F429
+L83AC:  JSR UpdateSQ1Note		;($F429)Update SQ1 note frequency.
+
 L83AF:  JMP $813E
 L83B2:  LDA #$04
 L83B4:  STA $0713
@@ -566,13 +575,14 @@ L8425:  JSR $F4EF
 L8428:  LDX #$82
 L842A:  LDY #$A2
 L842C:  LDA #$56
-L842E:  JSR $F426
+L842E:  JSR UpdateSQ1			;($F426)Update SQ1 control and note bytes.
 
 L8431:  LDA $0712
 L8434:  CMP #$0E
 L8436:  BNE $843D
 L8438:  LDA #$3E
-L843A:  JSR $F429
+L843A:  JSR UpdateSQ1Note		;($F429)Update SQ1 note frequency.
+
 L843D:  JMP $813E
 
 L8440:  LDA #$20
@@ -618,7 +628,8 @@ L8491:  LDA #$1A
 L8493:  STA $0716
 L8496:  LDX #$9F
 L8498:  LDY #$83
-L849A:  JSR $F414
+L849A:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L849D:  LDA $0715
 L84A0:  CMP #$40
 L84A2:  BCS $84AB
@@ -656,7 +667,8 @@ L84E0:  STA $0715
 L84E3:  LDX #$9C
 L84E5:  LDY #$7F
 L84E7:  LDA #$62
-L84E9:  JSR $F41B
+L84E9:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L84EC:  LDA $0715
 L84EF:  CMP #$6C
 L84F1:  BEQ $8514
@@ -718,7 +730,8 @@ L8567:  BNE $8572
 L8569:  LDX #$94
 L856B:  LDY #$C5
 L856D:  LDA #$50
-L856F:  JSR $F41B
+L856F:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L8572:  JMP $8514
 L8575:  STY $F5
 L8577:  LDA #$10
@@ -744,7 +757,8 @@ L85A1:  STA $0715
 L85A4:  LDX #$43
 L85A6:  LDY #$84
 L85A8:  LDA #$4C
-L85AA:  JSR $F41B
+L85AA:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L85AD:  JMP $8514
 L85B0:  CPY #$04
 L85B2:  BEQ $8553
@@ -773,7 +787,8 @@ L85DF:  STA $0715
 L85E2:  LDX #$5F
 L85E4:  LDY #$8B
 L85E6:  LDA #$0E
-L85E8:  JSR $F41B
+L85E8:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L85EB:  LDA $0715
 L85EE:  CMP #$10
 L85F0:  BCS $85F7
@@ -786,7 +801,8 @@ L85FE:  STA $0715
 L8601:  LDX #$85
 L8603:  LDY #$85
 L8605:  LDA #$1C
-L8607:  JSR $F41B
+L8607:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L860A:  JMP $8514
 L860D:  STY $F5
 L860F:  LDA #$20
@@ -795,7 +811,8 @@ L8614:  LDA #$8F
 L8616:  STA $0716
 L8619:  LDX #$5D
 L861B:  LDY #$81
-L861D:  JSR $F414
+L861D:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L8620:  LDA $0716
 L8623:  TAY
 L8624:  JSR LogDiv16            ;($F44F)Logarithmically increase frequency.
@@ -822,10 +839,11 @@ L864D:  LDA #$FF
 L864F:  STA $0716
 L8652:  LDX #$5D
 L8654:  LDY #$81
-L8656:  JSR $F414
+L8656:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L8659:  LDA $0716
 L865C:  TAY
-L865D:  JSR $F450
+L865D:  JSR LogDiv8				;($F450)Logarithmically increase frequency.
 L8660:  STA $0716
 L8663:  JMP $862A
 L8666:  CPY #$09
@@ -847,14 +865,16 @@ L8685:  STA $0715
 L8688:  LDX #$C8
 L868A:  LDY #$CC
 L868C:  LDA #$34
-L868E:  JSR $F41B
+L868E:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L8691:  JMP $8514
 L8694:  STY $F5
 L8696:  LDA #$0C
 L8698:  STA $0715
 L869B:  LDX #$03
 L869D:  LDY #$C5
-L869F:  JSR $F414
+L869F:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L86A2:  LDA #$38
 L86A4:  BNE $86B6
 L86A6:  LDA $0715
@@ -862,19 +882,24 @@ L86A9:  CMP #$08
 L86AB:  BNE $86B9
 L86AD:  LDX #$02
 L86AF:  LDY #$CC
-L86B1:  JSR $F414
+L86B1:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L86B4:  LDA #$48
 L86B6:  JMP $856F
 L86B9:  JMP $8514
+
 L86BC:  STY $F5
 L86BE:  LDA #$10
 L86C0:  STA $0715
+
 L86C3:  LDX #$88
 L86C5:  LDY #$D3
 L86C7:  LDA #$1C
-L86C9:  JSR $F41B
+L86C9:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L86CC:  LDA #$3A
-L86CE:  JSR $F422
+L86CE:  JSR UpdateTriNote       ;($F422)Update the triangle channel note frequency.
+
 L86D1:  LDA #$1C
 L86D3:  STA TriangleCntrl0
 L86D6:  JMP $8514
@@ -902,7 +927,8 @@ L8703:  LDA #$1A
 L8705:  STA $0716
 L8708:  LDX #$9F
 L870A:  LDY #$83
-L870C:  JSR $F414
+L870C:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L870F:  LDA $0715
 L8712:  CMP #$06
 L8714:  BCC $871B
@@ -913,7 +939,8 @@ L871D:  BNE $8728
 L871F:  LDX #$81
 L8721:  LDY #$8B
 L8723:  LDA #$34
-L8725:  JSR $F41B
+L8725:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L8728:  JMP $8514
 L872B:  STY $F5
 L872D:  LDA #$18
@@ -930,7 +957,8 @@ L8745:  BNE $8750
 L8747:  LDX #$86
 L8749:  LDY #$C5
 L874B:  LDA #$5E
-L874D:  JSR $F41B
+L874D:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L8750:  JMP $8514
 L8753:  STY $F5
 L8755:  LDA #$60
@@ -1007,7 +1035,8 @@ L87FB:  LDA #$1F
 L87FD:  STA $0716
 L8800:  LDX #$9A
 L8802:  LDY #$83
-L8804:  JSR $F414
+L8804:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L8807:  LDA $0715
 L880A:  CMP #$04
 L880C:  BCC $8813
@@ -1018,7 +1047,8 @@ L8815:  BNE $8820
 L8817:  LDX #$81
 L8819:  LDY #$8B
 L881B:  LDA #$50
-L881D:  JSR $F41B
+L881D:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L8820:  JMP $8514
 L8823:  STY $F5
 L8825:  LDA #$40
@@ -1027,7 +1057,8 @@ L882A:  LDA #$FF
 L882C:  STA $0716
 L882F:  LDX #$1E
 L8831:  LDY #$82
-L8833:  JSR $F414
+L8833:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L8836:  LDA $0716
 L8839:  TAY
 L883A:  JSR LogDiv16            ;($F44F)Logarithmically increase frequency.
@@ -1051,15 +1082,18 @@ L8859:  JMP $8514
 L885C:  STY $F5
 L885E:  LDA #$10
 L8860:  STA $0715
+
 L8863:  LDX #$82
 L8865:  LDY #$A2
 L8867:  LDA #$56
-L8869:  JSR $F41B
+L8869:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L886C:  LDA $0715
 L886F:  CMP #$0E
 L8871:  BNE $8878
 L8873:  LDA #$3E
-L8875:  JSR $F41E
+L8875:  JSR UpdateSQ2Note		;($F41E)Update the SQ2 channel note frequency.
+
 L8878:  JMP $8514
 L887B:  STY $F5
 L887D:  LDA #$20
@@ -1071,7 +1105,8 @@ L8888:  DEC $0715
 L888B:  STA $0716
 L888E:  LDX #$9E
 L8890:  LDY #$82
-L8892:  JSR $F414
+L8892:  JSR SetSQ2Control		;($F414)Set control registers for SQ2.
+
 L8895:  LDA $0715
 L8898:  CMP #$10
 L889A:  BEQ $8886
@@ -1106,10 +1141,12 @@ L88CE:  RTS
 L88CF:  STY $F5
 L88D1:  LDA #$10
 L88D3:  STA $0715
+
 L88D6:  LDX #$C8
 L88D8:  LDY #$AC
 L88DA:  LDA #$42
-L88DC:  JSR $F41B
+L88DC:  JSR UpdateSQ2			;($F41B)Update SQ2 control and note bytes.
+
 L88DF:  JMP $8514
 
 L88E2:  LDA $F2
@@ -1130,6 +1167,7 @@ L88FE:  CMP #$1A
 L8900:  BCS $8969
 L8902:  LDA #$00
 L8904:  STA $F6
+
 L8906:  LDA $0724
 L8909:  BEQ $8922
 L890B:  LDA $F5
@@ -1180,6 +1218,7 @@ L8961:  JMP $88FC
 
 L8964:  TAX
 L8965:  JSR $8906
+
 L8968:  TXA
 L8969:  STA $F6
 L896B:  STA $070A
@@ -1199,120 +1238,132 @@ L8987:  LDA $F6
 L8989:  CMP #$10
 L898B:  BCS $89C3
 
-L898D:  LDA $9069,Y
-L8990:  STA $070D
+L898D:  LDA MusicInitTbl1,Y
+L8990:  STA NoteLengthsBase
 
-L8993:  LDA $906A,Y
-L8996:  STA $F8
-L8998:  LDA $906B,Y
-L899B:  STA $F9
+L8993:  LDA MusicInitTbl1+1,Y
+L8996:  STA MusicDataPtrLB
+L8998:  LDA MusicInitTbl1+2,Y
+L899B:  STA MusicDataPtrUB
 
-L899D:  LDA $906C,Y
-L89A0:  STA $0722
+L899D:  LDA MusicInitTbl1+3,Y
+L89A0:  STA TriNoteIndex
 
-L89A3:  LDA $906D,Y
-L89A6:  STA $FD
+L89A3:  LDA MusicInitTbl1+4,Y
+L89A6:  STA SQ1NoteIndex
 
-L89A8:  LDA $906E,Y
-L89AB:  STA $0723
-L89AE:  STA $070C
+L89A8:  LDA MusicInitTbl1+5,Y
+L89AB:  STA NoiseMusicIndex
+L89AE:  STA NoiseIndexReload
 
-L89B1:  LDA $906F,Y
+L89B1:  LDA MusicInitTbl1+6,Y
 L89B4:  STA $071C
 
-L89B7:  LDA $9070,Y
+L89B7:  LDA MusicInitTbl1+7,Y
 L89BA:  STA $071D
 
-L89BD:  JMP $89F3
+L89BD:  JMP PrepMusicStart		;($89F3)Initialize remaining variables for music start.
 L89C0:  JMP $8973
 
-;
+L89C3:  LDA MusicInitTbl2,Y
+L89C6:  STA NoteLengthsBase
 
-L89C3:  LDA $90DE,Y
-L89C6:  STA $070D
+L89C9:  LDA MusicInitTbl2+1,Y
+L89CC:  STA MusicDataPtrLB
+L89CE:  LDA MusicInitTbl2+2,Y
+L89D1:  STA MusicDataPtrUB
 
-L89C9:  LDA $90DF,Y
-L89CC:  STA $F8
-L89CE:  LDA $90E0,Y
-L89D1:  STA $F9
+L89D3:  LDA MusicInitTbl2+3,Y
+L89D6:  STA TriNoteIndex
 
-L89D3:  LDA $90E1,Y
-L89D6:  STA $0722
+L89D9:  LDA MusicInitTbl2+4,Y
+L89DC:  STA SQ1NoteIndex
 
-L89D9:  LDA $90E2,Y
-L89DC:  STA $FD
+L89DE:  LDA MusicInitTbl2+5,Y
+L89E1:  STA NoiseMusicIndex
+L89E4:  STA NoiseIndexReload
 
-L89DE:  LDA $90E3,Y
-L89E1:  STA $0723
-L89E4:  STA $070C
-
-L89E7:  LDA $90E4,Y
+L89E7:  LDA MusicInitTbl2+6,Y
 L89EA:  STA $071C
 
-L89ED:  LDA $90E5,Y
+L89ED:  LDA MusicInitTbl2+7,Y
 L89F0:  STA $071D
 
-L89F3:  LDA #$00
-L89F5:  STA $FC
-L89F7:  LDA #$01
-L89F9:  STA $0700
-L89FC:  STA $0701
-L89FF:  STA $0702
-L8A02:  STA $0703
+PrepMusicStart:
+L89F3:  LDA #$00				;Index to SQ2 music data always comes first.
+L89F5:  STA SQ2NoteIndex		;
+
+L89F7:  LDA #$01				;
+L89F9:  STA SQ2NoteRemain		;
+L89FC:  STA SQ1NoteRemain		;Prepare to update notes on all channels.
+L89FF:  STA TriNoteRemain		;
+L8A02:  STA NoiseNoteRemain		;
 
 L8A05:  LDA #$7F				;Disable SQ1 sweep function.
 L8A07:  STA SQ1SweepCntrl		;
 
+;------------------------------------------[ Music Player ]------------------------------------------
+
 L8A0A:  LDA $F5
 L8A0C:  BNE $8A13
+
 L8A0E:  LDA $0725
 L8A11:  BEQ $8A2B
+
 L8A13:  LDA $071C
 L8A16:  CMP #$40
 L8A18:  BCS $8A26
+
 L8A1A:  LDA #$3F
 L8A1C:  STA $0708
+
 L8A1F:  LDA #$01
 L8A21:  STA $071A
+
 L8A24:  BNE $8A2B
+
 L8A26:  LDA #$00
 L8A28:  STA $0708
-L8A2B:  DEC $0700
-L8A2E:  BEQ $8A38
 
-L8A30:  BNE $8A69
+L8A2B:  DEC SQ2NoteRemain		;Is it time to load a new SQ2 note?
+L8A2E:  BEQ GetNewSQ2Note		;If so, branch.
 
+L8A30:  BNE SQ2NoteContinue		;Not time to load a new note. Branch always.
 
+L8A32:  JSR GetNoteLength		;($F400)Get the length of this note to play.
+L8A35:  STA SQ2NoteLength		;
 
+GetNewSQ2Note:
+L8A38:  LDY SQ2NoteIndex
+L8A3A:  INC SQ2NoteIndex
 
-
-
-L8A32:  JSR $F400
-L8A35:  STA $0704
-
-L8A38:  LDY $FC
-L8A3A:  INC $FC
-L8A3C:  LDA ($F8),Y
+L8A3C:  LDA (MusicDataPtr),Y
 L8A3E:  BEQ $89C0
 L8A40:  BMI $8A32
+
 L8A42:  STA $0718
 L8A45:  LDY $F5
 L8A47:  BNE $8A63
+
 L8A49:  LDY $0725
 L8A4C:  BNE $8A63
-L8A4E:  JSR $F41E
 
+L8A4E:  JSR UpdateSQ2Note		;($F41E)Update the SQ2 channel note frequency.
 L8A51:  BEQ $8A63
+
 L8A53:  LDA $071C
 L8A56:  CMP #$80
 L8A58:  BCC $8A5E
+
 L8A5A:  LDA #$7F
 L8A5C:  BNE $8A60
+
 L8A5E:  LDA #$3F
 L8A60:  STA $0708
-L8A63:  LDA $0704
-L8A66:  STA $0700
+L8A63:  LDA SQ2NoteLength
+L8A66:  STA SQ2NoteRemain
 
+SQ2NoteContinue:
 L8A69:  LDA $F5
 L8A6B:  BNE $8AB1
 
@@ -1328,10 +1379,11 @@ L8A7C:  CMP #$02
 L8A7E:  BEQ $8A94
 L8A80:  LDX $071A
 L8A83:  BEQ $8A8D
-L8A85:  JSR $F41E
+L8A85:  JSR UpdateSQ2Note		;($F41E)Update the SQ2 note frequency.
+
 L8A88:  LDX #$00
 L8A8A:  STX $071A
-L8A8D:  LDA $0700
+L8A8D:  LDA SQ2NoteRemain
 L8A90:  CMP #$02
 L8A92:  BCS $8A98
 L8A94:  LDX #$10
@@ -1351,45 +1403,50 @@ L8AAA:  LDA $F674,Y
 L8AAD:  TAX
 L8AAE:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 sweep and set control bits.
 
-L8AB1:  LDA $FD
+;------------------------------------[ SQ1 Music Channel Update ]------------------------------------
+
+L8AB1:  LDA SQ1NoteIndex
 L8AB3:  BNE $8AB8
-L8AB5:  JMP $8B63
+
+L8AB5:  JMP UpdateTRIMusic		;($8B63)Update triangle musical note.
+
 L8AB8:  LDA $F4
 L8ABA:  BEQ $8AD4
+
 L8ABC:  LDA $071D
 L8ABF:  CMP #$40
 L8AC1:  BCS $8ACF
+
 L8AC3:  LDA #$3F
 L8AC5:  STA $0709
+
 L8AC8:  LDA #$01
 L8ACA:  STA $071B
 L8ACD:  BNE $8AD4
+
 L8ACF:  LDA #$00
 L8AD1:  STA $0709
-L8AD4:  DEC $0701
+
+L8AD4:  DEC SQ1NoteRemain
 L8AD7:  BEQ $8AE1
+
 L8AD9:  BNE $8B18
 
+L8ADB:  JSR GetNoteLength		;($F400)Get the length of this note to play.
+L8ADE:  STA SQ1NoteLength		;
 
+L8AE1:  LDY SQ1NoteIndex
+L8AE3:  INC SQ1NoteIndex
 
-
-
-
-L8ADB:  JSR $F400
-L8ADE:  STA $0705
-
-L8AE1:  LDY $FD
-L8AE3:  INC $FD
-
-L8AE5:  LDA ($F8),Y
+L8AE5:  LDA (MusicDataPtr),Y
 L8AE7:  BMI $8ADB
 
 L8AE9:  BNE $8AF6
 
-L8AEB:  LDY $FD
-L8AED:  INC $FD
+L8AEB:  LDY SQ1NoteIndex
+L8AED:  INC SQ1NoteIndex
 
-L8AEF:  LDA ($F8),Y
+L8AEF:  LDA (MusicDataPtr),Y
 L8AF1:  STA SQ1SweepCntrl		;Set SQ1 sweep control byte.
 
 L8AF4:  BNE $8AE1
@@ -1397,6 +1454,7 @@ L8AF4:  BNE $8AE1
 L8AF6:  STA $0719
 L8AF9:  LDY $F4
 L8AFB:  BNE $8B12
+
 L8AFD:  JSR UpdateSQ1Note       ;($F429)Update the SQ1 channel note frequency.
 
 L8B00:  BEQ $8B12
@@ -1409,8 +1467,9 @@ L8B0B:  BNE $8B0F
 L8B0D:  LDA #$3F
 L8B0F:  STA $0709
 
-L8B12:  LDA $0705
-L8B15:  STA $0701
+L8B12:  LDA SQ1NoteLength
+L8B15:  STA SQ1NoteRemain
+
 L8B18:  LDA $F4
 L8B1A:  BNE $8B63
 L8B1C:  LDA $071D
@@ -1421,10 +1480,11 @@ L8B26:  CMP #$02
 L8B28:  BEQ $8B3E
 L8B2A:  LDX $071B
 L8B2D:  BEQ $8B37
-L8B2F:  JSR $F429
+L8B2F:  JSR UpdateSQ1Note		;($F429)Update SQ1 note frequency.
+
 L8B32:  LDX #$00
 L8B34:  STX $071B
-L8B37:  LDA $0701
+L8B37:  LDA SQ1NoteRemain
 L8B3A:  CMP #$02
 L8B3C:  BCS $8B42
 L8B3E:  LDX #$10
@@ -1450,33 +1510,26 @@ L8B5E:  BNE UpdateTRIMusic		;Done updating SQ1. Update triangle channel.
 DoNoiseMusic:
 L8B60:  JMP UpdateNoiseMusic	;($8C1B)Update noise channel music.
 
-
-
-
 ;---------------------------------[ Triangle Music Channel Update ]----------------------------------
 
 UpdateTRIMusic:
-L8B63:  LDY $0722
+L8B63:  LDY TriNoteIndex
 L8B66:  BEQ DoNoiseMusic
 
 L8B68:  DEC $072A
-L8B6B:  DEC $0702
+
+L8B6B:  DEC TriNoteRemain
 L8B6E:  BEQ $8B78
 
 L8B70:  BNE $8BD2
 
+L8B72:  JSR GetNoteLength		;($F400)Get the length of this note to play.
+L8B75:  STA TriNoteLength		;
 
+L8B78:  LDY TriNoteIndex
+L8B7B:  INC TriNoteIndex
 
-
-
-
-L8B72:  JSR $F400
-L8B75:  STA $0706
-
-L8B78:  LDY $0722
-L8B7B:  INC $0722
-
-L8B7E:  LDA ($F8),Y
+L8B7E:  LDA (MusicDataPtr),Y
 L8B80:  BMI $8B72
 
 L8B82:  LDY $F5
@@ -1499,76 +1552,93 @@ L8B99:  LDY #$81				;Enable the triangle channel.
 L8B9B:  STY TriangleCntrl0		;
 L8B9E:  JSR UpdateTriNote       ;($F422)Update the triangle channel note frequency.
 
-L8BA1:* LDA $0706
-L8BA4:  STA $0702
+L8BA1:* LDA TriNoteLength
+L8BA4:  STA TriNoteRemain
 
 L8BA7:  LDY $F6
 L8BA9:  CPY #$15
 L8BAB:  BEQ $8BB1
+
 L8BAD:  CPY #$04
 L8BAF:  BCS $8BD2
+
 L8BB1:  CMP #$0B
 L8BB3:  BCS $8BCD
+
 L8BB5:  TAX
 L8BB6:  SEC
 L8BB7:  SBC #$02
 L8BB9:  STA $072B
+
 L8BBC:  TXA
 L8BBD:  LSR
 L8BBE:  STA $072A
+
 L8BC1:  CMP #$04
 L8BC3:  BCS $8BC9
+
 L8BC5:  LDA #$00
 L8BC7:  BEQ $8BCF
+
 L8BC9:  LDA #$01
 L8BCB:  BNE $8BCF
+
 L8BCD:  LDA #$02
 L8BCF:  STA $072C
+
 L8BD2:  LDA $F5
 L8BD4:  CMP #$0D
-L8BD6:  BEQ $8C1B
+L8BD6:  BEQ UpdateNoiseMusic
 
 L8BD8:  LDA $F4
 L8BDA:  CMP #$18
-L8BDC:  BEQ $8C1B
+L8BDC:  BEQ UpdateNoiseMusic
+
 L8BDE:  LDA $F6
 L8BE0:  CMP #$15
 L8BE2:  BEQ $8BE8
+
 L8BE4:  CMP #$04
-L8BE6:  BCS $8C0F
+L8BE6:  BCS ChkTriNoteEnd
+
 L8BE8:  LDA $072C
 L8BEB:  CMP #$01
 L8BED:  BEQ $8BFD
+
 L8BEF:  CMP #$02
 L8BF1:  BEQ $8C06
-L8BF3:  LDA $0702
+
+L8BF3:  LDA TriNoteRemain
 L8BF6:  CMP $072B
-L8BF9:  BNE $8C1B
-L8BFB:  BEQ $8C16
+L8BF9:  BNE UpdateNoiseMusic
+
+L8BFB:  BEQ TriNoteEnd
+
 L8BFD:  LDA $072A
 L8C00:  CMP #$02
-L8C02:  BNE $8C1B
-L8C04:  BEQ $8C16
-L8C06:  LDA $0702
+L8C02:  BNE UpdateNoiseMusic
+
+L8C04:  BEQ TriNoteEnd
+
+L8C06:  LDA TriNoteRemain
 L8C09:  CMP #$07
-L8C0B:  BNE $8C1B
-L8C0D:  BEQ $8C16
+L8C0B:  BNE UpdateNoiseMusic
 
-L8C0F:  LDA $0702
-L8C12:  CMP #$02
-L8C14:  BNE $8C1B
+L8C0D:  BEQ TriNoteEnd
 
+ChkTriNoteEnd:
+L8C0F:  LDA TriNoteRemain		;Is it time to shut off the triangle note being played?
+L8C12:  CMP #$02				;
+L8C14:  BNE UpdateNoiseMusic	;If not, branch.
+
+TriNoteEnd:
 L8C16:  LDA #$00				;Disable the triangle channel.
 L8C18:  STA TriangleCntrl0		;
-
-
-
-
 
 ;-----------------------------------[ Noise Channel Music Update ]-----------------------------------
 
 UpdateNoiseMusic:
-L8C1B:  LDA $0723
+L8C1B:  LDA NoiseMusicIndex
 L8C1E:  BEQ MusicUpdateEnd
 
 L8C20:  LDA $0724
@@ -1577,32 +1647,32 @@ L8C23:  BEQ $8C2A
 L8C25:  LDA #$00
 L8C27:  STA NoiseVolIndex
 
-L8C2A:  DEC $0703
+L8C2A:  DEC NoiseNoteRemain
 L8C2D:  BEQ $8C37
 
 L8C2F:  BNE $8C71
 
+L8C31:  JSR GetNoteLength		;($F400)Get the length of this note to play.
+L8C34:  STA NoiseNoteLength		;
 
+L8C37:  LDY NoiseMusicIndex
+L8C3A:  INC NoiseMusicIndex
 
-
-
-L8C31:  JSR $F400
-L8C34:  STA $0707
-
-L8C37:  LDY $0723
-L8C3A:  INC $0723
-L8C3D:  LDA ($F8),Y
+L8C3D:  LDA (MusicDataPtr),Y
 L8C3F:  BMI $8C31
 
 L8C41:  BNE $8C4B
-L8C43:  LDA $070C
-L8C46:  STA $0723
+
+L8C43:  LDA NoiseIndexReload
+L8C46:  STA NoiseMusicIndex
 L8C49:  BNE $8C37
 
 L8C4B:  TAY
 L8C4C:  STA $0721
+
 L8C4F:  LDA $0724
 L8C52:  BNE $8C6B
+
 L8C54:  LDA $F73A,Y
 L8C57:  STA NoiseCntrl0
 L8C5A:  LDA $F73B,Y
@@ -1612,8 +1682,8 @@ L8C63:  STA NoiseCntrl3
 
 L8C66:  LDA #$27
 L8C68:  STA NoiseVolIndex
-L8C6B:  LDA $0707
-L8C6E:  STA $0703
+L8C6B:  LDA NoiseNoteLength
+L8C6E:  STA NoiseNoteRemain
 
 L8C71:  LDA $0721
 L8C74:  CMP #$26
@@ -1631,6 +1701,8 @@ L8C88:  STA NoiseCntrl0
 
 MusicUpdateEnd:
 L8C8B:  RTS						;End the music updating routines.
+
+;----------------------------------------------------------------------------------------------------
 
 ;Unused.
 L8C8C:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -1698,16 +1770,73 @@ L9040:  .byte $0D, $15, $05, $0D, $1D, $25, $2D, $00, $05, $0D, $15, $00, $7D, $
 L9050:  .byte $00, $18, $00, $20, $00, $28, $00, $30, $00, $38, $00, $00, $00, $00, $00, $40
 L9060:  .byte $48, $50, $00, $00, $00, $78, $00, $80, $00
 
-L9069:  .byte $58
-L906A:  .byte $60, $68, $70, $00, $17, $66
-L9070:  .byte $91, $5D, $40, $7B, $00, $60, $17, $EF, $91, $5D, $24, $7E, $70, $60, $17, $96
-L9080:  .byte $92, $4B, $1A, $71, $70, $60, $17, $38, $93, $38, $15, $52, $70, $60, $17, $B7
-L9090:  .byte $93, $11, $09, $19, $70, $60, $17, $D8, $93, $05, $03, $08, $70, $60, $17, $E2
-L90A0:  .byte $93, $05, $03, $00, $70, $60, $45, $E9, $93, $3F, $20, $76, $10, $10, $45, $6A
-L90B0:  .byte $94, $43, $22, $00, $00, $00, $45, $D9, $94, $31, $19, $00, $00, $00, $45, $02
-L90C0:  .byte $96, $21, $11, $00, $00, $00, $45, $29, $95, $2F, $18, $4B, $00, $00, $73, $3C
-L90D0:  .byte $96, $35, $1B, $59, $00, $00, $73, $AC, $96, $35, $1B, $59, $00, $00
+;----------------------------------------------------------------------------------------------------
 
+;Unused music initialization data. Loads from work RAM but this game doesn't have that.  Maybe
+;This is remnant code from the Player's choice arcade machine?
+
+MusicInitTbl1:
+L9069:  .byte $58
+L906A:  .word $6860
+L906C:  .byte $70, $00, $17, $66, $91
+
+L9071:  .byte $5D
+L9072:  .word $7B40
+L9074:  .byte $00, $60, $17, $EF, $91
+
+L9079:  .byte $5D
+L907A:  .word $7E24
+L907C:  .byte $70, $60, $17, $96, $92
+
+L9081:  .byte $4B
+L9082:  .word $711A
+L9084:  .byte $70, $60, $17, $38, $93
+
+L9089:  .byte $38, $15, $52, $70, $60
+
+;----------------------------------------------------------------------------------------------------
+
+L908E:  .byte $17
+L908F:  .word $93B7
+L9091:  .byte $11, $09, $19, $70, $60
+
+L9096:  .byte $17
+L9097:  .word $93D8
+L9099:  .byte $05, $03, $08, $70, $60
+
+L909E:  .byte $17
+L909F:  .word $93E2
+L90A1:  .byte $05, $03, $00, $70, $60
+
+L90A6:  .byte $45
+L90A7:  .word $93E9
+L90A9:  .byte $3F, $20, $76, $10, $10
+
+L90AE:  .byte $45
+L90AF:  .word $946A
+L90B1:  .byte $43, $22, $00, $00, $00
+
+L90B6:  .byte $45
+L90B7:  .word $94D9
+L90B9:  .byte $31, $19, $00, $00, $00
+
+L90BE:  .byte $45
+L90BF:  .word $9602
+L90C1:  .byte $21, $11, $00, $00, $00
+
+L90C6:  .byte $45
+L90C7:  .word $9529
+L90C9:  .byte $2F, $18, $4B, $00, $00
+
+L90CE:  .byte $73
+L90CF:  .word $963C
+L90D1:  .byte $35, $1B, $59, $00, $00
+
+L90D6:  .byte $73
+L90D7:  .word $96AC
+L90D9:  .byte $35, $1B, $59, $00, $00
+
+MusicInitTbl2:
 L90DE:  .byte $45
 L90DF:	.word $95D4
 L90E1:  .byte $25, $0D, $00, $00, $60
@@ -1819,12 +1948,16 @@ L9370:  .byte $82, $34, $42, $2A, $42, $34, $44, $3C, $44, $26, $3E, $34, $3E, $
 L9380:  .byte $40, $82, $2A, $42, $2A, $42, $2A, $42, $2A, $42, $82, $1E, $80, $1E, $1E, $82
 L9390:  .byte $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E
 L93A0:  .byte $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80
-L93B0:  .byte $1E, $1E, $85, $26, $83, $26, $26, $83, $4C, $88, $34, $88, $34, $89, $34, $00
-L93C0:  .byte $83, $42, $88, $2A, $88, $2A, $89, $2A, $83, $4C, $88, $34, $88, $34, $89, $34
-L93D0:  .byte $83, $26, $88, $2A, $88, $2A, $89, $2A, $85, $34, $00, $85, $2A, $83, $34, $02
-L93E0:  .byte $85, $2A, $83, $42, $00, $83, $02
+L93B0:  .byte $1E, $1E, $85, $26, $83, $26, $26
 
-L93E7:  .byte $83, $02
+;-------------------------------------------[ Music Data ]-------------------------------------------
+
+L93B7:	.byte $83, $4C, $88, $34, $88, $34, $89, $34, $00
+L93C0:  .byte $83, $42, $88, $2A, $88, $2A, $89, $2A, $83, $4C, $88, $34, $88, $34, $89, $34
+L93D0:  .byte $83, $26, $88, $2A, $88, $2A, $89, $2A
+
+L93D8:	.byte $85, $34, $00, $85, $2A, $83, $34, $02, $85, $2A, $83, $42, $00, $83, $02, $83
+L93E8:  .byte $02
 
 L93E9:  .byte $85, $4C, $83, $42, $4C, $81, $50
 L93F0:  .byte $80, $50, $85, $50, $82, $4C, $50, $85, $54, $83, $4C, $54, $81, $56, $80, $56
