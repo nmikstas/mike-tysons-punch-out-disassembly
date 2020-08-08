@@ -66,11 +66,11 @@
 ;$071E
 ;$071F
 .alias NoiseVolIndex	$0720	;Index to noise channel control byte for volume/envelope.
-;$0721
+.alias NoiseBeatType	$0721	;If drum beat is type 10 or 11, decay will be applied.
 .alias TriNoteIndex		$0722	;Index to current triangle musical note data.
 .alias NoiseMusicIndex	$0723	;Index to current noise music data.
-;$0724
-;$0725
+.alias NoiseInUse		$0724	;Non-zero indicates an SFX is using the noise channel.
+.alias SQ2InUse			$0725	;Non-zero indicates an SFX is using the SQ2 channel.
 ;$0726
 
 ;$0728
@@ -130,6 +130,19 @@
 .alias AUD_SQ1_INDEX    $04     ;Square wave 1 channel index.
 .alias AUD_TRI_INDEX    $08     ;Triangle wave channel index.
 
+;Drum beat types.
+.alias DRUM_BEAT_1		$02
+.alias DRUM_BEAT_2		$06
+.alias DRUM_BEAT_3		$0A
+.alias DRUM_BEAT_4		$0E
+.alias DRUM_BEAT_5		$12
+.alias DRUM_BEAT_6		$16
+.alias DRUM_BEAT_7		$1A
+.alias DRUM_BEAT_8		$1E
+.alias DRUM_BEAT_9		$22
+.alias DRUM_BEAT_10		$26
+.alias DRUM_BEAT_11		$2A
+
 ;Music and SFX numbers.
 .alias MUS_END_RPT		$01		;End music, repeats.
 .alias MUS_INTRO		$02		;Intro music, no repeat.
@@ -157,6 +170,11 @@
 .alias MUS_NONE5		$18		;No music.
 .alias MUS_NONE6		$19		;No music.
 .alias MUS_TRAIN_RPT	$1A		;Training music, repeats.
+.alias MUS_NONE7		$1B		;No music.
+.alias MUS_NONE8		$1C		;No music.
+.alias MUS_OPP_DOWN		$1D		;Opponent on the mat music.
+.alias MUS_MAC_DOWN		$1E		;Little Mac on the mat music.
+.alias MUS_FIGHT		$1F		;Main fight music.
 
 ;Misc. items.
 .alias SND_OFF			$80		;Silences sound channel.

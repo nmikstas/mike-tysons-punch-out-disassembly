@@ -17,6 +17,8 @@
 .alias LogDiv32                 $F44E
 .alias LogDiv16                 $F44F
 .alias LogDiv8					$F450
+.alias NoiseDecayTbl			$F714
+.alias NoiseDatTbl				$F73C
 
 ;-----------------------------------------[ Start Of Code ]------------------------------------------
 
@@ -27,14 +29,14 @@ L8002:  STA APUCommonCntrl1     ;
 L8005:  JSR $8025
 L8008:  JSR $80CA
 L800B:  JSR $84B1
-L800E:  JSR $88E2
+L800E:  JSR PlayMusic			;($88E2)Initialize or play music.
 
-L8011:  LDA #$00
-L8013:  STA SFXInitSQ1
-L8015:  STA SFXInitSQ2
-L8017:  STA MusicInit
-L8019:  STA DMCInit
-L801B:  RTS
+L8011:  LDA #$00				;
+L8013:  STA SFXInitSQ1			;
+L8015:  STA SFXInitSQ2			;Clear out any initialization flags.
+L8017:  STA MusicInit			;
+L8019:  STA DMCInit				;
+L801B:  RTS						;
 
 L801C:  LDY DMCIndex
 L801E:  CPY #$06
@@ -215,22 +217,23 @@ L813B:  STA SQ1Cntrl0
 L813E:  DEC $0712
 L8141:  BNE $816F
 
-L8143:  LDA $0724
+L8143:  LDA NoiseInUse
 L8146:  BEQ $8152
 
 L8148:  LDA #$10
 L814A:  STA NoiseCntrl0
 
 L814D:  LDA #$00
-L814F:  STA $0724
-L8152:  LDA $0725
+L814F:  STA NoiseInUse
+
+L8152:  LDA SQ2InUse
 L8155:  BEQ $8161
 
-L8157:  LDA #$10
-L8159:  STA SQ2Cntrl0
+L8157:  LDA #$10				;Silence the SQ2 channel.
+L8159:  STA SQ2Cntrl0			;
 
 L815C:  LDA #$00
-L815E:  STA $0725
+L815E:  STA SQ2InUse
 
 L8161:  LDA #$00
 L8163:  STA $0726
@@ -644,7 +647,8 @@ L84A6:  ORA #$90
 L84A8:  STA SQ2Cntrl0
 L84AB:  JSR $8466
 L84AE:  JMP $8514
-L84B1:  LDA $0725
+
+L84B1:  LDA SQ2InUse
 L84B4:  BEQ $84BB
 
 L84B6:  LDA #$00
@@ -1167,77 +1171,103 @@ L88DF:  JMP $8514
 
 ;------------------------------------------[ Music Player ]------------------------------------------
 
-L88E2:  LDA MusicInit
-L88E4:  BMI $8902
-L88E6:  CMP #$1B
-L88E8:  BEQ $8902
-L88EA:  CMP #$1C
-L88EC:  BEQ $8902
-L88EE:  LDA MusicInit
-L88F0:  BNE $88F9
-L88F2:  LDA MusicIndex
-L88F4:  BEQ $8960
+PlayMusic:
+L88E2:  LDA MusicInit			;
+L88E4:  BMI StopMusic			;
+L88E6:  CMP #MUS_NONE7			;Does music need to be stopped?
+L88E8:  BEQ StopMusic			;If so, branch.
+L88EA:  CMP #MUS_NONE8			;
+L88EC:  BEQ StopMusic			;
+
+L88EE:  LDA MusicInit			;Does new music need to be initialized?
+L88F0:  BNE DoInitMusic			;If so, branch.
+
+L88F2:  LDA MusicIndex			;Is music currently playing?
+L88F4:  BEQ ExitNoMusic			;If not, branch to exit.
+
 L88F6:  JMP UpdateSQ2Music		;($8A0A)Update the music.
-L88F9:  JMP $8964
+
+DoInitMusic:
+L88F9:  JMP InitMusic			;($8964)Initialize new music.
 
 L88FC:  LDA MusicIndex
-L88FE:  CMP #$1A
+L88FE:  CMP #MUS_TRAIN_RPT
 L8900:  BCS $8969
+
+StopMusic:
 L8902:  LDA #$00
 L8904:  STA MusicIndex
 
-L8906:  LDA $0724
+L8906:  LDA NoiseInUse
 L8909:  BEQ $8922
 
 L890B:  LDA SFXIndexSQ2
 L890D:  BEQ $891B
+
 L890F:  LDA #$10
 L8911:  STA SQ1Cntrl0
+
 L8914:  LDA #$00
 L8916:  STA TriangleCntrl0
-L8919:  BEQ $8955
+L8919:  BEQ ResetSQ1SQ2Env
+
 L891B:  LDA #$10
 L891D:  STA SQ2Cntrl0
 L8920:  BNE $8911
+
 L8922:  LDA $0726
 L8925:  BEQ $8934
 
 L8927:  LDA SFXIndexSQ2
 L8929:  BEQ $892D
 L892B:  BNE $8939
+
 L892D:  LDA #$10
 L892F:  STA SQ2Cntrl0
 L8932:  BNE $894D
-L8934:  LDA $0725
-L8937:  BEQ $893D
-L8939:  LDA #$10
-L893B:  BNE $894D
 
-L893D:  LDA SFXIndexSQ2
-L893F:  BEQ SilenceAllChannels
+L8934:  LDA SQ2InUse
+L8937:  BEQ ChkMusicEnd
 
-L8941:  LDA #$10
-L8943:  BNE $894A
+L8939:  LDA #$10				;Prepare to silence only triangle and noise channels.
+L893B:  BNE SilenceTriNoise		;Branch always.
+
+ChkMusicEnd:
+L893D:  LDA SFXIndexSQ2			;Has the end of the music data been reached?
+L893F:  BEQ SilenceAllChannels	;If so, branch to stop the music.
+
+L8941:  LDA #$10				;Prepare to silence only SQ1, triangle and noise channels.
+L8943:  BNE SilenceSQ1TriNoise	;Branch always.
 
 SilenceAllChannels:
-L8945:  LDA #$10				;
+L8945:  LDA #$10				;Silence SQ2 channel.
 L8947:  STA SQ2Cntrl0			;
-L894A:  STA SQ1Cntrl0			;
+
+SilenceSQ1TriNoise:
+L894A:  STA SQ1Cntrl0			;Silence SQ1 channel.
+
+SilenceTriNoise:
 L894D:  STA NoiseCntrl0			;
 L8950:  LDA #$00				;
 L8952:  STA TriangleCntrl0		;Silence all the audio channels.
+
+ResetSQ1SQ2Env:
 L8955:  LDA #$00				;
-L8957:  STA SQ2EnvIndex			;
+L8957:  STA SQ2EnvIndex			;Reset the SQ1 and SQ2 envelope indexes.
 L895A:  STA SQ1EnvIndex			;
 L895D:  STA NoiseVolIndex		;
-L8960:  RTS						;
+
+ExitNoMusic:
+L8960:  RTS						;No music is playing. Exit.
 
 L8961:  JMP $88FC
 
+InitMusic:
 L8964:  TAX
 L8965:  JSR $8906
 
 L8968:  TXA
+
 L8969:  STA MusicIndex
 L896B:  STA $070A
 L896E:  LDY #$00
@@ -1252,10 +1282,11 @@ L8981:  LDA $9000,Y
 L8984:  TAY
 L8985:  BEQ $8961
 
-L8987:  LDA MusicIndex
-L8989:  CMP #$10
-L898B:  BCS $89C3
+L8987:  LDA MusicIndex			;Is the music to be initialized in one of the upper indexes?
+L8989:  CMP #MUS_VON_KAISER		;
+L898B:  BCS InitUpperMusic		;If so, branch.
 
+InitLowerMusic:
 L898D:  LDA MusicInitTbl1,Y
 L8990:  STA NoteLengthsBase
 
@@ -1283,6 +1314,7 @@ L89BA:  STA SQ1EnvBase
 L89BD:  JMP PrepMusicStart		;($89F3)Initialize remaining variables for music start.
 L89C0:  JMP $8973
 
+InitUpperMusic:
 L89C3:  LDA MusicInitTbl2,Y
 L89C6:  STA NoteLengthsBase
 
@@ -1326,8 +1358,8 @@ UpdateSQ2Music:
 L8A0A:  LDA SFXIndexSQ2
 L8A0C:  BNE $8A13
 
-L8A0E:  LDA $0725
-L8A11:  BEQ $8A2B
+L8A0E:  LDA SQ2InUse
+L8A11:  BEQ DecSQ2NoteTime
 
 L8A13:  LDA SQ2EnvBase
 L8A16:  CMP #$40
@@ -1339,11 +1371,12 @@ L8A1C:  STA SQ2EnvIndex
 L8A1F:  LDA #$01
 L8A21:  STA $071A
 
-L8A24:  BNE $8A2B
+L8A24:  BNE DecSQ2NoteTime
 
 L8A26:  LDA #$00
 L8A28:  STA SQ2EnvIndex
 
+DecSQ2NoteTime:
 L8A2B:  DEC SQ2NoteRemain		;Is it time to load a new SQ2 note?
 L8A2E:  BEQ GetNewSQ2Note		;If so, branch.
 
@@ -1362,13 +1395,13 @@ L8A40:  BMI $8A32
 
 L8A42:  STA $0718
 L8A45:  LDY SFXIndexSQ2
-L8A47:  BNE $8A63
+L8A47:  BNE ResetSQ2NoteLength
 
-L8A49:  LDY $0725
-L8A4C:  BNE $8A63
+L8A49:  LDY SQ2InUse
+L8A4C:  BNE ResetSQ2NoteLength
 
 L8A4E:  JSR UpdateSQ2Note		;($F41E)Update the SQ2 channel note frequency.
-L8A51:  BEQ $8A63
+L8A51:  BEQ ResetSQ2NoteLength
 
 L8A53:  LDA SQ2EnvBase
 L8A56:  CMP #$80
@@ -1380,6 +1413,7 @@ L8A5C:  BNE $8A60
 L8A5E:  LDA #$3F
 L8A60:  STA SQ2EnvIndex
 
+ResetSQ2NoteLength:
 L8A63:  LDA SQ2NoteLength
 L8A66:  STA SQ2NoteRemain
 
@@ -1387,7 +1421,7 @@ SQ2NoteContinue:
 L8A69:  LDA SFXIndexSQ2
 L8A6B:  BNE UpdateSQ1Music
 
-L8A6D:  LDA $0725
+L8A6D:  LDA SQ2InUse
 L8A70:  BNE UpdateSQ1Music
 
 L8A72:  LDA SQ2EnvBase
@@ -1666,66 +1700,75 @@ L8C18:  STA TriangleCntrl0		;
 ;-----------------------------------[ Noise Channel Music Update ]-----------------------------------
 
 UpdateNoiseMusic:
-L8C1B:  LDA NoiseMusicIndex
-L8C1E:  BEQ MusicUpdateEnd
+L8C1B:  LDA NoiseMusicIndex		;Is the noise data for this piece of music?
+L8C1E:  BEQ MusicUpdateEnd		;If not, branch to end noise update.
 
-L8C20:  LDA $0724
-L8C23:  BEQ $8C2A
+L8C20:  LDA NoiseInUse			;Is an SFX currently using the noise channel?
+L8C23:  BEQ DecNoiseNoteTime	;If not, branch to decrement noise time remaining.
 
-L8C25:  LDA #$00
-L8C27:  STA NoiseVolIndex
+L8C25:  LDA #$00				;Disable volume control for this channel. It is being -->
+L8C27:  STA NoiseVolIndex		;controlled by the SFX player.
 
-L8C2A:  DEC NoiseNoteRemain
-L8C2D:  BEQ $8C37
+DecNoiseNoteTime:
+L8C2A:  DEC NoiseNoteRemain		;Decrement the time to play the note.
+L8C2D:  BEQ GetNextNoiseNote	;Is it time to get a new note? If so, branch.
 
-L8C2F:  BNE $8C71
+L8C2F:  BNE ChkNoiseVolAdj		;Branch always to see if the note decay needs to be changed.
 
+UpdateNoiseLength:
 L8C31:  JSR GetNoteLength		;($F400)Get the length of this note to play.
 L8C34:  STA NoiseNoteLength		;
 
-L8C37:  LDY NoiseMusicIndex
-L8C3A:  INC NoiseMusicIndex
+GetNextNoiseNote:
+L8C37:  LDY NoiseMusicIndex		;Prepare to get next note data byte for the noise channel.
+L8C3A:  INC NoiseMusicIndex		;
 
-L8C3D:  LDA (MusicDataPtr),Y
-L8C3F:  BMI $8C31
+L8C3D:  LDA (MusicDataPtr),Y	;Get next noise music data byte. Is this a control byte?
+L8C3F:  BMI UpdateNoiseLength	;If so, branch to change the note length.
 
-L8C41:  BNE $8C4B
+L8C41:  BNE SaveNoiseDecay		;Should beat start over? If not, branch.
 
-L8C43:  LDA NoiseIndexReload
-L8C46:  STA NoiseMusicIndex
-L8C49:  BNE $8C37
+L8C43:  LDA NoiseIndexReload	;Restart drum beat from beginning.
+L8C46:  STA NoiseMusicIndex		;Is this an active music channel? 
+L8C49:  BNE GetNextNoiseNote	;If so, branch to get next musical note data.
 
-L8C4B:  TAY
-L8C4C:  STA $0721
+SaveNoiseDecay:
+L8C4B:  TAY						;Save the drum beat type to check later.
+L8C4C:  STA NoiseBeatType		;
 
-L8C4F:  LDA $0724
-L8C52:  BNE $8C6B
+L8C4F:  LDA NoiseInUse			;Is npise channel being used by an SFX?
+L8C52:  BNE ResetNoiseNoteLen	;If so, branch to keep SFX active.
 
-L8C54:  LDA $F73A,Y
-L8C57:  STA NoiseCntrl0
-L8C5A:  LDA $F73B,Y
-L8C5D:  STA NoiseCntrl2
-L8C60:  LDA $F73C,Y
-L8C63:  STA NoiseCntrl3
+L8C54:  LDA NoiseDatTbl-2,Y		;
+L8C57:  STA NoiseCntrl0			;
+L8C5A:  LDA NoiseDatTbl-1,Y		;Get the next drum beat and load it into the noise registers.
+L8C5D:  STA NoiseCntrl2			;
+L8C60:  LDA NoiseDatTbl,Y		;
+L8C63:  STA NoiseCntrl3			;
 
-L8C66:  LDA #$27
-L8C68:  STA NoiseVolIndex
-L8C6B:  LDA NoiseNoteLength
-L8C6E:  STA NoiseNoteRemain
+L8C66:  LDA #$27				;Have drum beat potentially decay over 40 frames ->>
+L8C68:  STA NoiseVolIndex		;if drum beat 10 or 11.
 
-L8C71:  LDA $0721
-L8C74:  CMP #$26
-L8C76:  BCC MusicUpdateEnd
+ResetNoiseNoteLen:
+L8C6B:  LDA NoiseNoteLength		;Set the max length of time for this note.
+L8C6E:  STA NoiseNoteRemain		;
 
-L8C78:  LDA $0724
-L8C7B:  BNE MusicUpdateEnd
+ChkNoiseVolAdj:
+L8C71:  LDA NoiseBeatType		;Is this drum beat 10 or 11?
+L8C74:  CMP #DRUM_BEAT_10		;
+L8C76:  BCC MusicUpdateEnd		;If not, branch to end. No decay will be applied.
 
-L8C7D:  LDY NoiseVolIndex
-L8C80:  BEQ $8C85
+L8C78:  LDA NoiseInUse			;Is the noise channel being used by an SFX?
+L8C7B:  BNE MusicUpdateEnd		;If so, branch to exit.
 
-L8C82:  DEC NoiseVolIndex
-L8C85:  LDA $F714,Y
-L8C88:  STA NoiseCntrl0
+L8C7D:  LDY NoiseVolIndex		;Is there still noise volume left to decay?
+L8C80:  BEQ SetNoiseVolume		;If not, branch to avoid volume loop around.
+
+L8C82:  DEC NoiseVolIndex		;Decrement noise volume index advance the decay.
+
+SetNoiseVolume:
+L8C85:  LDA NoiseDecayTbl,Y		;Adjust the volume of the drum beat to apply decay.
+L8C88:  STA NoiseCntrl0			;
 
 MusicUpdateEnd:
 L8C8B:  RTS						;End the music updating routines.
@@ -1801,160 +1844,211 @@ L9060:  .byte $48, $50, $00, $00, $00, $78, $00, $80, $00
 ;----------------------------------------------------------------------------------------------------
 
 ;The following tables are used to initialize the different songs. There are a total of 8 bytes
-;per entry. The first byte is used 
+;per entry
+;Byte  1   - Index into NoteLengthsTbl.
+;Bytes 2,3 - Starting address for the musical notes data.
+;Byte  4   - Index into the musical notes data for the triangle channel.
+;Byte  5   - Index into the musical notes data for the SQ1 channel.
+;Byte  6   - Index into the musical notes data for the noise channel.
+;Byte  7   - 
+;Byte  8   - 
+;NOTE: The SQ2 data always starts at index 0 of the music data.
 
 MusicInitTbl1:
-
 ;Unused.
 L9069:  .byte $58, $60, $68, $70, $00
 
-;Music index #$01, #$03.
-EndMusic1:
+;Music index #$01, #$03, #$0C, #$0D. Init attract/end music, part 1.
 L906E:  .byte $17
-L906F:  .word $9166
+L906F:  .word AttractMusic1
 L9071:  .byte $5D, $40, $7B, $00, $60
 
-EndMusic2:
+;Init attract/end music part 2:
 L9076:	.byte $17
 L9077:  .word $91EF
 L9079:  .byte $5D, $24, $7E, $70, $60
 
-IntroEndMusic2:
+;Init Intro/attract/end music, part 2:
 L907E:  .byte $17
 L907F:  .word $9296
 L9081:  .byte $4B, $1A, $71, $70, $60
 
+;Init end music, part 3. The final conclusion after end credits.
 L9086:  .byte $17
 L9087:  .word $9338
 L9089:  .byte $38, $15, $52, $70, $60
 
+;Init end music, part 4.
 L908E:  .byte $17
 L908F:  .word $93B7
 L9091:  .byte $11, $09, $19, $70, $60
 
+;Init end music, part 5.
 L9096:  .byte $17
 L9097:  .word $93D8
 L9099:  .byte $05, $03, $08, $70, $60
 
-;Music index #$02.
-IntroEndMusic1:
+;Music index #$02. Init intro/end music, part 1.
 L909E:  .byte $17
 L909F:  .word $93E2
 L90A1:  .byte $05, $03, $00, $70, $60
 
-;Music index #$04.
+;Music index #$04. Init newspaper music.
 L90A6:  .byte $45
 L90A7:  .word $93E9
 L90A9:  .byte $3F, $20, $76, $10, $10
 
+;Music index #$05. Init circuit champion music.
 L90AE:  .byte $45
 L90AF:  .word $946A
 L90B1:  .byte $43, $22, $00, $00, $00
 
+;Music index #$06. Init fight win music.
 L90B6:  .byte $45
 L90B7:  .word $94D9
 L90B9:  .byte $31, $19, $00, $00, $00
 
+;Music index #$07. Init fight loss music.
 L90BE:  .byte $45
 L90BF:  .word $9602
 L90C1:  .byte $21, $11, $00, $00, $00
 
+;Music index #$08. Init title bout music.
 L90C6:  .byte $45
 L90C7:  .word $9529
 L90C9:  .byte $2F, $18, $4B, $00, $00
 
+;Music index #$09. Init game over music, part 1:
 L90CE:  .byte $73
 L90CF:  .word $963C
 L90D1:  .byte $35, $1B, $59, $00, $00
 
+;Init game over music, part 2:
 L90D6:  .byte $73
 L90D7:  .word $96AC
 L90D9:  .byte $35, $1B, $59, $00, $00
 
 MusicInitTbl2:
+;Music index #$0A. Init pre-fight music.
 L90DE:  .byte $45
 L90DF:	.word $95D4
 L90E1:  .byte $25, $0D, $00, $00, $60
 
+;Music index #$0E. Init dream fight music.
 L90E6:  .byte $45
 L90E7:  .word $9592
 L90E9:  .byte $27, $14, $2F, $00, $00
 
+;Music index #$10. Init Von Kaiser/Macho Man intro music.
 L90EE:  .byte $45
 L90EF:	.word $972D
 L90F1:  .byte $47, $1F, $65, $00, $00
 
+;Music index #$11. Init Glass Joe Intro music.
 L90F6:  .byte $45
 L90F7:  .word $97A0
 L90F9:  .byte $63, $31, $8D, $00, $00
 
+;Music index #$12. Init Don Flamenco intro music.
 L90FE:  .byte $45
 L90FF:  .word $9866
 L9101:  .byte $82, $41, $93, $00, $00
 
+;Misic index #$13. Init King Hippo intro music.
 L9106:  .byte $45
 L9107:  .word $993C
 L9109:  .byte $21, $11, $33, $80, $00
 
+;Music index #$14. Init Soda Popinsky intro music.
 L910E:  .byte $45
 L910F:  .word $997C
 L9111:  .byte $35, $1B, $62, $00, $00
 
+;Music index #$15. Init Piston Honda intro music.
 L9116:  .byte $45
 L9117:  .word $99F2
 L9119:  .byte $51, $16, $00, $00, $00
 
-;Music index #$1A.
-TrainingMusic1:
+;Music index #$1A. Init training music, part 1.
 L911E:  .byte $73
 L911F:  .word $9A80
 L9121:  .byte $73, $3D, $D4, $10, $00
 
-TrainingMusic2:
+;Init training music, part 2.
 L9126:  .byte $73
 L9127:  .word $9B61
 L9129:  .byte $8C, $34, $BD, $80, $10
 
-TrainingMusic3:
+;Init training music, part 3.
 L912E:  .byte $73
 L912F:  .word $9C2B
 L9131:  .byte $14, $12, $22, $80, $10
 
+;Music index #$0F. Init main fight music, part 1.
 L9136:  .byte $5C
 L9137:  .word $9C5A
 L9139:  .byte $41, $21, $00, $20, $20
 
+;Init main fight music, part 2.
 L913E:  .byte $5C
 L913F:  .word $9CCD
 L9141:  .byte $47, $24, $00, $20, $20
 
+;Init main fight music, part 3.
 L9146:  .byte $5C
 L9147:  .word $9D35
 L9149:  .byte $4D, $27, $00, $20, $20
 
+;Init main fight music, part 4.
 L914E:  .byte $5C
 L914F:  .word $9DA3
 L9151:  .byte $59, $2D, $00, $20, $20
 
+;Music index #$1D. Init opponent down music.
 L9156:  .byte $73
 L9157:  .word $9E43
 L9159:  .byte $41, $21, $00, $20, $20
 
+;Music index #$1E. Init Little Mac down music.
 L915E:  .byte $73
 L915F:  .word $9EA5
 L9161:  .byte $51, $29, $00, $20, $20
 
 ;-------------------------------------------[ Music Data ]-------------------------------------------
 
-L9166:	.byte $93, $02, $94, $4C, $4C, $4C, $88, $4C, $42, $89
-L9170:  .byte $4C, $88, $54, $4C, $89, $42, $83, $4C, $93, $02, $94, $54, $54, $54, $88, $54
-L9180:  .byte $4C, $89, $54, $88, $5A, $54, $89, $4C, $83, $54, $82, $02, $80, $4C, $54, $83
-L9190:  .byte $5A, $88, $42, $4C, $89, $54, $81, $5A, $80, $5E, $81, $62, $80, $60, $81, $5E
-L91A0:  .byte $80, $5C, $83, $5A, $42, $00, $87, $02, $02, $83, $02, $80, $5A, $5E, $5A, $5E
-L91B0:  .byte $5A, $5E, $5A, $5E, $5A, $5E, $5A, $56, $81, $5A, $80, $58, $81, $56, $80, $54
-L91C0:  .byte $83, $50, $02, $82, $34, $02, $86, $02, $82, $3C, $02, $86, $02, $82, $42, $02
-L91D0:  .byte $85, $02, $81, $02, $80, $46, $81, $4A, $80, $48, $81, $46, $80, $44, $83, $42
-L91E0:  .byte $02, $87, $2A, $26, $26, $81, $26, $80, $22, $81, $26, $80, $22, $85, $26
+AttractMusic1:
+
+AttractMusic1SQ2:
+L9166:	.byte $93, $02, $94, $4C, $4C, $4C, $88, $4C, $42, $89, $4C, $88, $54, $4C, $89, $42
+L9176:  .byte $83, $4C, $93, $02, $94, $54, $54, $54, $88, $54, $4C, $89, $54, $88, $5A, $54
+L9186:  .byte $89, $4C, $83, $54, $82, $02, $80, $4C, $54, $83, $5A, $88, $42, $4C, $89, $54
+L9196:  .byte $81, $5A, $80, $5E, $81, $62, $80, $60, $81, $5E, $80, $5C, $83, $5A, $42, $00
+
+AttractMusic1SQ1:
+L91A6:  .byte $87, $02, $02, $83, $02, $80, $5A, $5E, $5A, $5E, $5A, $5E, $5A, $5E, $5A, $5E
+L91B6:  .byte $5A, $56, $81, $5A, $80, $58, $81, $56, $80, $54, $83, $50, $02
+
+AttractMusic1Tri:
+L91C3:  .byte $82, $34, $02, $86, $02, $82, $3C, $02, $86, $02, $82, $42, $02, $85, $02, $81
+L91C6:  .byte $02, $80, $46, $81, $4A, $80, $48, $81, $46, $80, $44, $83, $42, $02
+
+AttractMusic1Noise:
+L91E1:  .byte $87				;Play drum strike for 112 frames.
+L91E2:  .byte DRUM_BEAT_11		;Drum beat 11.
+L91E3:  .byte DRUM_BEAT_10		;Drum beat 10.
+L91E4:  .byte DRUM_BEAT_10		;Drum beat 10.
+L91E5:  .byte $81				;Play drum strike for 21 frames.
+L91E6:  .byte DRUM_BEAT_10		;Drum beat 10.
+L91E7:  .byte $80				;Play drum strike for 7 frames.
+L91E8:  .byte DRUM_BEAT_9		;Drum beat 9.
+L91E9:  .byte $81				;Play drum strike for 21 frames.
+L91EA:  .byte DRUM_BEAT_10		;Drum beat 10.
+L91EB:  .byte $80				;Play drum strike for 7 frames.
+L91EC:  .byte DRUM_BEAT_9		;Drum beat 9.
+L91ED:  .byte $85				;Play drum strike for 56 frames.
+L91EE:  .byte DRUM_BEAT_10		;Drum beat 10.
+
+;----------------------------------------------------------------------------------------------------
 
 L91EF:	.byte $83
 L91F0:  .byte $54, $84, $4C, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82, $02, $83
@@ -1976,14 +2070,14 @@ L92C0:  .byte $5C, $5C, $5E, $5C, $5E, $5C, $5E, $5C, $5E, $83, $40, $82, $40, $
 L92D0:  .byte $3E, $3C, $83, $38, $32, $82, $34, $80, $50, $54, $56, $5A, $5E, $62, $83, $64
 L92E0:  .byte $02, $82
 
-L93E2:	.byte $34, $42, $2A, $42, $34, $44, $3C, $44, $26, $3E, $34, $3E, $28, $40
+L92E2:	.byte $34, $42, $2A, $42, $34, $44, $3C, $44, $26, $3E, $34, $3E, $28, $40
 L92F0:  .byte $34, $40, $2A, $2C, $2E, $30, $32, $42, $3C, $42, $34, $80, $20, $24, $26, $2A
-L9300:  .byte $2E, $32, $82, $34, $02, $34, $02
-
-L9307:	.byte $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E
+L9300:  .byte $2E, $32, $82, $34, $02, $34, $02, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E
 L9310:  .byte $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E
 L9320:  .byte $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $85
-L9330:  .byte $26, $83, $26, $26, $86, $26, $83, $26, $83, $5A, $84, $54, $82, $02, $4A, $4C
+L9330:  .byte $26, $83, $26, $26, $86, $26, $83, $26
+
+L9338:  .byte $83, $5A, $84, $54, $82, $02, $4A, $4C
 L9340:  .byte $83, $50, $4C, $4A, $82, $46, $44, $83, $42, $44, $46, $4A, $00, $80, $58, $5A
 L9350:  .byte $58, $5A, $58, $5A, $58, $5A, $5A, $5C, $5A, $5C, $5A, $5C, $5A, $5C, $5C, $5E
 L9360:  .byte $5C, $5E, $5C, $5E, $5C, $5E, $83, $40, $82, $40, $40, $83, $3C, $3E, $3E, $42
@@ -1997,8 +2091,9 @@ L93B7:	.byte $83, $4C, $88, $34, $88, $34, $89, $34, $00
 L93C0:  .byte $83, $42, $88, $2A, $88, $2A, $89, $2A, $83, $4C, $88, $34, $88, $34, $89, $34
 L93D0:  .byte $83, $26, $88, $2A, $88, $2A, $89, $2A
 
-L93D8:	.byte $85, $34, $00, $85, $2A, $83, $34, $02, $85, $2A, $83, $42, $00, $83, $02, $83
-L93E8:  .byte $02
+L93D8:	.byte $85, $34, $00, $85, $2A, $83, $34, $02, $85, $2A
+
+L93E2:  .byte $83, $42, $00, $83, $02, $83, $02
 
 L93E9:  .byte $85, $4C, $83, $42, $4C, $81, $50
 L93F0:  .byte $80, $50, $85, $50, $82, $4C, $50, $85, $54, $83, $4C, $54, $81, $56, $80, $56
@@ -2008,43 +2103,59 @@ L9420:  .byte $85, $50, $82, $4C, $50, $87, $54, $02, $83, $34, $88, $34, $34, $
 L9430:  .byte $34, $34, $30, $88, $30, $30, $89, $30, $83, $30, $30, $34, $88, $34, $34, $89
 L9440:  .byte $34, $83, $34, $34, $30, $88, $30, $30, $89, $30, $83, $30, $30, $34, $88, $34
 L9450:  .byte $34, $89, $34, $83, $34, $34, $34, $88, $34, $34, $89, $34, $83, $34, $34, $83
-L9460:  .byte $02, $88, $02, $02, $89, $02, $83, $02, $02, $00, $83, $48, $80, $48, $48, $48
+L9460:  .byte $02, $88, $02, $02, $89, $02, $83, $02, $02, $00
+
+L946A:  .byte $83, $48, $80, $48, $48, $48
 L9470:  .byte $48, $83, $44, $81, $42, $80, $3E, $81, $3C, $80, $42, $85, $4C, $82, $42, $4C
 L9480:  .byte $85, $48, $83, $44, $88, $48, $44, $89, $48, $87, $4C, $00, $83, $38, $80, $38
 L9490:  .byte $38, $38, $38, $83, $38, $81, $38, $80, $38, $81, $3C, $80, $3C, $85, $3C, $82
 L94A0:  .byte $3C, $3C, $85, $38, $83, $38, $88, $38, $38, $89, $38, $87, $3C, $83, $48, $80
 L94B0:  .byte $48, $48, $48, $48, $83, $48, $81, $48, $80, $48, $83, $4C, $80, $4C, $4C, $4C
 L94C0:  .byte $4C, $83, $4C, $82, $34, $4C, $83, $48, $80, $48, $48, $48, $48, $83, $48, $48
-L94D0:  .byte $83, $4C, $80, $34, $34, $34, $34, $85, $34, $82, $4C, $4C, $5A, $80, $5A, $56
+L94D0:  .byte $83, $4C, $80, $34, $34, $34, $34, $85, $34
+
+L94D9:  .byte $82, $4C, $4C, $5A, $80, $5A, $56
 L94E0:  .byte $02, $56, $02, $54, $82, $56, $5A, $81, $60, $5E, $60, $5E, $82, $60, $5E, $86
 L94F0:  .byte $64, $00, $82, $3C, $3C, $4C, $80, $4C, $4C, $02, $4C, $02, $4C, $82, $4C, $4C
 L9500:  .byte $81, $50, $4C, $50, $4C, $82, $50, $4C, $86, $54, $82, $34, $34, $34, $80, $34
 L9510:  .byte $34, $02, $34, $02, $34, $82, $34, $34, $81, $56, $56, $56, $56, $82, $56, $56
-L9520:  .byte $83, $4C, $88, $34, $34, $89, $34, $83, $34, $82, $46, $4A, $4C, $83, $4A, $82
+L9520:  .byte $83, $4C, $88, $34, $34, $89, $34, $83, $34
+
+L9529:  .byte $82, $46, $4A, $4C, $83, $4A, $82
 L9530:  .byte $4C, $83, $50, $82, $4C, $50, $54, $83, $50, $54, $82, $5A, $87, $5E, $83, $02
 L9540:  .byte $00, $82, $3E, $3E, $3E, $83, $42, $82, $42, $83, $42, $82, $46, $46, $46, $83
 L9550:  .byte $4A, $4A, $82, $4A, $87, $4E, $83, $02, $82, $46, $46, $46, $42, $42, $42, $42
 L9560:  .byte $42, $3E, $3E, $3E, $42, $42, $42, $42, $42, $46, $46, $2E, $2E, $46, $2E, $2E
 L9570:  .byte $83, $46, $82, $02, $82, $02, $02, $02, $83, $2A, $82, $02, $02, $02, $82, $02
 L9580:  .byte $02, $02, $83, $2A, $82, $02, $02, $02, $82, $2A, $2A, $2A, $2A, $2A, $2A, $2A
-L9590:  .byte $84, $2A, $83, $42, $83, $42, $82, $42, $42, $83, $4A, $82, $42, $4A, $82, $50
+L9590:  .byte $84, $2A
+
+L9592:  .byte $83, $42, $83, $42, $82, $42, $42, $83, $4A, $82, $42, $4A, $82, $50
 L95A0:  .byte $42, $4A, $50, $87, $5A, $00, $83, $02, $83, $32, $82, $32, $32, $83, $38, $82
 L95B0:  .byte $38, $38, $82, $38, $38, $38, $38, $87, $62, $83, $02, $85, $38, $42, $4A, $87
 L95C0:  .byte $50, $83, $2A, $83, $2A, $82, $2A, $2A, $83, $2A, $82, $2A, $2A, $82, $2A, $2A
-L95D0:  .byte $2A, $2A, $87, $2A, $90, $34, $89, $34, $86, $3E, $89, $42, $3E, $42, $86, $4C
+L95D0:  .byte $2A, $2A, $87, $2A
+
+L95D4:  .byte $90, $34, $89, $34, $86, $3E, $89, $42, $3E, $42, $86, $4C
 L95E0:  .byte $00, $83, $02, $89, $56, $4C, $46, $56, $4C, $46, $56, $4C, $46, $56, $4C, $46
 L95F0:  .byte $5E, $56, $4C, $5E, $56, $4C, $5E, $56, $4C, $83, $02, $3E, $34, $3E, $34, $3E
-L9600:  .byte $34, $3E, $84, $34, $82, $02, $83, $34, $82, $38, $92, $3A, $8E, $38, $88, $3A
+L9600:  .byte $34, $3E
+
+L9602:  .byte $84, $34, $82, $02, $83, $34, $82, $38, $92, $3A, $8E, $38, $88, $3A
 L9610:  .byte $91, $38, $00, $84, $2A, $82, $02, $83, $2A, $82, $2E, $92, $30, $8E, $2E, $88
 L9620:  .byte $30, $91, $2E, $82, $34, $2A, $34, $2A, $34, $2A, $34, $2A, $3A, $30, $3A, $30
-L9630:  .byte $3A, $30, $3A, $30, $38, $2E, $38, $2E, $38, $2E, $38, $2E, $82, $42, $4C, $50
+L9630:  .byte $3A, $30, $3A, $30, $38, $2E, $38, $2E, $38, $2E, $38, $2E
+
+L963C:  .byte $82, $42, $4C, $50
 L9640:  .byte $83, $52, $50, $48, $85, $3E, $82, $44, $42, $3E, $82, $42, $4C, $50, $83, $52
 L9650:  .byte $50, $56, $85, $48, $84, $02, $00, $82, $3A, $42, $42, $83, $42, $42, $3E, $85
 L9660:  .byte $38, $82, $38, $38, $38, $82, $3A, $42, $42, $83, $42, $42, $50, $85, $38, $84
 L9670:  .byte $02, $82, $34, $34, $34, $34, $34, $34, $34, $34, $82, $48, $48, $48, $48, $48
 L9680:  .byte $48, $48, $48, $82, $34, $34, $34, $34, $34, $34, $34, $34, $82, $48, $48, $48
 L9690:  .byte $48, $48, $48, $48, $48, $82, $0A, $0A, $02, $0A, $82, $0A, $0A, $02, $0A, $82
-L96A0:  .byte $0A, $0A, $02, $0A, $82, $0A, $0A, $02, $80, $0A, $02, $00, $82, $42, $4C, $50
+L96A0:  .byte $0A, $0A, $02, $0A, $82, $0A, $0A, $02, $80, $0A, $02, $00
+
+L96AC:  .byte $82, $42, $4C, $50
 L96B0:  .byte $83, $52, $50, $48, $85, $3E, $82, $44, $42, $3E, $83, $52, $88, $56, $5A, $89
 L96C0:  .byte $56, $83, $50, $48, $87, $4C, $00, $82, $3A, $42, $42, $83, $42, $42, $3E, $85
 L96D0:  .byte $38, $82, $38, $38, $38, $83, $4C, $88, $4C, $4C, $89, $4C, $83, $3E, $38, $87
@@ -2052,7 +2163,9 @@ L96E0:  .byte $3C, $82, $34, $34, $34, $34, $34, $34, $34, $34, $82, $48, $48, $
 L96F0:  .byte $48, $48, $48, $83, $44, $88, $44, $44, $89, $44, $83, $48, $48, $4C, $80, $34
 L9700:  .byte $34, $34, $34, $85, $34, $82, $0A, $0A, $02, $0A, $82, $0A, $0A, $02, $0A, $82
 L9710:  .byte $0A, $0A, $02, $0A, $82, $0A, $0A, $02, $80, $0A, $02, $83, $0A, $88, $0A, $0A
-L9720:  .byte $89, $0A, $83, $02, $02, $0A, $80, $02, $06, $0A, $0E, $85, $12, $82, $34, $80
+L9720:  .byte $89, $0A, $83, $02, $02, $0A, $80, $02, $06, $0A, $0E, $85, $12
+
+L972D:  .byte $82, $34, $80
 L9730:  .byte $2E, $34, $83, $3C, $34, $82, $3C, $80, $34, $3C, $83, $42, $3C, $82, $42, $80
 L9740:  .byte $3C, $42, $83, $4A, $89, $32, $32, $88, $32, $85, $3C, $00, $80, $5E, $54, $4C
 L9750:  .byte $54, $5E, $54, $4C, $54, $5E, $54, $4C, $54, $5A, $54, $4C, $54, $5A, $54, $4C
@@ -2060,6 +2173,7 @@ L9760:  .byte $54, $5A, $54, $4C, $54, $5A, $54, $4A, $54, $5A, $54, $4A, $54, $
 L9770:  .byte $88, $24, $85, $34, $82, $2E, $80, $26, $2E, $83, $34, $2E, $82, $34, $80, $2E
 L9780:  .byte $34, $83, $3C, $34, $82, $3C, $80, $34, $3C, $83, $42, $89, $2A, $2A, $88, $2A
 L9790:  .byte $85, $34, $85, $16, $86, $2A, $86, $2A, $89, $26, $89, $26, $88, $26, $85, $2A
+
 L97A0:  .byte $82, $38, $80, $38, $38, $82, $42, $42, $80, $02, $42, $02, $42, $82, $46, $46
 L97B0:  .byte $80, $02, $46, $02, $46, $84, $50, $82, $4A, $42, $42, $4A, $42, $83, $3C, $85
 L97C0:  .byte $4C, $88, $4A, $4C, $89, $46, $82, $42, $02, $88, $42, $42, $89, $42, $83, $42
@@ -2072,7 +2186,9 @@ L9820:  .byte $3E, $89, $46, $82, $4A, $02, $88, $4A, $4C, $89, $46, $83, $42, $
 L9830:  .byte $0E, $0E, $82, $2A, $16, $80, $0E, $0E, $0E, $0E, $82, $2A, $16, $80, $0E, $0E
 L9840:  .byte $0E, $0E, $82, $1A, $16, $2A, $16, $2A, $16, $80, $0E, $0E, $82, $16, $80, $0E
 L9850:  .byte $0E, $0E, $0E, $83, $2A, $16, $88, $0E, $0E, $89, $0E, $82, $0E, $16, $88, $2A
-L9860:  .byte $2A, $89, $2A, $83, $2A, $00, $82, $44, $80, $44, $44, $44, $3A, $34, $3A, $82
+L9860:  .byte $2A, $89, $2A, $83, $2A, $00
+
+L9866:  .byte $82, $44, $80, $44, $44, $44, $3A, $34, $3A, $82
 L9870:  .byte $44, $80, $44, $44, $44, $48, $4C, $48, $82, $44, $80, $44, $44, $48, $44, $42
 L9880:  .byte $44, $83, $48, $80, $02, $48, $46, $48, $82, $4E, $80, $4E, $4E, $4E, $44, $40
 L9890:  .byte $44, $82, $4E, $80, $4E, $4E, $4E, $52, $56, $52, $82, $4E, $80, $4E, $4C, $82
@@ -2085,11 +2201,15 @@ L98F0:  .byte $22, $1E, $2C, $1E, $2C, $1E, $2A, $34, $2A, $80, $12, $16, $02, $
 L9900:  .byte $02, $16, $02, $16, $02, $16, $02, $16, $02, $16, $02, $16, $02, $16, $02, $16
 L9910:  .byte $02, $16, $02, $16, $16, $16, $2A, $16, $16, $16, $02, $16, $02, $16, $02, $16
 L9920:  .byte $02, $16, $02, $16, $02, $16, $02, $16, $02, $16, $02, $16, $02, $16, $02, $16
-L9930:  .byte $02, $16, $2A, $16, $16, $16, $2A, $16, $16, $16, $16, $16, $83, $02, $48, $5A
+L9930:  .byte $02, $16, $2A, $16, $16, $16, $2A, $16, $16, $16, $16, $16
+
+L993C:  .byte $83, $02, $48, $5A
 L9940:  .byte $5A, $82, $5C, $5A, $58, $5A, $83, $02, $4E, $50, $85, $48, $00, $83, $02, $42
 L9950:  .byte $48, $48, $82, $4C, $48, $44, $48, $83, $02, $48, $48, $85, $48, $83, $48, $3A
 L9960:  .byte $3A, $3A, $82, $3E, $3A, $38, $3A, $83, $48, $3E, $3E, $85, $3E, $83, $02, $83
-L9970:  .byte $2A, $0A, $0A, $2A, $0A, $0A, $2A, $0A, $0A, $2A, $02, $02, $82, $42, $3C, $83
+L9970:  .byte $2A, $0A, $0A, $2A, $0A, $0A, $2A, $0A, $0A, $2A, $02, $02
+
+L997C:  .byte $82, $42, $3C, $83
 L9980:  .byte $46, $85, $3C, $82, $42, $3C, $83, $46, $85, $3C, $83, $38, $3C, $38, $38, $82
 L9990:  .byte $42, $3C, $83, $46, $85, $3C, $00, $82, $3C, $34, $83, $3A, $85, $34, $82, $3C
 L99A0:  .byte $34, $83, $3A, $85, $34, $83, $34, $34, $34, $32, $82, $3C, $34, $83, $3A, $85
@@ -2097,7 +2217,9 @@ L99B0:  .byte $34, $83, $3C, $40, $82, $42, $80, $42, $46, $82, $42, $42, $83, $
 L99C0:  .byte $42, $80, $42, $46, $82, $42, $42, $46, $44, $42, $40, $3E, $80, $2A, $2E, $82
 L99D0:  .byte $3E, $80, $2A, $3E, $83, $3C, $40, $82, $42, $80, $42, $46, $83, $42, $83, $0E
 L99E0:  .byte $0E, $0E, $2A, $0E, $0E, $0E, $2A, $0E, $0E, $0E, $2A, $82, $2A, $2A, $83, $2A
-L99F0:  .byte $85, $2A, $83, $46, $46, $85, $4A, $83, $46, $46, $85, $4A, $83, $46, $4A, $4C
+L99F0:  .byte $85, $2A
+
+L99F2:  .byte $83, $46, $46, $85, $4A, $83, $46, $46, $85, $4A, $83, $46, $4A, $4C
 L9A00:  .byte $4A, $46, $82, $4A, $46, $85, $3E, $00, $80, $34, $3C, $38, $34, $34, $3C, $38
 L9A10:  .byte $34, $38, $3E, $3C, $38, $38, $3E, $3C, $38, $34, $3C, $38, $34, $34, $3C, $38
 L9A20:  .byte $34, $38, $3E, $3C, $38, $3C, $38, $34, $4A, $34, $3C, $34, $3C, $38, $3E, $38
@@ -2106,6 +2228,7 @@ L9A40:  .byte $3C, $85, $38, $81, $2E, $80, $34, $82, $3C, $46, $81, $2C, $80, $
 L9A50:  .byte $42, $81, $2E, $80, $34, $82, $3C, $46, $81, $2C, $80, $38, $82, $3E, $42, $2E
 L9A60:  .byte $80, $46, $2E, $82, $2C, $80, $42, $2A, $82, $2A, $80, $42, $2E, $82, $2C, $80
 L9A70:  .byte $42, $2A, $81, $2E, $80, $32, $82, $34, $3C, $80, $02, $38, $3E, $46, $83, $4A
+
 L9A80:  .byte $87, $46, $83, $54, $82, $50, $83, $4C, $4A, $87, $42, $82, $02, $83, $50, $82
 L9A90:  .byte $4C, $83, $4A, $46, $87, $3E, $82, $02, $83, $4C, $82, $4A, $83, $46, $42, $8D
 L9AA0:  .byte $3C, $82, $02, $88, $38, $3C, $87, $3E, $83, $02, $89, $02, $82, $3C, $83, $3A
@@ -2120,7 +2243,9 @@ L9B20:  .byte $26, $3E, $26, $3E, $24, $3C, $24, $3C, $24, $3C, $24, $3C, $24, $
 L9B30:  .byte $24, $3C, $24, $3C, $20, $38, $20, $38, $20, $38, $20, $38, $20, $38, $20, $38
 L9B40:  .byte $20, $38, $20, $38, $24, $3C, $24, $3C, $24, $3C, $24, $3C, $34, $38, $34, $38
 L9B50:  .byte $34, $32, $2E, $2A, $82, $0A, $0E, $12, $0A, $0A, $0E, $80, $12, $12, $82, $0A
-L9B60:  .byte $00, $82, $5E, $83, $02, $82, $5E, $83, $02, $82, $5E, $02, $02, $5E, $83, $02
+L9B60:  .byte $00
+
+L9B61:  .byte $82, $5E, $83, $02, $82, $5E, $83, $02, $82, $5E, $02, $02, $5E, $83, $02
 L9B70:  .byte $5E, $5E, $82, $5A, $83, $02, $82, $5A, $83, $02, $82, $5A, $02, $02, $5A, $83
 L9B80:  .byte $02, $5A, $5A, $82, $56, $83, $02, $82, $56, $83, $02, $82, $56, $02, $02, $56
 L9B90:  .byte $83, $02, $56, $56, $00, $8E, $46, $4A, $8F, $4C, $83, $02, $8E, $46, $4A, $8F
@@ -2132,31 +2257,41 @@ L9BE0:  .byte $8F, $46, $82, $02, $02, $3E, $42, $46, $4C, $83, $4A, $82, $46, $
 L9BF0:  .byte $2E, $46, $2E, $2E, $46, $2E, $46, $2E, $2E, $46, $2E, $2E, $46, $2E, $42, $2A
 L9C00:  .byte $2A, $42, $2A, $2A, $42, $2A, $42, $2A, $2A, $42, $2A, $2A, $42, $2A, $3E, $26
 L9C10:  .byte $26, $3E, $26, $26, $3E, $26, $3E, $26, $26, $3E, $26, $26, $3E, $26, $82, $0A
-L9C20:  .byte $0E, $12, $0A, $0A, $0E, $80, $12, $12, $82, $0A, $00, $82, $3C, $83, $02, $82
+L9C20:  .byte $0E, $12, $0A, $0A, $0E, $80, $12, $12, $82, $0A, $00
+
+L9C2B:  .byte $82, $3C, $83, $02, $82
 L9C30:  .byte $3C, $83, $02, $82, $3C, $82, $02, $83, $3C, $38, $34, $32, $00, $8D, $3C, $82
 L9C40:  .byte $3C, $24, $24, $3C, $24, $24, $3C, $24, $83, $3C, $38, $34, $32, $82, $0A, $0E
-L9C50:  .byte $12, $0A, $0A, $0E, $80, $12, $12, $82, $0A, $00, $83, $3C, $84, $02, $82, $3C
+L9C50:  .byte $12, $0A, $0A, $0E, $80, $12, $12, $82, $0A, $00
+
+L9C5A:  .byte $83, $3C, $84, $02, $82, $3C
 L9C60:  .byte $3C, $83, $38, $86, $02, $82, $02, $83, $34, $84, $02, $82, $34, $34, $83, $38
 L9C70:  .byte $86, $02, $82, $38, $83, $3C, $86, $02, $87, $02, $00, $83, $34, $84, $02, $82
 L9C80:  .byte $34, $34, $83, $32, $86, $02, $82, $02, $83, $2E, $84, $02, $82, $2E, $2E, $83
 L9C90:  .byte $32, $86, $02, $82, $32, $83, $34, $86, $02, $87, $02, $82, $2E, $2E, $2E, $2E
 L9CA0:  .byte $2E, $2E, $2E, $2E, $2A, $2A, $2A, $2A, $2A, $2A, $2A, $2A, $26, $26, $26, $26
 L9CB0:  .byte $26, $26, $26, $26, $42, $2A, $2A, $42, $2A, $2A, $42, $2A, $82, $46, $2E, $2E
-L9CC0:  .byte $46, $2E, $2E, $46, $2E, $46, $2E, $46, $2E, $2E, $2E, $46, $2E, $86, $46, $83
+L9CC0:  .byte $46, $2E, $2E, $46, $2E, $46, $2E, $46, $2E, $2E, $2E, $46, $2E
+
+L9CCD:  .byte $86, $46, $83
 L9CD0:  .byte $4A, $82, $4C, $02, $4C, $02, $4A, $46, $83, $02, $80, $44, $83, $46, $80, $02
 L9CE0:  .byte $82, $42, $83, $02, $80, $44, $83, $46, $80, $02, $82, $42, $83, $02, $4C, $4A
 L9CF0:  .byte $00, $86, $3C, $83, $3C, $82, $3C, $02, $3C, $02, $3C, $3C, $83, $02, $80, $3A
 L9D00:  .byte $83, $3C, $80, $02, $82, $38, $83, $02, $80, $3A, $83, $3C, $80, $02, $82, $38
 L9D10:  .byte $83, $02, $3C, $3C, $82, $46, $2E, $2E, $46, $2E, $2E, $46, $2E, $46, $2E, $46
 L9D20:  .byte $2E, $2E, $2E, $46, $2E, $42, $2A, $2A, $42, $2A, $2A, $42, $2A, $42, $2A, $2A
-L9D30:  .byte $42, $2A, $2A, $42, $2A, $86, $46, $83, $4A, $82, $4C, $02, $4C, $02, $4A, $4C
+L9D30:  .byte $42, $2A, $2A, $42, $2A
+
+L9D35:  .byte $86, $46, $83, $4A, $82, $4C, $02, $4C, $02, $4A, $4C
 L9D40:  .byte $83, $02, $80, $52, $83, $54, $80, $02, $82, $50, $83, $02, $80, $52, $83, $54
 L9D50:  .byte $80, $02, $82, $50, $83, $02, $82, $54, $50, $54, $50, $00, $86, $3C, $83, $3C
 L9D60:  .byte $82, $42, $02, $42, $02, $42, $42, $83, $02, $80, $44, $83, $46, $80, $02, $82
 L9D70:  .byte $46, $83, $02, $80, $44, $83, $46, $80, $02, $82, $46, $83, $02, $82, $46, $46
 L9D80:  .byte $46, $46, $82, $46, $2E, $2E, $46, $2E, $2E, $46, $2E, $46, $2E, $46, $2E, $2E
 L9D90:  .byte $2E, $46, $2E, $3C, $24, $24, $3C, $24, $24, $3C, $24, $3C, $24, $24, $3C, $24
-L9DA0:  .byte $24, $3C, $24, $86, $46, $82, $4C, $54, $02, $5E, $02, $64, $02, $62, $02, $86
+L9DA0:  .byte $24, $3C, $24
+
+L9DA3:  .byte $86, $46, $82, $4C, $54, $02, $5E, $02, $64, $02, $62, $02, $86
 L9DB0:  .byte $5A, $82, $02, $5E, $62, $02, $64, $02, $62, $02, $64, $62, $02, $86, $56, $82
 L9DC0:  .byte $5A, $5E, $02, $5E, $02, $5E, $64, $83, $62, $82, $02, $87, $6C, $87, $02, $00
 L9DD0:  .byte $86, $3C, $82, $3C, $3C, $02, $54, $02, $54, $02, $54, $02, $86, $4A, $82, $02
@@ -2166,7 +2301,9 @@ L9E00:  .byte $46, $2E, $2E, $46, $2E, $46, $2E, $46, $2E, $2E, $2E, $46, $2E, $
 L9E10:  .byte $2A, $42, $2A, $2A, $42, $2A, $2A, $32, $2A, $38, $2A, $3E, $2A, $42, $82, $3E
 L9E20:  .byte $26, $26, $3E, $26, $26, $3E, $26, $26, $2E, $26, $34, $26, $3C, $26, $3E, $24
 L9E30:  .byte $3C, $24, $3C, $24, $3C, $24, $3C, $80, $3C, $3C, $02, $3C, $3C, $38, $34, $2E
-L9E40:  .byte $83, $3C, $02, $82, $34, $34, $38, $34, $02, $83, $3C, $82, $34, $83, $3E, $82
+L9E40:  .byte $83, $3C, $02
+
+L9E43:  .byte $82, $34, $34, $38, $34, $02, $83, $3C, $82, $34, $83, $3E, $82
 L9E50:  .byte $3C, $8C, $38, $82, $38, $38, $3C, $38, $02, $83, $3E, $82, $3C, $83, $42, $82
 L9E60:  .byte $3E, $8C, $3C, $00, $82, $2A, $2A, $2A, $2A, $02, $83, $34, $82, $2A, $83, $38
 L9E70:  .byte $82, $34, $8C, $32, $82, $2A, $2A, $2A, $2A, $02, $83, $32, $82, $32, $83, $34
@@ -2182,6 +2319,8 @@ L9EE0:  .byte $38, $02, $82, $4C, $46, $3C, $83, $4C, $82, $34, $34, $02, $82, $
 L9EF0:  .byte $83, $4A, $82, $32, $32, $02, $82, $46, $46, $46, $46, $46, $46, $46, $46, $82
 L9F00:  .byte $3E, $3E, $3E, $3E, $3E, $3E, $3E, $3E, $82, $46, $46, $46, $46, $46, $46, $46
 L9F10:  .byte $46, $82, $42, $42, $42, $42, $42, $42, $42, $42
+
+;----------------------------------------------------------------------------------------------------
 
 ;Unused.
 L9F1A:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00

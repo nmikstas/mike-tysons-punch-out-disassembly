@@ -7580,8 +7580,9 @@ LF4AD:  STA NoiseCntrl0
 LF4B0:  LDA #$00
 LF4B2:  STA $0724
 LF4B5:  LDA #$01
-LF4B7:  STA $0725
-LF4BA:  LDA $F4
+LF4B7:  STA SQ2InUse
+
+LF4BA:  LDA SFXIndexSQ1
 LF4BC:  CMP #$0C
 LF4BE:  BEQ $F4CC
 
@@ -7626,26 +7627,26 @@ LF4FE:  LDA #$10
 LF500:  STA NoiseCntrl0
 LF503:  LDA #$00
 LF505:  STA $0724
-LF508:  LDA $0725
+LF508:  LDA SQ2InUse
 LF50B:  BEQ $F517
 
 LF50D:  LDA #$10
 LF50F:  STA SQ2Cntrl0
 LF512:  LDA #$00
-LF514:  STA $0725
+LF514:  STA SQ2InUse
 LF517:  RTS
 
 LF518:  STY $F4
 LF51A:  STA $0712
 LF51D:  LDA #$00
 LF51F:  STA $0726
-LF522:  LDA $0725
+LF522:  LDA SQ2InUse
 LF525:  BEQ $F531
 
 LF527:  LDA #$10
 LF529:  STA SQ2Cntrl0
 LF52C:  LDA #$00
-LF52E:  STA $0725
+LF52E:  STA SQ2InUse
 LF531:  LDA #$10
 LF533:  STA SQ1Cntrl0
 LF536:  LDA #$01
@@ -7725,34 +7726,42 @@ LF5B6:  .byte $00, $38          ;Index #$7A - 1962.47Hz - B6  (SQ1/SQ2), 989.92H
 LF5B8:  .byte $00, $35          ;Index #$7C - 2071.50Hz - C7  (SQ1/SQ2), 1045.43Hz - C6  (TRI).
 LF5BA:  .byte $00, $32          ;Index #$7E - 2193.35Hz - C#7 (SQ1/SQ2), 1107.53Hz - C#6 (TRI).
 
+;----------------------------------------------------------------------------------------------------
+
+;The following table contains the note lengths used by the varios pieces of music.
+
 NoteLengthsTbl:
+;Unused.
 LF5BC:  .byte $08, $18, $10, $20, $30, $40, $60, $80, $0B, $0A, $15, $16, $50, $FF, $05, $06
 LF5CC:  .byte $16, $00, $00, $00, $00, $00, $00
 
-;Index #$17.
+;Index #$17. Used by Intro/attract/end music segments.
 LF5D3:  .byte $07, $15, $0E, $1C, $2A, $38, $54, $70, $09, $0A, $13, $12, $46, $E0, $05, $04
 LF5E3:  .byte $12, $00, $00, $10, $04, $00, $00, $06, $13, $0D, $1A, $27, $34, $4E, $68, $09
 
 ;Unused.
 LF5F3:  .byte $08, $11, $12, $41, $D0, $04, $05, $12, $00, $00, $00, $00, $07, $14
 
-;Index #$45.
+;Index #$45. Used by newspaper, circuit champion, fight win, fight loss, title bout,
+;pre-fight, dream fight, Von Kaiser intro, Glass Joe intro, Don Flamenco intro,
+;King Hippo intro, Soda Popinsky intro and Piston Honda intro music segments.
 LF601:	.byte $06, $12, $0C, $18, $24, $30, $48, $60, $08, $08, $10, $10, $3C, $C0, $04, $04
 LF611:  .byte $10, $6C, $54, $0F, $03, $00, $00
 
-;Index #$5C.
+;Index #$5C. Used by main fight music segments.
 LF618:  .byte $06, $11, $0B, $16, $21, $2C, $42, $58, $07, $08, $0F, $0E, $37, $B0, $04, $03
 LF628:  .byte $0E, $00, $00, $00, $00, $05, $10
 
-;Index #$73.
+;Index #$73. Used by the game over, training, opponent down and little Mac down music segments.
 LF62F:  .byte $05, $0F, $0A, $14, $1E, $28, $3C, $50, $07, $06, $0D, $0E, $32, $A0, $03, $04
 LF63F:  .byte $0E, $5A, $46, $00, $00, $00, $00, $05, $0E, $09, $12, $1B, $24, $36, $48, $06
-
 LF64F:  .byte $06, $0C, $0C, $2D, $90, $03, $03, $0C, $00, $00, $00, $00, $04, $0D, $04, $0C
 LF65F:  .byte $08, $10, $18, $20, $30, $40, $05, $06, $0B, $0A, $28, $80, $03, $02, $0A, $48
 LF66F:  .byte $38, $00, $00, $00, $00
 
-;The following table id data loaded into the SQ2 channel envelope control register. A new
+;----------------------------------------------------------------------------------------------------
+
+;The following table is data loaded into the SQ2 channel envelope control register. A new
 ;value is loaded every 4th frame.
 
 SQ2EnvTbl:
@@ -7767,20 +7776,37 @@ LF6E4:  .byte $90, $90, $90, $90, $90, $90, $90, $90, $90, $91, $93, $94, $96, $
 
 LF6F4:  .byte $10, $10, $10, $10, $12, $95, $D3, $14, $95, $17, $D4, $15, $97, $18, $DA, $D0
 LF704:  .byte $0C, $13, $D4, $15, $97, $D5, $16, $97, $19, $D6, $17, $99, $17, $DB, $D0, $0C
+
+;----------------------------------------------------------------------------------------------------
+
+;The following table applies a decay to drum beats 10 and 11.  The volume is slowly reduced
+;over a period of 40 frames. The values of the volume are in the lower nibble of each byte
+;below. The table starts at the end and works backwards.
+
+NoiseDecayTbl:
 LF714:  .byte $10, $11, $11, $11, $11, $12, $11, $12, $11, $12, $11, $12, $11, $12, $13, $12
 LF724:  .byte $13, $12, $13, $12, $13, $14, $13, $14, $13, $14, $15, $14, $15, $14, $15, $16
-LF734:  .byte $15, $16, $17, $18, $19, $1A
+LF734:  .byte $15, $16, $17, $18, $19, $1A, $1B, $1D
 
-LF73A:  .byte $1B, $1D
-LF73C:  .byte $1D, $03, $48, $00, $19, $06, $38, $00, $19, $08, $38, $00, $19, $0A, $38, $00
-LF74C:  .byte $16, $07, $98, $00, $10, $00, $00, $00, $80, $00, $08, $00, $80, $01, $08, $00
-LF75C:  .byte $81, $01, $08, $00, $1D, $02, $08, $00, $1D, $03
+;----------------------------------------------------------------------------------------------------
+
+NoiseDatTbl:
+LF73C:  .byte $1D, $03, $48, $00	;Index #$02. Drum beat 1.
+LF740:  .byte $19, $06, $38, $00	;Index #$06. Drum beat 2.
+LF744:  .byte $19, $08, $38, $00	;Index #$0A. Drum beat 3.
+LF748:  .byte $19, $0A, $38, $00	;Index #$0E. Drum beat 4.
+LF74C:  .byte $16, $07, $98, $00	;Index #$12. Drum beat 5.
+LF750:  .byte $10, $00, $00, $00	;Index #$16. Drum beat 6.
+LF754:  .byte $80, $00, $08, $00	;Index #$1A. Drum beat 7.
+LF758:  .byte $80, $01, $08, $00	;Index #$1E. Drum beat 8.
+LF75C:  .byte $81, $01, $08, $00	;Index #$22. Drum beat 9.
+LF670:  .byte $1D, $02, $08, $00	;Index #$26. Drum beat 10.
+LF764:  .byte $1D, $03, $08, $00	;Index #$2A. Drum beat 11.
 
 ;The following table contains the addresses and lengths of DMC channel data. The values in
 ;the tables are loaded into the 3rd and 4th DMC hardware registers
 
 DMCSamplePtrTbl:
-LF766:  .byte $08, $00			;No sound.
 LF768:  .byte $80, $C0			;Crowd1. Address: $E000. Length: 3072 bytes.
 LF76A:  .byte $B3, $1C			;Laugh1. Address: $ECC0. Length: 448  bytes.
 LF76C:  .byte $BA, $18			;Laugh2. Address: $EE80. Length: 384  bytes.
@@ -7808,6 +7834,8 @@ LF82C:  .byte $50, $58, $60, $01, $03, $05, $08, $0A, $0F, $D0, $D1, $D2, $D3, $
 LF83C:  .byte $D7, $D8, $D9, $DA, $DB, $DC, $DD, $DE, $DF, $50, $51, $52, $53, $54, $55, $56
 LF84C:  .byte $57, $58, $59, $5A, $5B, $5C, $5D, $5E, $5F, $08, $09, $08, $09, $10, $11, $11
 LF85C:  .byte $12, $13, $14, $15, $16, $17, $18, $19, $1A, $17, $18, $19, $1A
+
+;----------------------------------------------------------------------------------------------------
 
 ;Unused.
 LF869:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
@@ -7929,6 +7957,8 @@ LFF99:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $
 LFFA9:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 LFFB9:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 LFFC9:  .byte $00, $00, $00, $00, $00, $00, $00
+
+;----------------------------------------------------------------------------------------------------
 
 LFFD0:  JMP $B27A
 LFFD3:  JMP $B283
