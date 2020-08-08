@@ -7087,9 +7087,9 @@ LDFF8:  .byte $00, $00, $00, $00, $00, $00, $00, $00
 
 ;---------------------------------[ DMC Audio Channel Sample Data ]----------------------------------
 
-;DMC channel data follows. Some channels overlap each other.
+;DMC channel data.
 
-Crowd1:
+DMCCrowdDat:
 LE000:  .byte $F8, $01, $FC, $87, $3E, $E0, $03, $F0, $5F, $00, $FE, $FF, $03, $20, $00, $FF
 LE010:  .byte $7F, $EC, $02, $80, $FD, $3F, $F0, $0B, $00, $FE, $1F, $00, $FA, $4B, $FB, $7F
 LE020:  .byte $00, $00, $FE, $FF, $07, $00, $E0, $DF, $3F, $AC, $1A, $00, $E0, $FF, $7F, $00
@@ -7106,8 +7106,6 @@ LE0C0:  .byte $2F, $FF, $03, $00, $FA, $FF, $2F, $00, $E0, $FF, $0F, $00, $E0, $
 LE0D0:  .byte $0B, $00, $FF, $AF, $ED, $00, $80, $FE, $FF, $01, $00, $C0, $FF, $FF, $07, $00
 LE0E0:  .byte $00, $FD, $FF, $FF, $00, $00, $E0, $FF, $7F, $02, $E0, $A5, $FF, $05, $20, $F4
 LE0F0:  .byte $FF, $01, $00, $EB, $FF, $7F, $00, $00, $F0, $FF, $2F, $40, $17, $80, $FD, $3F
-
-Crowd3:
 LE100:  .byte $FA, $03, $C0, $7F, $00, $E8, $8F, $FF, $00, $F0, $FF, $3F, $00, $E0, $1F, $80
 LE110:  .byte $43, $FF, $7F, $00, $F8, $0F, $FC, $3F, $00, $00, $FB, $FF, $03, $80, $08, $68
 LE120:  .byte $FF, $FF, $0B, $00, $F0, $FF, $00, $FE, $02, $F8, $7F, $F4, $05, $80, $FF, $FA
@@ -7140,14 +7138,10 @@ LE2C0:  .byte $56, $FA, $7F, $EC, $00, $A0, $FF, $FF, $0B, $00, $00, $FE, $FF, $
 LE2D0:  .byte $FF, $0F, $F0, $07, $FA, $13, $80, $F0, $FF, $23, $FA, $01, $D0, $FF, $03, $28
 LE2E0:  .byte $C9, $FF, $FF, $01, $00, $FF, $0A, $01, $C0, $FF, $FF, $00, $80, $FE, $C7, $7E
 LE2F0:  .byte $01, $C0, $FE, $03, $02, $F8, $FF, $3F, $00, $E0, $FF, $5F, $00, $F8, $41, $1E
-
-Crowd4:
 LE300:  .byte $E0, $FF, $97, $00, $FF, $03, $00, $8E, $FE, $BF, $F0, $03, $00, $F6, $4F, $F8
 LE310:  .byte $7F, $00, $E8, $D5, $02, $F8, $FF, $03, $10, $00, $FC, $FF, $7F, $00, $C0, $FE
 LE320:  .byte $FF, $27, $00, $80, $F8, $0F, $FC, $3F, $0A, $80, $E0, $FF, $1F, $00, $F0, $FF
 LE330:  .byte $FF, $01, $00, $C0, $FF, $FF, $00, $00, $BC, $FF, $FF, $1F, $00, $00, $E8, $FF
-
-Crowd2:
 LE340:  .byte $01, $8E, $FD, $01, $FE, $07, $04, $E0, $E7, $FF, $1F, $00, $24, $80, $FF, $FF
 LE350:  .byte $02, $F8, $0F, $08, $E8, $7F, $E0, $27, $A0, $FF, $00, $F8, $7F, $7F, $01, $00
 LE360:  .byte $FB, $0F, $00, $FC, $FF, $9D, $C0, $0F, $00, $00, $FE, $FF, $3F, $00, $00, $FF
@@ -7289,7 +7283,7 @@ LEBD0:  .byte $40, $F7, $FF, $05, $D0, $0F, $AD, $06, $E0, $FF, $7F, $00, $80, $
 LEBE0:  .byte $70, $48, $EC, $A1, $FF, $07, $80, $AF, $F8, $7F, $00, $00, $F0, $FF, $07, $44
 LEBF0:  .byte $EE, $3F, $00, $EC, $BF, $5E, $00, $38, $DB, $FF, $00, $58, $F0, $FF, $09, $00
 
-Laugh6:
+DMCGruntDat:
 LEC00:  .byte $55, $AB, $D5, $AA, $5A, $4B, $95, $4A, $55, $A9, $54, $D5, $D6, $AA, $A4, $35
 LEC10:  .byte $4B, $89, $52, $55, $D9, $5B, $5F, $57, $75, $2A, $49, $42, $92, $22, $4D, $D5
 LEC20:  .byte $76, $DB, $D7, $2A, $A5, $24, $92, $28, $52, $A9, $7F, $DF, $DB, $6D, $4F, $89
@@ -7303,7 +7297,7 @@ LEC90:  .byte $94, $4A, $5B, $FD, $FF, $FF, $CD, $7A, $8B, $02, $01, $8A, $04, $
 LECA0:  .byte $55, $52, $4A, $DB, $FF, $FF, $D7, $76, $3F, $2A, $20, $48, $49, $20, $08, $75
 LECB0:  .byte $97, $8A, $AC, $56, $FA, $CA, $8A, $A8, $A5, $4A, $01, $02, $95, $22, $08, $A0
 
-Laugh1:
+DMCLaugh1Dat:
 LECC0:  .byte $4A, $52, $55, $B5, $55, $33, $95, $4A, $55, $AB, $55, $A9, $2A, $55, $55, $DD
 LECD0:  .byte $37, $2A, $09, $4A, $AB, $6D, $57, $4A, $29, $AA, $B5, $D5, $9A, $4A, $A5, $54
 LECE0:  .byte $AB, $5A, $A5, $52, $55, $AA, $FD, $17, $A5, $00, $69, $6B, $7B, $93, $A2, $92
@@ -7333,7 +7327,7 @@ LEE50:  .byte $00, $FD, $0F, $08, $C1, $FF, $BF, $00, $C0, $FF, $3F, $00, $C0, $
 LEE60:  .byte $D0, $DD, $9D, $08, $A2, $FF, $FF, $00, $00, $FC, $FF, $08, $00, $FF, $77, $09
 LEE70:  .byte $A0, $D6, $B7, $89, $A4, $62, $FF, $3F, $00, $A0, $FD, $55, $0A, $62, $DD, $55
 
-Laugh2:
+DMCLaugh2Dat:
 LEE80:  .byte $75, $FF, $07, $00, $C0, $FF, $0F, $40, $D0, $FF, $0F, $02, $E8, $DF, $A8, $20
 LEE90:  .byte $C8, $FF, $FF, $04, $00, $FC, $FF, $03, $00, $FC, $FF, $0F, $00, $D0, $FF, $03
 LEEA0:  .byte $00, $D0, $FF, $FF, $00, $00, $FF, $FF, $00, $00, $FF, $FF, $03, $00, $FC, $BF
@@ -7359,7 +7353,7 @@ LEFD0:  .byte $21, $29, $CA, $26, $80, $02, $ED, $A9, $56, $52, $B7, $DA, $2A, $
 LEFE0:  .byte $09, $D9, $52, $B7, $08, $88, $A9, $4A, $73, $29, $AA, $B6, $55, $A9, $AA, $55
 LEFF0:  .byte $5B, $CB, $54, $6D, $55, $AD, $4A, $35, $55, $93, $2A, $55, $55, $95, $4A, $55
 
-Laugh3:
+DMCLaugh3Dat:
 LF000:  .byte $36, $89, $52, $D5, $AD, $8A, $4A, $D5, $75, $95, $48, $5A, $5B, $55, $4A, $55
 LF010:  .byte $6A, $F7, $1F, $00, $88, $FD, $3F, $24, $80, $F7, $AF, $09, $82, $FD, $AD, $88
 LF020:  .byte $50, $AB, $5A, $23, $FB, $FF, $00, $00, $FC, $FF, $14, $00, $FC, $3F, $8F, $00
@@ -7381,7 +7375,7 @@ LF110:  .byte $95, $54, $4B, $AD, $4A, $55, $55, $AB, $56, $A9, $B2, $6A, $AD, $
 LF120:  .byte $56, $49, $A9, $6A, $2B, $4A, $55, $B5, $A6, $A5, $52, $75, $AD, $4A, $CA, $5A
 LF130:  .byte $AB, $2A, $69, $55, $B5, $2A, $A9, $AA, $56, $55, $2A, $55, $AD, $55, $A5, $AA
 
-Laugh4:
+DMCLaugh4Dat:
 LF140:  .byte $59, $95, $65, $95, $A9, $9A, $AA, $AA, $AA, $69, $AA, $A6, $AA, $6A, $D5, $2D
 LF150:  .byte $89, $52, $55, $B7, $2A, $A9, $94, $75, $6D, $A5, $48, $6A, $AD, $55, $A5, $54
 LF160:  .byte $A5, $DA, $FD, $17, $00, $88, $FE, $BF, $50, $20, $F0, $7F, $AB, $09, $82, $F5
@@ -7407,7 +7401,7 @@ LF290:  .byte $56, $25, $95, $AA, $D6, $8A, $52, $55, $B5, $A6, $AA, $8A, $6A, $
 LF2A0:  .byte $D2, $5A, $AD, $2A, $A5, $66, $55, $AB, $52, $AA, $AA, $56, $55, $A9, $54, $B5
 LF2B0:  .byte $5A, $55, $A9, $B4, $6A, $55, $65, $AA, $55, $55, $55, $55, $AA, $56, $55, $55
 
-Laugh5:
+DMCLaugh5Dat:
 LF2C0:  .byte $D7, $56, $A5, $48, $6A, $AD, $55, $55, $4A, $55, $A5, $DA, $FF, $95, $80, $80
 LF2D0:  .byte $E8, $FF, $2D, $92, $20, $F0, $FD, $AD, $16, $22, $68, $F7, $AD, $8A, $08, $55
 LF2E0:  .byte $AB, $6A, $55, $D2, $FE, $FF, $00, $00, $40, $FF, $FF, $70, $80, $80, $FF, $37
@@ -7531,18 +7525,18 @@ LF45D:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
-LF45E:  LDA $0712
+LF45E:  LDA SQ1SFXTimer
 LF461:  BNE $F466
 
-LF463:  LDA $0701
+LF463:  LDA SQ1NoteRemain
 LF466:  LDX #$00
 LF468:  LDY SQ0LoFreqBits
 LF46B:  BNE $F47A
 
-LF46D:  LDA $0715
+LF46D:  LDA SQ2SFXTimer
 LF470:  BNE $F475
 
-LF472:  LDA $0700
+LF472:  LDA SQ2NoteRemain
 
 LF475:  LDX #$04
 LF477:  LDY SQ1LoFreqBits
@@ -7565,20 +7559,21 @@ LF48D:  ADC $0711
 LF490:  STA SQ1Cntrl2,X
 LF493:  RTS
 
-LF494:  STY $F4
-LF496:  STA $0712
+LF494:  STY SFXIndexSQ1
+LF496:  STA SQ1SFXTimer
 LF499:  LDA #$00
-LF49B:  STA $0726
+LF49B:  STA SQ1InUse
+
 LF49E:  LDA #$7F
 LF4A0:  STA SQ1Cntrl1
 LF4A3:  STA SQ2Cntrl1
-LF4A6:  LDA $0724
+LF4A6:  LDA NoiseInUse
 LF4A9:  BEQ $F4B5
 
 LF4AB:  LDA #$10
 LF4AD:  STA NoiseCntrl0
 LF4B0:  LDA #$00
-LF4B2:  STA $0724
+LF4B2:  STA NoiseInUse
 LF4B5:  LDA #$01
 LF4B7:  STA SQ2InUse
 
@@ -7616,17 +7611,21 @@ LF4E9:  SBC #$0A
 LF4EB:  STA SQ2Cntrl2
 LF4EE:  RTS
 
-LF4EF:  STY $F4
-LF4F1:  STA $0712
+InitSQ1SFX:
+LF4EF:  STY SFXIndexSQ1
+LF4F1:  STA SQ1SFXTimer
+
 LF4F4:  LDA #$01
-LF4F6:  STA $0726
-LF4F9:  LDA $0724
+LF4F6:  STA SQ1InUse
+
+LF4F9:  LDA NoiseInUse
 LF4FC:  BEQ $F508
 
 LF4FE:  LDA #$10
 LF500:  STA NoiseCntrl0
 LF503:  LDA #$00
-LF505:  STA $0724
+LF505:  STA NoiseInUse
+
 LF508:  LDA SQ2InUse
 LF50B:  BEQ $F517
 
@@ -7636,10 +7635,10 @@ LF512:  LDA #$00
 LF514:  STA SQ2InUse
 LF517:  RTS
 
-LF518:  STY $F4
-LF51A:  STA $0712
+LF518:  STY SFXIndexSQ1
+LF51A:  STA SQ1SFXTimer
 LF51D:  LDA #$00
-LF51F:  STA $0726
+LF51F:  STA SQ1InUse
 LF522:  LDA SQ2InUse
 LF525:  BEQ $F531
 
@@ -7647,10 +7646,11 @@ LF527:  LDA #$10
 LF529:  STA SQ2Cntrl0
 LF52C:  LDA #$00
 LF52E:  STA SQ2InUse
+
 LF531:  LDA #$10
 LF533:  STA SQ1Cntrl0
 LF536:  LDA #$01
-LF538:  STA $0724
+LF538:  STA NoiseInUse
 LF53B:  RTS
 
 ;----------------------------------------------------------------------------------------------------
@@ -7812,21 +7812,20 @@ LF764:  .byte $1D, $03, $08, $00    ;Index #$2A. Drum beat 11.
 ;the tables are loaded into the 3rd and 4th DMC hardware registers
 
 DMCSamplePtrTbl:
-LF768:  .byte $80, $C0          ;Crowd1. Address: $E000. Length: 3072 bytes.
+LF768:  .byte $80, $C0          ;Crowd.  Address: $E000. Length: 3072 bytes.
 LF76A:  .byte $B3, $1C          ;Laugh1. Address: $ECC0. Length: 448  bytes.
 LF76C:  .byte $BA, $18          ;Laugh2. Address: $EE80. Length: 384  bytes.
 LF76E:  .byte $C0, $14          ;Laugh3. Address: $F000. Length: 320  bytes.
 LF770:  .byte $C5, $18          ;Laugh4. Address: $F140. Length: 384  bytes.
 LF772:  .byte $CB, $0F          ;Laugh5. Address: $F2C0. Length: 240  bytes.
-LF774:  .byte $B0, $0C          ;Laugh6. Address: $EC00. Length: 192  bytes.
-LF776:  .byte $8D, $84          ;Crowd2. Address: $E340. Length: 2112 bytes.
-LF778:  .byte $84, $84          ;Crowd3. Address: $E100. Length: 2112 bytes.
-LF77A:  .byte $84, $8C          ;Crowd3. Address: $E100. Length: 2240 bytes.
-LF77C:  .byte $8C, $8C          ;Crowd4. Address: $E300. Length: 2240 bytes.
+LF774:  .byte $B0, $0C          ;Grunt.  Address: $EC00. Length: 192  bytes.
 
-LF77E:  .byte $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F
-LF78C:  .byte $2F, $1F, $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F, $93, $95, $97, $99
-LF79C:  .byte $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64
+LF776:  .byte $8D, $84, $84, $84, $84, $8C, $8C, $8C
+
+LF77E:  .byte $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F, $2F, $1F
+LF78C:  .byte $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F, $93, $95, $97, $99, $64, $64
+LF79C:  .byte $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64
+
 LF7AC:  .byte $4C, $42, $58, $50, $3E, $54, $4E, $5E, $4E, $48, $52, $44, $5C, $4A, $60, $40
 LF7BC:  .byte $24, $2A, $1C, $34, $2E, $20, $32, $22, $38, $2C, $1E, $30, $26, $2C, $3C, $28
 LF7CC:  .byte $16, $19, $10, $10, $1B, $1D, $1F, $1B, $17, $18, $19, $1A, $1B, $10, $10, $1C

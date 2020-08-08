@@ -9,9 +9,7 @@ cyan=`tput setaf 6`
 reset=`tput sgr0`
 
 printf "\n${magenta}Deleting previous build files...${reset}\n"
-cd output_files
-rm *
-cd ..
+rm ./output_files/*
 
 printf "\n${magenta}Assembling individual PRG banks...${reset}\n\n"
 cd source_files
