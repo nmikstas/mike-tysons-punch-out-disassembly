@@ -464,7 +464,7 @@ LA475:  STX $0B
 LA477:  LDA $A185,X
 LA47A:  STA $01
 
-LA47C:  LDA #SND_OFF			;Stop any playing music.
+LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit
 
 LA480:  JSR $AEA5
@@ -7436,12 +7436,12 @@ LF3F0:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $
 ;----------------------------------------------------------------------------------------------------
 
 GetNoteLength:
-LF400:  AND #$1F				;Limit index into table to 32 positions.
-LF402:  CLC						;
-LF403:  ADC NoteLengthsBase		;Add index to the base index for this music.
-LF406:  TAY						;
-LF407:  LDA NoteLengthsTbl,Y	;Get the note length from the table.
-LF40A:  RTS						;
+LF400:  AND #$1F                ;Limit index into table to 32 positions.
+LF402:  CLC                     ;
+LF403:  ADC NoteLengthsBase     ;Add index to the base index for this music.
+LF406:  TAY                     ;
+LF407:  LDA NoteLengthsTbl,Y    ;Get the note length from the table.
+LF40A:  RTS                     ;
 
 SetSQ1Control:
 LF40B:  STX SQ1Cntrl0           ;Set duty cycle, length counter and volume control bits on SQ1.
@@ -7745,7 +7745,7 @@ LF5F3:  .byte $08, $11, $12, $41, $D0, $04, $05, $12, $00, $00, $00, $00, $07, $
 ;Index #$45. Used by newspaper, circuit champion, fight win, fight loss, title bout,
 ;pre-fight, dream fight, Von Kaiser intro, Glass Joe intro, Don Flamenco intro,
 ;King Hippo intro, Soda Popinsky intro and Piston Honda intro music segments.
-LF601:	.byte $06, $12, $0C, $18, $24, $30, $48, $60, $08, $08, $10, $10, $3C, $C0, $04, $04
+LF601:  .byte $06, $12, $0C, $18, $24, $30, $48, $60, $08, $08, $10, $10, $3C, $C0, $04, $04
 LF611:  .byte $10, $6C, $54, $0F, $03, $00, $00
 
 ;Index #$5C. Used by main fight music segments.
@@ -7790,34 +7790,39 @@ LF734:  .byte $15, $16, $17, $18, $19, $1A, $1B, $1D
 
 ;----------------------------------------------------------------------------------------------------
 
+;The following table contains the 11 different drum beats that can be used in the music.  There
+;are 3 bytes per drum beat and are loaded directly into the noise hardware registers.
+
 NoiseDatTbl:
-LF73C:  .byte $1D, $03, $48, $00	;Index #$02. Drum beat 1.
-LF740:  .byte $19, $06, $38, $00	;Index #$06. Drum beat 2.
-LF744:  .byte $19, $08, $38, $00	;Index #$0A. Drum beat 3.
-LF748:  .byte $19, $0A, $38, $00	;Index #$0E. Drum beat 4.
-LF74C:  .byte $16, $07, $98, $00	;Index #$12. Drum beat 5.
-LF750:  .byte $10, $00, $00, $00	;Index #$16. Drum beat 6.
-LF754:  .byte $80, $00, $08, $00	;Index #$1A. Drum beat 7.
-LF758:  .byte $80, $01, $08, $00	;Index #$1E. Drum beat 8.
-LF75C:  .byte $81, $01, $08, $00	;Index #$22. Drum beat 9.
-LF670:  .byte $1D, $02, $08, $00	;Index #$26. Drum beat 10.
-LF764:  .byte $1D, $03, $08, $00	;Index #$2A. Drum beat 11.
+LF73C:  .byte $1D, $03, $48, $00    ;Index #$02. Drum beat 1.
+LF740:  .byte $19, $06, $38, $00    ;Index #$06. Drum beat 2.
+LF744:  .byte $19, $08, $38, $00    ;Index #$0A. Drum beat 3.
+LF748:  .byte $19, $0A, $38, $00    ;Index #$0E. Drum beat 4.
+LF74C:  .byte $16, $07, $98, $00    ;Index #$12. Drum beat 5.
+LF750:  .byte $10, $00, $00, $00    ;Index #$16. Drum silent.
+LF754:  .byte $80, $00, $08, $00    ;Index #$1A. Drum beat 7.
+LF758:  .byte $80, $01, $08, $00    ;Index #$1E. Drum beat 8.
+LF75C:  .byte $81, $01, $08, $00    ;Index #$22. Drum beat 9.
+LF670:  .byte $1D, $02, $08, $00    ;Index #$26. Drum beat 10.
+LF764:  .byte $1D, $03, $08, $00    ;Index #$2A. Drum beat 11.
+
+;----------------------------------------------------------------------------------------------------
 
 ;The following table contains the addresses and lengths of DMC channel data. The values in
 ;the tables are loaded into the 3rd and 4th DMC hardware registers
 
 DMCSamplePtrTbl:
-LF768:  .byte $80, $C0			;Crowd1. Address: $E000. Length: 3072 bytes.
-LF76A:  .byte $B3, $1C			;Laugh1. Address: $ECC0. Length: 448  bytes.
-LF76C:  .byte $BA, $18			;Laugh2. Address: $EE80. Length: 384  bytes.
-LF76E:  .byte $C0, $14			;Laugh3. Address: $F000. Length: 320  bytes.
-LF770:  .byte $C5, $18			;Laugh4. Address: $F140. Length: 384  bytes.
-LF772:  .byte $CB, $0F			;Laugh5. Address: $F2C0. Length: 240  bytes.
-LF774:  .byte $B0, $0C			;Laugh6. Address: $EC00. Length: 192  bytes.
-LF776:  .byte $8D, $84			;Crowd2. Address: $E340. Length: 2112 bytes.
-LF778:  .byte $84, $84			;Crowd3. Address: $E100. Length: 2112 bytes.
-LF77A:  .byte $84, $8C			;Crowd3. Address: $E100. Length: 2240 bytes.
-LF77C:  .byte $8C, $8C			;Crowd4. Address: $E300. Length: 2240 bytes.
+LF768:  .byte $80, $C0          ;Crowd1. Address: $E000. Length: 3072 bytes.
+LF76A:  .byte $B3, $1C          ;Laugh1. Address: $ECC0. Length: 448  bytes.
+LF76C:  .byte $BA, $18          ;Laugh2. Address: $EE80. Length: 384  bytes.
+LF76E:  .byte $C0, $14          ;Laugh3. Address: $F000. Length: 320  bytes.
+LF770:  .byte $C5, $18          ;Laugh4. Address: $F140. Length: 384  bytes.
+LF772:  .byte $CB, $0F          ;Laugh5. Address: $F2C0. Length: 240  bytes.
+LF774:  .byte $B0, $0C          ;Laugh6. Address: $EC00. Length: 192  bytes.
+LF776:  .byte $8D, $84          ;Crowd2. Address: $E340. Length: 2112 bytes.
+LF778:  .byte $84, $84          ;Crowd3. Address: $E100. Length: 2112 bytes.
+LF77A:  .byte $84, $8C          ;Crowd3. Address: $E100. Length: 2240 bytes.
+LF77C:  .byte $8C, $8C          ;Crowd4. Address: $E300. Length: 2240 bytes.
 
 LF77E:  .byte $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F
 LF78C:  .byte $2F, $1F, $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F, $93, $95, $97, $99
