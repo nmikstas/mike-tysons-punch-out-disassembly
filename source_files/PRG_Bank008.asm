@@ -127,6 +127,9 @@ L8084:  RTS                     ;DMC channel disabled, exit.
 ;|                                          SQ1 SFX Player                                          |
 ;----------------------------------------------------------------------------------------------------
 
+;Punch SFX during intr after the start button has been pressed.
+
+SQ1IntroPunchInit:
 L8085:  LDA #$40                ;SFX will last for 64 frames.
 L8087:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
@@ -137,6 +140,7 @@ L808F:  LDX #$9F
 L8091:  LDY #$83
 L8093:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
 
+SQ1IntroPunchCont:
 L8096:  LDA SQ1SFXTimer
 L8099:  CMP #$40
 L809B:  BCS $80A4
@@ -176,23 +180,25 @@ L80CA:  LDY SFXInitSQ1          ;Does the SQ1 SFX need to be stopped?
 L80CC:  BMI SilenceSQ1SFX       ;If so, branch.
 
 ChkSQ1SFX1:
-L80CE:  LDA SFXIndexSQ1
-L80D0:  CPY #SQ1_INTRO_PUNCH
-L80D2:  BEQ $8085
-L80D4:  CMP #$01
-L80D6:  BEQ $8096
+L80CE:  LDA SFXIndexSQ1         ;Does the SQ1 intro punch SFX need to be started?
+L80D0:  CPY #SQ1_INTRO_PUNCH    ;If so, branch to initialize.
+L80D2:  BEQ SQ1IntroPunchInit   ;
+L80D4:  CMP #SQ1_INTRO_PUNCH    ;Is the SQ1 intro punch SFX already playing?
+L80D6:  BEQ SQ1IntroPunchCont   ;If so, branch to continue SFX.
 
-L80D8:  CPY #$02
+L80D8:  CPY #SQ1_FALL
 L80DA:  BEQ $80EB
-L80DC:  CMP #$02
+L80DC:  CMP #SQ1_FALL
 L80DE:  BEQ $80F9
 
-L80E0:  CPY #$03
+L80E0:  CPY #SQ1_PUNCH1
 L80E2:  BEQ $8124
-L80E4:  CMP #$03
+L80E4:  CMP #SQ1_PUNCH1
 L80E6:  BEQ $8132
 
-L80E8:  JMP $81C7
+L80E8:  JMP ChkSQ1SFX2          ;($81C7)Second phase of checking for SFX to play/continue.
+
+;----------------------------------------------------------------------------------------------------
 
 L80EB:  LDA #$7F
 L80ED:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
@@ -227,6 +233,8 @@ L811B:  LSR
 L811C:  ORA #$90
 L811E:  STA SQ1Cntrl0
 L8121:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+
+;----------------------------------------------------------------------------------------------------
 
 L8124:  LDA #$16
 L8126:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
@@ -277,6 +285,8 @@ L816C:  STA SQ1Cntrl0           ;
 SQ1SFXEnd:
 L816F:  RTS                     ;Finished processing SQ1 SFX. return.
 
+;----------------------------------------------------------------------------------------------------
+
 L8170:  LDA #$04
 L8172:  JSR $F518
 
@@ -293,6 +303,8 @@ L8188:  LDA #$24
 L818A:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
 L818D:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+
+;----------------------------------------------------------------------------------------------------
 
 L8190:  LDA #$20
 L8192:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
@@ -322,6 +334,9 @@ L81BF:  ORA #$90
 L81C1:  STA SQ1Cntrl0
 L81C4:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
+;----------------------------------------------------------------------------------------------------
+
+ChkSQ1SFX2:
 L81C7:  CPY #$04
 L81C9:  BEQ $8170
 L81CB:  CMP #$04
@@ -342,7 +357,8 @@ L81E7:  CPY #$08
 L81E9:  BEQ $8222
 L81EB:  CMP #$08
 L81ED:  BEQ $8230
-L81EF:  JMP $827F
+
+L81EF:  JMP ChkSQ1SFX3          ;($827F)Third phase of checking for SFX to play/continue.
 
 L81F2:  LDA #$10
 L81F4:  JSR $F518
@@ -408,6 +424,9 @@ L8276:  LDA $F7BC,Y
 L8279:  JSR UpdateSQ1Note       ;($F429)Update SQ1 note frequency.
 L827C:  JMP $824C
 
+;----------------------------------------------------------------------------------------------------
+
+ChkSQ1SFX3:
 L827F:  CPY #$09
 L8281:  BEQ $8233
 L8283:  CMP #$09
@@ -424,7 +443,11 @@ L8297:  CPY #$0C
 L8299:  BEQ $82A2
 L829B:  CMP #$0C
 L829D:  BEQ $82BE
-L829F:  JMP $8316
+
+L829F:  JMP ChkSQ1SFX4          ;($8316)Fourth phase of checking for SFX to play/continue.
+
+;----------------------------------------------------------------------------------------------------
+
 L82A2:  LDA #$40
 L82A4:  JSR $F494
 L82A7:  LDX #$88
@@ -478,6 +501,9 @@ L830F:  LDA #$18
 L8311:  STA SQ1SFXByte
 L8314:  BNE $82DA
 
+;----------------------------------------------------------------------------------------------------
+
+ChkSQ1SFX4:
 L8316:  CPY #$0D
 L8318:  BEQ $82D0
 L831A:  CMP #$0D
@@ -510,7 +536,11 @@ L834E:  CPY #$14
 L8350:  BEQ $8395
 L8352:  CMP #$14
 L8354:  BEQ $83A3
-L8356:  JMP $8402
+
+L8356:  JMP ChkSQ1SFX5          ;($8402)Fifth phase of checking for SFX to play/continue.
+
+;----------------------------------------------------------------------------------------------------
+
 L8359:  LDA #$05
 L835B:  JSR $F518
 L835E:  LDY SQ1SFXTimer
@@ -555,6 +585,8 @@ L83AA:  LDA #$42
 L83AC:  JSR UpdateSQ1Note       ;($F429)Update SQ1 note frequency.
 L83AF:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
+;----------------------------------------------------------------------------------------------------
+
 L83B2:  LDA #$04
 L83B4:  STA SQ1SFXByte
 L83B7:  LDA #$18
@@ -592,14 +624,17 @@ L83FA:  ORA #$08
 L83FC:  STA SQ1Cntrl3
 L83FF:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
+;----------------------------------------------------------------------------------------------------
+
+ChkSQ1SFX5:
 L8402:  CPY #SQ1_BELL3
 L8404:  BEQ $83B2
-L8406:  CMP #$15
+L8406:  CMP #SQ1_BELL3
 L8408:  BEQ $83BE
 
 L840A:  CPY #SQ1_STAR_PUNCH
 L840C:  BEQ $83CD
-L840E:  CMP #$16
+L840E:  CMP #SQ1_STAR_PUNCH
 L8410:  BEQ $83E1
 
 L8412:  CPY #SQ1_HIPPO_TALK
@@ -1227,8 +1262,6 @@ L88DF:  JMP $8514
 ;|                                           Music Player                                           |
 ;----------------------------------------------------------------------------------------------------
 
-;------------------------------------[ SQ1 Music Channel Update ]------------------------------------
-
 PlayMusic:
 L88E2:  LDA MusicInit           ;
 L88E4:  BMI StopMusic           ;
@@ -1248,45 +1281,53 @@ L88F6:  JMP UpdateSQ2Music      ;($8A0A)Update the music.
 DoInitMusic:
 L88F9:  JMP InitMusic           ;($8964)Initialize new music.
 
-L88FC:  LDA MusicIndex
-L88FE:  CMP #MUS_TRAIN_RPT
-L8900:  BCS $8969
+ChkRepeatMusic:
+L88FC:  LDA MusicIndex          ;Does current music need to loop?
+L88FE:  CMP #MUS_TRAIN_RPT      ;
+L8900:  BCS UpdateMusicIndex    ;If so, branch to reload the music index.
 
 StopMusic:
-L8902:  LDA #$00
-L8904:  STA MusicIndex
+L8902:  LDA #$00                ;Zero out the music index to indicate no music to play.
+L8904:  STA MusicIndex          ;
 
-L8906:  LDA NoiseInUse
-L8909:  BEQ $8922
+SilenceChannels:
+L8906:  LDA NoiseInUse          ;Is the noise channel in use by an SFX?
+L8909:  BEQ ChkSQ1Use           ;If not, branch.
 
-L890B:  LDA SFXIndexSQ2
-L890D:  BEQ $891B
+L890B:  LDA SFXIndexSQ2         ;Is SFX using SQ2?
+L890D:  BEQ SilenceSQ2          ;If not, branch to silence SQ2.
 
-L890F:  LDA #$10
-L8911:  STA SQ1Cntrl0
+L890F:  LDA #$10                ;Silence SQ1 channel.
+L8911:* STA SQ1Cntrl0           ;
 
-L8914:  LDA #$00
-L8916:  STA TriangleCntrl0
-L8919:  BEQ ResetSQ1SQ2Env
+L8914:  LDA #$00                ;Silence the triangle channel.
+L8916:  STA TriangleCntrl0      ;
+L8919:  BEQ ResetSQ1SQ2Env      ;Branch always to reset SQ1, SQ2 envelope data indexes.
 
-L891B:  LDA #$10
-L891D:  STA SQ2Cntrl0
-L8920:  BNE $8911
+SilenceSQ2:
+L891B:  LDA #$10                ;Silence SQ2.
+L891D:  STA SQ2Cntrl0           ;
+L8920:  BNE -                   ;Branch always to silence SQ1.
 
-L8922:  LDA SQ1InUse
-L8925:  BEQ $8934
+ChkSQ1Use:
+L8922:  LDA SQ1InUse            ;Is SQ1 being used by an SFX?
+L8925:  BEQ ChkSQ2Use           ;If not, branch to check SQ2 usage.
 
-L8927:  LDA SFXIndexSQ2
-L8929:  BEQ $892D
-L892B:  BNE $8939
+L8927:  LDA SFXIndexSQ2         ;Is SQ2 being used by an SFX?
+L8929:  BEQ _SilenceSQ2         ;If not, branch to silence SQ2.
 
-L892D:  LDA #$10
-L892F:  STA SQ2Cntrl0
-L8932:  BNE $894D
+L892B:  BNE ChkTriNoiseSilence  ;Branch to check noise and triangle channel usage.
 
-L8934:  LDA SQ2InUse
-L8937:  BEQ ChkMusicEnd
+_SilenceSQ2:
+L892D:  LDA #$10                ;Silence SQ2 channel.
+L892F:  STA SQ2Cntrl0           ;
+L8932:  BNE SilenceTriNoise     ;Branch always.
 
+ChkSQ2Use:
+L8934:  LDA SQ2InUse            ;Is SQ2 channel currently being used by an SFX?
+L8937:  BEQ ChkMusicEnd         ;If so, branch to exit.
+
+ChkTriNoiseSilence:
 L8939:  LDA #$10                ;Prepare to silence only triangle and noise channels.
 L893B:  BNE SilenceTriNoise     ;Branch always.
 
@@ -1318,27 +1359,30 @@ L895D:  STA NoiseVolIndex       ;
 ExitNoMusic:
 L8960:  RTS                     ;No music is playing. Exit.
 
-L8961:  JMP $88FC
+JmpChkRepeatMusic:
+L8961:  JMP ChkRepeatMusic      ;($88FC)Check if repeating music is playing.
 
 InitMusic:
-L8964:  TAX
-L8965:  JSR $8906
+L8964:  TAX                     ;Save new music index in x temporarily.
+L8965:  JSR SilenceChannels     ;($8906)Silence audio channels not being used by SFX.
 
-L8968:  TXA
+L8968:  TXA                     ;Place requested music index back in A and set as current music.
 
-L8969:  STA MusicIndex
-L896B:  STA $070A
+UpdateMusicIndex:
+L8969:  STA MusicIndex          ;Update current music index with new music to play.
+L896B:  STA MusSeqBase          ;Use music index as base for finding music sequence data.
+
 L896E:  LDY #$00
-L8970:  STY $070B
-L8973:  LDY $070A
-L8976:  LDA $8FFF,Y
+L8970:  STY MusSeqIndex
+L8973:  LDY MusSeqBase
+L8976:  LDA MusSeqIndexTbl-1,Y
 L8979:  CLC
-L897A:  ADC $070B
-L897D:  INC $070B
+L897A:  ADC MusSeqIndex
+L897D:  INC MusSeqIndex
 L8980:  TAY
-L8981:  LDA $9000,Y
+L8981:  LDA MusSeqIndexTbl,Y
 L8984:  TAY
-L8985:  BEQ $8961
+L8985:  BEQ JmpChkRepeatMusic   ;($8961)Check if repeating music is playing.
 
 L8987:  LDA MusicIndex          ;Is the music to be initialized in one of the upper indexes?
 L8989:  CMP #MUS_VON_KAISER     ;
@@ -1655,11 +1699,11 @@ L8B7E:  LDA (MusicDataPtr),Y    ;Get new triangle channel note data.
 L8B80:  BMI UpdateTriLength     ;Is this a control byte? If so, branch to change note length.
 
 L8B82:  LDY SFXIndexSQ2
-L8B84:  CPY #$0D
+L8B84:  CPY #SQ2_OPP_PUNCH4
 L8B86:  BEQ ResetTriNoteLen
 
 L8B88:  LDY SFXIndexSQ1
-L8B8A:  CPY #$18
+L8B8A:  CPY #SQ1_HOLE_PUNCH
 L8B8C:  BEQ ResetTriNoteLen
 
 L8B8E:  CMP #$02                ;Should triangle note be silenced?
@@ -1713,11 +1757,11 @@ L8BCF:  STA TriBlipType
 
 ContinueTriNote:
 L8BD2:  LDA SFXIndexSQ2
-L8BD4:  CMP #$0D
+L8BD4:  CMP #SQ2_OPP_PUNCH4
 L8BD6:  BEQ UpdateNoiseMusic
 
 L8BD8:  LDA SFXIndexSQ1
-L8BDA:  CMP #$18
+L8BDA:  CMP #SQ1_HOLE_PUNCH
 L8BDC:  BEQ UpdateNoiseMusic
 
 L8BDE:  LDA MusicIndex          ;Is Piston Honda intro music playing?
@@ -1900,13 +1944,78 @@ L8FFC:  .byte $00, $00, $00, $00
 
 ;----------------------------------------------------------------------------------------------------
 
-L9000:  .byte $1F, $2B, $48, $2F, $31, $33, $35, $37, $39, $3C, $3E, $3F, $48, $4C, $4E, $4F
-L9010:  .byte $51, $53, $55, $57, $59, $5B, $5C, $5D, $5E, $5F, $63, $64, $65, $67, $69, $05
-L9020:  .byte $0D, $15, $05, $0D, $15, $05, $0D, $1D, $25, $2D, $00, $35, $15, $00, $00, $3D
-L9030:  .byte $00, $45, $00, $4D, $00, $55, $00, $5D, $00, $65, $6D, $00, $75, $00, $00, $05
-L9040:  .byte $0D, $15, $05, $0D, $1D, $25, $2D, $00, $05, $0D, $15, $00, $7D, $00, $00, $10
-L9050:  .byte $00, $18, $00, $20, $00, $28, $00, $30, $00, $38, $00, $00, $00, $00, $00, $40
-L9060:  .byte $48, $50, $00, $00, $00, $78, $00, $80, $00
+;The following table represent the indexes to find the sequences to play for the various music
+;in the game.  The index number is referenced from the start of this table but always look
+;in the table below it.
+
+MusSeqIndexTbl:
+L9000:  .byte $1F               ;End music.                 Music index #$01.
+L9001:  .byte $2B               ;Short intro music.         Music index #$02.
+L9002:  .byte $48               ;Attract music.             Music index #$03.
+L9003:  .byte $2F               ;Newspaper music.           Music index #$04.
+L9004:  .byte $31               ;Circuit champ music.       Music index #$05.
+L9005:  .byte $33               ;Fight win music.           Music index #$06.
+L9006:  .byte $35               ;Fight loss music.          Music index #$07.
+L9007:  .byte $37               ;Title bout music.          Music index #$08.
+L9008:  .byte $39               ;Game over music.           Music index #$09.
+L9009:  .byte $3C               ;Pre-fight music.           Music index #$0A.
+L900A:  .byte $3E               ;No music.                  Music index #$0B.
+L900B:  .byte $3F               ;Intro music.               Music index #$0C.
+L900C:  .byte $48               ;Attract music.             Music index #$0D.
+L900D:  .byte $4C               ;Dream fight music.         Music index #$0E.
+L900E:  .byte $4E               ;No music.                  Music index #$0F.
+L900F:  .byte $4F               ;Von Kaiser intro music.    Music index #$10.
+L9010:  .byte $51               ;Glass Joe intro music.     Music index #$11.
+L9011:  .byte $53               ;Don Flamenco intro music.  Music index #$12.
+L9012:  .byte $55               ;King Hippo intro music.    Music index #$13.
+L9013:  .byte $57               ;Soda popinski intro music. Music index #$14.
+L9014:  .byte $59               ;Piston Honda intro music.  Music index #$15.
+L9015:  .byte $5B               ;No music.                  Music index #$16.
+L9016:  .byte $5C               ;No music.                  Music index #$17.
+L9017:  .byte $5D               ;No music.                  Music index #$18.
+L9018:  .byte $5E               ;No music.                  Music index #$19.
+L9019:  .byte $5F               ;Training music.            Music index #$1A.
+L901A:  .byte $63               ;No music.                  Music index #$1B.
+L901B:  .byte $64               ;No music.                  Music index #$1C.
+L901C:  .byte $65               ;Opponent down music.       Music index #$1D.
+L901D:  .byte $67               ;Mac Down music.            Music index #$1E.
+L901E:  .byte $69               ;Fight music.               Music index #$1F.
+
+;This table is referenced from above and is the indexes into MusicInitTbl1 to play the various
+;segments for different songs. Some music indexes play multiple segments while some only play
+;one segment. Other music indexes dont play any music at all.
+
+MusSequenceTbl:
+L901F:  .byte $05, $0D, $15, $05, $0D, $15  ;Index #$1F. End music.
+L9025:  .byte $05, $0D, $1D, $25, $2D, $00
+L902B:  .byte $35, $15, $00, $00            ;Index #$2B. Short Intro music.
+L902F:  .byte $3D, $00                      ;Index #$2F. Newspaper music.
+L9031:  .byte $45, $00                      ;Index #$31. Circuit champ music.
+L9033:  .byte $4D, $00                      ;Index #$33. Fight win music.
+L9035:  .byte $55, $00                      ;Index #$35. Fight loss music.
+L9037:  .byte $5D, $00                      ;Index #$37. Title bout music.
+L9039:  .byte $65, $6D, $00                 ;Index #$39. Game over music.
+L903C:  .byte $75, $00                      ;Index #$3C. Pre-fight music.
+L903E:  .byte $00                           ;Index #$3E. No music.
+L903F:  .byte $05, $0D, $15, $05, $0D, $1D  ;Index #$3F. intro music.
+L9045:  .byte $25, $2D, $00
+L9048:  .byte $05, $0D, $15, $00            ;Index #$48. Attract music.
+L904C:  .byte $7D, $00, $00                 ;Index #$4C. Dream fight music.
+L904F:  .byte $10, $00                      ;Index #$4F. Von Kaiser intro music.
+L9051:  .byte $18, $00                      ;Index #$51. Glass Joe intro music.
+L9053:  .byte $20, $00                      ;Index #$53. Don Flamenco intro music.
+L9055:  .byte $28, $00                      ;Index #$55. King Hippo intro music.
+L9057:  .byte $30, $00                      ;Index #$57. Soda popinski intro music.
+L9059:  .byte $38, $00                      ;Index #$59. Piston Honda intro music.
+L905B:  .byte $00                           ;Index #$5B. No music.
+L905C:  .byte $00                           ;Index #$5C. No music.
+L905D:  .byte $00                           ;Index #$5D. No music.
+L905E:  .byte $00                           ;Index #$5E. No music.
+L905F:  .byte $40, $48, $50, $00            ;Index #$5F. Training music.
+L9063:  .byte $00                           ;Index #$63. No music.
+L9064:  .byte $00                           ;Index #$64. No music.
+L9065:  .byte $78, $00                      ;Index #$65. Opponent down music.
+L9067:  .byte $80, $00                      ;Index #$67. Mac Down music.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -1917,11 +2026,12 @@ L9060:  .byte $48, $50, $00, $00, $00, $78, $00, $80, $00
 ;Byte  4   - Index into the musical notes data for the triangle channel.
 ;Byte  5   - Index into the musical notes data for the SQ1 channel.
 ;Byte  6   - Index into the musical notes data for the noise channel.
-;Byte  7   - 
-;Byte  8   - 
+;Byte  7   - Base index to SQ2 envelope data.
+;Byte  8   - Base index to SQ1 envelope data.
 ;NOTE: The SQ2 data always starts at index 0 of the music data.
 
 MusicInitTbl1:
+
 ;Unused.
 L9069:  .byte $58, $60, $68, $70, $00
 

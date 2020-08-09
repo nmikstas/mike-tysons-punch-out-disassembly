@@ -738,7 +738,7 @@ L861F:  LDA $E8
 L8621:  AND #$20
 L8623:  ORA $ED
 L8625:  STA $ED
-L8627:  LDA $D0
+L8627:  LDA Joy1Buttons
 L8629:  ROR
 L862A:  STA $E8
 L862C:  ROR
@@ -746,7 +746,7 @@ L862D:  STA $E9
 L862F:  ROR
 L8630:  AND #$98
 L8632:  STA $EC
-L8634:  LDA $D0
+L8634:  LDA Joy1Buttons
 L8636:  AND #$01
 L8638:  ORA $EC
 L863A:  STA $EC
@@ -758,7 +758,7 @@ L8644:  LDA $E9
 L8646:  AND #$04
 L8648:  ORA $EC
 L864A:  STA $EC
-L864C:  LDA $D0
+L864C:  LDA Joy1Buttons
 L864E:  ROL
 L864F:  STA $E8
 L8651:  ROL
@@ -1425,9 +1425,11 @@ L8D67:  RTS
 
 L8D68:  LDY #$32
 L8D6A:  BNE $8D8D
+
 L8D6C:  LDX #$00
 L8D6E:  LDY #$1E
 L8D70:  BNE $8D8F
+
 L8D72:  LDY #$1E
 L8D74:  JSR $8D8D
 L8D77:  BNE $8D7C
@@ -1441,11 +1443,13 @@ L8D84:  LDY #$0A
 L8D86:  JSR $8D8D
 L8D89:  BEQ $8DA1
 L8D8B:  LDY #$14
+
 L8D8D:  LDX #$10
+
 L8D8F:  LDA #$0A
 L8D91:  STA $E0
 L8D93:  LDA $0110,X
-L8D96:  CMP $8DA2,Y
+L8D96:  CMP PswrdDatTbl,Y
 L8D99:  BNE $8DA1
 L8D9B:  INX
 L8D9C:  INY
@@ -1453,13 +1457,22 @@ L8D9D:  DEC $E0
 L8D9F:  BNE $8D93
 L8DA1:  RTS
 
-L8DA2:  .byte $00, $07, $05, $05, $04, $01, $06, $01, $01, $03, $08, $00, $00, $04, $02, $02
-L8DB2:  .byte $02, $06, $00, $02, $02, $00, $06, $08, $08, $02, $02, $00, $04, $00, $01, $03
-L8DC2:  .byte $05, $07, $09, $02, $04, $06, $08, $00, $01, $00, $06, $01, $01, $03, $00, $01
-L8DD2:  .byte $02, $00, $00, $00, $07, $03, $07, $03
+;The following is a table of the 6 special passwords in the game.
+;Entry 0: 075-541-6113
+;Entry 1: 800-422-2602
+;Entry 2: 206-882-2040
+;Entry 3: 135-792-4680
+;Entry 4: 106-113-0120
+;Entry 5: 007-373-5963
 
-L8DDA:  ORA $09
-L8DDC:  ASL $03
+PswrdDatTbl:
+L8DA2:  .byte $00, $07, $05, $05, $04, $01, $06, $01, $01, $03
+L8DAC:  .byte $08, $00, $00, $04, $02, $02, $02, $06, $00, $02
+L8DB6:  .byte $02, $00, $06, $08, $08, $02, $02, $00, $04, $00
+L8DC0:  .byte $01, $03, $05, $07, $09, $02, $04, $06, $08, $00
+L8DCA:  .byte $01, $00, $06, $01, $01, $03, $00, $01, $02, $00
+L8DD4:  .byte $00, $00, $07, $03, $07, $03, $05, $09, $06, $03
+
 L8DDE:  LDA $D5
 L8DE0:  ORA $D7
 L8DE2:  AND $DB
@@ -1523,14 +1536,17 @@ L8E52:  RTS
 
 L8E53:  LDY #$00
 L8E55:  LDX #$00
+
 L8E57:  LDA $0140,Y
 L8E5A:  STA $0150,X
 L8E5D:  INY
 L8E5E:  INX
 L8E5F:  CPX #$03
 L8E61:  BEQ $8E6C
+
 L8E63:  CPX #$07
 L8E65:  BEQ $8E6C
+
 L8E67:  CPX #$0D
 L8E69:  BNE $8E57
 L8E6B:  RTS
@@ -1539,6 +1555,7 @@ L8E6C:  LDA #$FF
 L8E6E:  STA $0150,X
 L8E71:  INX
 L8E72:  BNE $8E57
+
 L8E74:  LDA #$0C
 L8E76:  JSR $8E84
 L8E79:  DEY
@@ -1555,6 +1572,7 @@ L8E8D:  RTS
 L8E8E:  LDA $0100,Y
 L8E91:  DEY
 L8E92:  BPL $8E98
+
 L8E94:  LDA $0100,Y
 L8E97:  INY
 L8E98:  AND #$0C

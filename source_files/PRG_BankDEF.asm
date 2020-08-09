@@ -1778,23 +1778,23 @@ LAFBC:  RTS
 LAFBD:  LDY #$06
 LAFBF:  LDX #$00
 LAFC1:  JSR $B021
-LAFC4:  LDA $D0
+LAFC4:  LDA Joy1Buttons
 LAFC6:  AND #$0F
 LAFC8:  JSR $B001
 LAFCB:  LDX #$02
-LAFCD:  LDA $D0
+LAFCD:  LDA Joy1Buttons
 LAFCF:  AND #$80
 LAFD1:  JSR $B001
 LAFD4:  LDX #$04
-LAFD6:  LDA $D0
+LAFD6:  LDA Joy1Buttons
 LAFD8:  AND #$40
 LAFDA:  JSR $B001
 LAFDD:  LDX #$06
-LAFDF:  LDA $D0
+LAFDF:  LDA Joy1Buttons
 LAFE1:  AND #$10
 LAFE3:  JSR $B001
 LAFE6:  LDX #$08
-LAFE8:  LDA $D0
+LAFE8:  LDA Joy1Buttons
 LAFEA:  AND #$20
 LAFEC:  JSR $B001
 LAFEF:  LDA $50
@@ -1835,16 +1835,18 @@ LB02D:  CMP $E0
 LB02F:  BNE $B024
 LB031:  STA $D0,X
 LB033:  RTS
+
 LB034:  LDY #$07
 LB036:  LDX #$01
 LB038:  JSR $B021
 LB03B:  DEX
-LB03C:  LDA $D1
+LB03C:  LDA Joy2Buttons
 LB03E:  AND #$0F
 LB040:  JSR $B049
 LB043:  LDX #$02
-LB045:  LDA $D1
+LB045:  LDA Joy2Buttons
 LB047:  AND #$C0
+
 LB049:  CMP $DC,X
 LB04B:  BNE $B05C
 LB04D:  TAY
@@ -1856,11 +1858,13 @@ LB055:  LDA #$81
 LB057:  ORA $DD,X
 LB059:  STA $DD,X
 LB05B:  RTS
+
 LB05C:  STA $DC,X
 LB05E:  LDA #$7F
 LB060:  AND $DD,X
 LB062:  STA $DD,X
 LB064:  RTS
+
 LB065:  LDA #$7E
 LB067:  BNE $B060
 LB069:  LDA $30
@@ -1908,6 +1912,7 @@ LB0B4:  LDA $32
 LB0B6:  ADC #$00
 LB0B8:  STA $32
 LB0BA:  RTS
+
 LB0BB:  TAX
 LB0BC:  INX
 LB0BD:  BEQ $B0C8
@@ -1917,6 +1922,7 @@ LB0C2:  INX
 LB0C3:  BEQ $B0F5
 LB0C5:  BNE $B0AA
 LB0C7:  RTS
+
 LB0C8:  LDA ($31),Y
 LB0CA:  INY
 LB0CB:  TAX
@@ -7493,8 +7499,6 @@ LF449:  STA SQ1Cntrl3,X         ;Update channel frequency upper bits hardware.
 GetNoteDone:
 LF44C:  RTS                     ;Done updating the given channel's note to play.
 
-;----------------------------------------------------------------------------------------------------
-
 ;The following arelogarithmic sweep functions.  They increase the frequency.  As the frequency -->
 ;gets higher, the change in frequency gets less. The functions set the delta frequency to -->
 ;different amounts. The higher the divide number, the slower the frequency sweeps. These -->
@@ -7522,8 +7526,6 @@ LF459:* TYA                     ;
 LF45A:  SEC                     ;Return the logarithmic increase in the frequency in A.
 LF45B:  SBC GenByteE0           ;
 LF45D:  RTS                     ;
-
-;----------------------------------------------------------------------------------------------------
 
 LF45E:  LDA SQ1SFXTimer
 LF461:  BNE $F466

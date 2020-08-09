@@ -4,6 +4,9 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
+.alias Joy1Buttons      $D0     ;Joypad 1 button presses.
+.alias Joy2Buttons      $D1     ;Joypad 2 button presses.
+
 .alias RoundMinute      $0302   ;Current minute in round.
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
@@ -40,8 +43,8 @@
 .alias SQ2EnvIndex      $0708   ;The current index to SQ2 envelope data while playing music.
 .alias SQ1EnvIndex      $0709   ;The current index to SQ1 envelope data while playing music.
 
-;$070A
-;$070B
+.alias MusSeqBase       $070A   ;Base index for finding music sequence data.
+.alias MusSeqIndex      $070B   ;Current index for finding music sequence data.
 
 .alias NoiseIndexReload $070C   ;Reload address to repeat drum beatsin song background.
 .alias NoteLengthsBase  $070D   ;Base index for note lengths for a given piece of music.
@@ -223,9 +226,9 @@
 .alias SQ2_SPRING2      $15     ;Opponent spring SFX, version 2.
 
 ;Music index numbers.
-.alias MUS_END_RPT      $01     ;End music, repeats.
-.alias MUS_INTRO        $02     ;Intro music, no repeat.
-.alias MUS_ATTRACT      $03     ;Attract music. Same as end music but does not repeat.
+.alias MUS_END          $01     ;End music.
+.alias MUS_SHORT_INTRO  $02     ;Short version of the intro music.
+.alias MUS_ATTRACT      $03     ;Attract music.
 .alias MUS_NEWSPAPER    $04     ;Music that plays newspaper is displayed.
 .alias MUS_CHAMP        $05     ;Circuit champion music.
 .alias MUS_FIGHT_WIN    $06     ;Fight win music.
@@ -234,7 +237,7 @@
 .alias MUS_GAME_OVER    $09     ;Game over music.
 .alias MUS_PRE_FIGHT    $0A     ;Pre-fight music.
 .alias MUS_NONE         $0B     ;No music.
-.alias MUS_END_RPT2     $0C     ;End music, repeats. Same as above.
+.alias MUS_INTRO        $0C     ;Intro music.
 .alias MUS_ATTRACT2     $0D     ;Attract music. Same as above.
 .alias MUS_DREAM_FIGHT  $0E     ;Dream fight music.
 .alias MUS_NONE2        $0F     ;No music.
@@ -254,6 +257,16 @@
 .alias MUS_OPP_DOWN     $1D     ;Opponent on the mat music.
 .alias MUS_MAC_DOWN     $1E     ;Little Mac on the mat music.
 .alias MUS_FIGHT        $1F     ;Main fight music.
+
+;Controller bits.
+.alias IN_RIGHT         $01
+.alias IN_LEFT          $02
+.alias IN_DOWN          $04
+.alias IN_UP            $08
+.alias IN_START         $10
+.alias IN_SELECT        $20
+.alias IN_B             $40
+.alias IN_A             $80
 
 ;Misc. items.
 .alias SND_OFF          $80     ;Silences sound channel.
