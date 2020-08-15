@@ -1,9 +1,11 @@
+;This bank contains the data for King Hippo.
 
 .org $8000
 
 .include "Mike_Tysons_Punchout_Defines.asm"
 
 L8000:  .word $8010, $871B, $8751, $8C2E, $0000, $0000, $0000, $8C4E
+
 L8010:  .word $8016, $8054, $805E, $806E, $806E, $806E, $806E, $806E
 L8020:  .word $806E, $8077, $806E, $80C4, $80CF, $8106, $80A5, $806E
 L8030:  .word $8082, $808D, $8098, $80E3, $80F0, $80FD, $80AE, $80B7

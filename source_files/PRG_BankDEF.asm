@@ -3,6 +3,13 @@
 
 .include "Mike_Tysons_Punchout_Defines.asm"
 
+;--------------------------------------[ Forward Declarations ]--------------------------------------
+
+.alias DoBusyPassword           $803F
+.alias DoCircuitPassword        $8042
+.alias DoCreditsPassword        $8048
+.alias DoTysonPassword          $804E
+
 ;-----------------------------------------[ Start of code ]------------------------------------------
 
 RESET:
@@ -16,12 +23,13 @@ LA004:  TXS                     ;
 LA005:  JMP DoReset             ;($A1C4)Continue with the game reset.
 
 NMI:
-LA008:  PHA
-LA009:  TXA
-LA00A:  PHA
-LA00B:  TYA
-LA00C:  PHA
-LA00D:  LDX $1D
+LA008:  PHA                     ;
+LA009:  TXA                     ;
+LA00A:  PHA                     ;Save A, X and Y on the stack.
+LA00B:  TYA                     ;
+LA00C:  PHA                     ;
+
+LA00D:  LDX GameStatus
 LA00F:  BNE $A017
 
 LA011:  LDA PPUStatus
@@ -33,19 +41,21 @@ LA019:  LDA PPUStatus
 LA01C:  JMP $A6E5
 
 LA01F:  CPX #$02
-LA021:  BEQ $A02B
+LA021:  BEQ _ExitNMI
 
 LA023:  BCS $A02E
 
 LA025:  LDA PPUStatus
 LA028:  JSR $A9D1
-LA02B:  JMP $A6DF
+
+_ExitNMI:
+LA02B:  JMP ExitNMI             ;($A6DF)Exit NMI interrupt routine.
 
 LA02E:  JSR $AA40
 LA031:  JSR $8000
 
 LA034:  JSR $AA6A
-LA037:  JMP $A6DF
+LA037:  JMP ExitNMI             ;($A6DF)Exit NMI interrupt routine.
 
 LA03A:  JSR $A06B
 LA03D:  JSR $A09A
@@ -99,7 +109,7 @@ LA095:  INX
 LA096:  STX $06DE
 LA099:  RTS
 
-LA09A:  LDA $11
+LA09A:  LDA PPU1Load
 LA09C:  AND #$18
 LA09E:  CMP #$18
 LA0A0:  BNE $A0D0
@@ -108,10 +118,10 @@ LA0A4:  BNE $A0D0
 LA0A6:  LDA $22
 LA0A8:  BNE $A0D0
 LA0AA:  LDX $15
-LA0AC:  LDA $10
+LA0AC:  LDA PPU0Load
 LA0AE:  AND #$FC
 LA0B0:  ORA $16
-LA0B2:  STA $10
+LA0B2:  STA PPU0Load
 LA0B4:  TAY
 LA0B5:  LDA PPUStatus
 LA0B8:  AND #$40
@@ -233,11 +243,11 @@ LA257:  JSR $801E
 
 LA25A:  LDA #$10
 LA25C:  STA PPUControl0
-LA25F:  STA $10
+LA25F:  STA PPU0Load
 
-LA261:  LDA #$06
-LA263:  STA PPUControl1
-LA266:  STA $11
+LA261:  LDA #PPU_LEFT_EN        ;
+LA263:  STA PPUControl1         ;Enable background and sprites in left column, disable screen.
+LA266:  STA PPU1Load            ;
 
 LA268:  LDA #$00
 LA26A:  JSR $AA6E
@@ -247,23 +257,23 @@ LA271:  STA $0480,Y
 LA274:  DEY
 LA275:  BPL $A271
 LA277:  LDA #$01
-LA279:  STA $1C
+LA279:  STA GameEngStatus
 LA27B:  LDA PPUStatus
-LA27E:  LDA $10
+LA27E:  LDA PPU0Load
 LA280:  ORA #$80
-LA282:  STA $10
+LA282:  STA PPU0Load
 LA284:  STA PPUControl0
 LA287:  LDA #$FF
-LA289:  STA $1D
+LA289:  STA GameStatus
 LA28B:  JSR $AF02
 LA28E:  LDA $013F
 LA291:  BNE $A2AC
 LA293:  JSR $AA50
 LA296:  LDA #$02
-LA298:  STA $1D
+LA298:  STA GameStatus
 LA29A:  JSR $9000
 LA29D:  LDA #$FF
-LA29F:  STA $1D
+LA29F:  STA GameStatus
 LA2A1:  JMP $A505
 LA2A4:  JSR $A4C6
 LA2A7:  LDX #$FF
@@ -277,12 +287,14 @@ LA2B3:  LDA #$04
 LA2B5:  STA $04C6
 LA2B8:  JSR $AA1D
 LA2BB:  LDA #$00
-LA2BD:  STA $1D
+LA2BD:  STA GameStatus
 LA2BF:  STA $04C8
 LA2C2:  JSR $AA6E
-LA2C5:  LDA $11
-LA2C7:  ORA #$06
-LA2C9:  STA $11
+
+LA2C5:  LDA PPU1Load            ;
+LA2C7:  ORA #PPU_LEFT_EN        ;Enable background and sprites in left column.
+LA2C9:  STA PPU1Load            ;
+
 LA2CB:  LDA #$80
 LA2CD:  STA $F0
 LA2CF:  STA $F1
@@ -300,7 +312,7 @@ LA2EA:  JSR $AE9B
 LA2ED:  LDA #$81
 LA2EF:  STA $1B
 LA2F1:  LDA #$FF
-LA2F3:  STA $1D
+LA2F3:  STA GameStatus
 LA2F5:  LDA #$40
 LA2F7:  STA $04C7
 LA2FA:  JSR $AF02
@@ -407,8 +419,10 @@ LA3EA:  BEQ $A3DC
 LA3EC:  LDA $04C2
 LA3EF:  BNE $A400
 LA3F1:  JSR $AA54
-LA3F4:  JSR $8042
+
+LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
 LA3F7:  BEQ $A46A
+
 LA3F9:  JSR $8030
 LA3FC:  BNE $A427
 LA3FE:  BEQ $A44E
@@ -428,17 +442,24 @@ LA41D:  LDA #$30
 LA41F:  JSR $AF04
 LA422:  DEC $04C6
 LA425:  BNE $A419
+
 LA427:  JSR $A4C6
 LA42A:  JMP $A316
-LA42D:  JSR $803F
+
+LA42D:  JSR DoBusyPassword      ;($803F)Check for busy signal passwords.
 LA430:  BEQ $A414
+
 LA432:  JSR $8045
 LA435:  BEQ $A467
-LA437:  JSR $8048
+
+LA437:  JSR DoCreditsPassword   ;($8048)Check for end credits password.
 LA43A:  BEQ $A463
-LA43C:  JSR $804E
+
+LA43C:  JSR DoTysonPassword     ;($804E)Check for Mike Tyson password.
 LA43F:  BEQ $A457
+
 LA441:  BNE $A427
+
 LA443:  JSR $AA54
 LA446:  JSR $8033
 LA449:  BNE $A42D
@@ -452,20 +473,23 @@ LA45A:  LDA #$02
 LA45C:  STA $0173
 LA45F:  LDX #$05
 LA461:  BNE $A475
+
 LA463:  LDX #$07
 LA465:  BNE $A475
 LA467:  JSR $8036
+
 LA46A:  LDA #$01
 LA46C:  STA $013E
 LA46F:  LDX #$04
 LA471:  BNE $A475
 LA473:  LDX #$00
+
 LA475:  STX $0B
 LA477:  LDA $A185,X
 LA47A:  STA $01
 
 LA47C:  LDA #SND_OFF            ;Stop any playing music.
-LA47E:  STA MusicInit
+LA47E:  STA MusicInit           ;
 
 LA480:  JSR $AEA5
 LA483:  JSR $AA64
@@ -496,6 +520,7 @@ LA4BB:  BMI $A4C0
 LA4BD:  JMP $A829
 LA4C0:  JSR $BD42
 LA4C3:  JMP $A2B5
+
 LA4C6:  LDY #$10
 LA4C8:  STY $04C6
 LA4CB:  RTS
@@ -505,7 +530,7 @@ LA4CF:  JSR $AEA5
 LA4D2:  LDA #$81
 LA4D4:  STA $1B
 LA4D6:  LDA #$FF
-LA4D8:  STA $1D
+LA4D8:  STA GameStatus
 LA4DA:  LDA #$03
 LA4DC:  STA MusicInit
 LA4DE:  JSR $AF02
@@ -527,13 +552,15 @@ LA503:  BEQ $A509
 LA505:  LDA #$02
 LA507:  STA $04
 LA509:  JSR $B6A1
-LA50C:  LDA $11
-LA50E:  ORA #$06
-LA510:  STA $11
+
+LA50C:  LDA PPU1Load            ;
+LA50E:  ORA #PPU_LEFT_EN        ;Enable background and sprites in left column.
+LA510:  STA PPU1Load            ;
+
 LA512:  LDA #$81
 LA514:  STA $1B
 LA516:  LDA #$FF
-LA518:  STA $1D
+LA518:  STA GameStatus
 LA51A:  LDA $013F
 LA51D:  BNE $A528
 LA51F:  LDA #$02
@@ -574,9 +601,11 @@ LA56A:  JSR $AB58
 LA56D:  LDA #$80
 LA56F:  STA $04
 LA571:  STA $04B0
-LA574:  LDA #$00
-LA576:  STA $1C
-LA578:  STA $1D
+
+LA574:  LDA #GAME_ENG_RUN       ;
+LA576:  STA GameEngStatus       ;Run the main game engine.
+LA578:  STA GameStatus          ;
+
 LA57A:  JSR $AF02
 LA57D:  LDA $00
 LA57F:  CMP #$01
@@ -594,20 +623,21 @@ LA597:  JSR $BF7E
 LA59A:  JSR $A750
 LA59D:  JSR $AA1D
 LA5A0:  LDA #$FF
-LA5A2:  STA $1D
+LA5A2:  STA GameStatus
 LA5A4:  LDY #$30
 LA5A6:  LDX #$C0
 LA5A8:  JSR $AEF8
 LA5AB:  STA $22
 LA5AD:  JSR $AA6E
 LA5B0:  LDA #$DF
-LA5B2:  AND $10
-LA5B4:  STA $10
+LA5B2:  AND PPU0Load
+LA5B4:  STA PPU0Load
 LA5B6:  STA PPUControl0
 LA5B9:  LDA #$20
 LA5BB:  JSR $AF04
 LA5BE:  LDA #$08
 LA5C0:  JMP $A2B5
+
 LA5C3:  LDX #$02
 LA5C5:  STX $1A
 LA5C7:  LDY #$00
@@ -630,7 +660,7 @@ LA5EC:  LDA $1A
 LA5EE:  BEQ $A63E
 LA5F0:  LDA $04A0
 LA5F3:  BEQ $A606
-LA5F5:  LDA $10
+LA5F5:  LDA PPU0Load
 LA5F7:  AND #$FB
 LA5F9:  STA PPUControl0
 LA5FC:  JSR $AF0B
@@ -639,13 +669,13 @@ LA601:  STA $04A0
 LA604:  DEC $1A
 LA606:  LDA $0410
 LA609:  BPL $A613
-LA60B:  LDX $10
+LA60B:  LDX PPU0Load
 LA60D:  STX PPUControl0
 LA610:  JSR $C24A
-LA613:  LDA $10
+LA613:  LDA PPU0Load
 LA615:  AND #$FB
 LA617:  STA PPUControl0
-LA61A:  LDA $1E
+LA61A:  LDA FrameCounter
 LA61C:  AND #$03
 LA61E:  BEQ $A62C
 LA620:  CMP #$02
@@ -661,42 +691,48 @@ LA638:  JMP $A63E
 LA63B:  JSR $C0E0
 LA63E:  JSR $AF73
 LA641:  JSR $A9DF
-LA644:  INC $1E
-LA646:  LDA $1F
+LA644:  INC FrameCounter
+LA646:  LDA TransTimer
 LA648:  BEQ $A64C
-LA64A:  DEC $1F
+LA64A:  DEC TransTimer
 LA64C:  JSR $AA3C
 LA64F:  JSR $8012
 LA652:  LDA $04
 LA654:  BMI $A659
 LA656:  JMP $A73D
 
-LA659:  JSR $AF8D
-LA65C:  LDA $1C
-LA65E:  BEQ $A669
+LA659:  JSR PollControllers     ;($AF8D)Get raw controller button presses.
+LA65C:  LDA GameEngStatus       ;Is main game engine enabled and running?
+LA65E:  BEQ MainGameEngine      ;If so, branch to run main game engine loop.
 
-LA660:  JSR $AFBD
+LA660:  JSR GetJoy1Buttons      ;($AFBD)Get controller 1 current buttons status.
 LA663:  JSR $A09A
 LA666:  JMP $A6D9
 
+;-------------------------------------[ Main Game Engine Loop ]--------------------------------------
+
+MainGameEngine:
 LA669:  LDA #$01
-LA66B:  STA $1D
+LA66B:  STA GameStatus
+
 LA66D:  JSR $8009
 LA670:  JSR $800C
 LA673:  JSR $8006
 LA676:  JSR $8003
 LA679:  JSR $8000
-LA67C:  JSR $AFBD
-LA67F:  JSR $B034
+
+LA67C:  JSR GetJoy1Buttons      ;($AFBD)Get controller 1 current buttons status.
+LA67F:  JSR GetJoy2Buttons      ;($B034)Get controller 2 current buttons status.
+
 LA682:  LDX $04
 LA684:  INX
 LA685:  BEQ $A68D
+
 LA687:  JSR $A75B
 LA68A:  JSR $A750
 
 LA68D:  JSR $AA40
 LA690:  JSR $8000
-
 LA693:  JSR $A09A
 LA696:  JSR $AA48
 LA699:  JSR $B069
@@ -717,22 +753,32 @@ LA6C3:  JSR $C440
 LA6C6:  JSR $B530
 LA6C9:  JSR $A774
 LA6CC:  JSR $A7C4
-LA6CF:  PLA
-LA6D0:  TAY
-LA6D1:  PLA
-LA6D2:  TAX
-LA6D3:  PLA
-LA6D4:  LDX #$00
-LA6D6:  STX $1D
-LA6D8:  RTI
+
+LA6CF:  PLA                     ;
+LA6D0:  TAY                     ;
+LA6D1:  PLA                     ;Restore A, X and Y from stack.
+LA6D2:  TAX                     ;
+LA6D3:  PLA                     ;
+
+LA6D4:  LDX #$00                ;
+LA6D6:  STX GameStatus          ;Indicate main game engine is running.
+LA6D8:  RTI                     ;
+
+;----------------------------------------------------------------------------------------------------
+
 LA6D9:  JSR $A774
 LA6DC:  JSR $A7A6
+
+ExitNMI:
 LA6DF:  PLA
 LA6E0:  TAY
 LA6E1:  PLA
 LA6E2:  TAX
 LA6E3:  PLA
 LA6E4:  RTI
+
+;----------------------------------------------------------------------------------------------------
+
 LA6E5:  LDY #$00
 LA6E7:  LDA $17
 LA6E9:  BEQ $A6F5
@@ -742,21 +788,25 @@ LA6F0:  STX SPRDMAReg
 LA6F3:  NOP
 LA6F4:  NOP
 LA6F5:  JSR $AF73
-LA6F8:  INC $1E
-LA6FA:  LDA $1F
+LA6F8:  INC FrameCounter
+LA6FA:  LDA TransTimer
 LA6FC:  BEQ $A700
-LA6FE:  DEC $1F
+LA6FE:  DEC TransTimer
 LA700:  LDA $0410
 LA703:  BPL $A708
 LA705:  JSR $C24A
 LA708:  LDA $04A0
 LA70B:  BEQ $A721
-LA70D:  LDA $10
+
+LA70D:  LDA PPU0Load
 LA70F:  AND #$FB
 LA711:  STA PPUControl0
+
 LA714:  JSR $AF0B
-LA717:  LDA $10
+
+LA717:  LDA PPU0Load
 LA719:  STA PPUControl0
+
 LA71C:  LDA #$00
 LA71E:  STA $04A0
 LA721:  JSR $A9DF
@@ -773,8 +823,8 @@ LA737:  CMP #$02
 LA739:  BEQ $A6D9
 LA73B:  BNE $A740
 LA73D:  JSR $A09A
-LA740:  JSR $AF8D
-LA743:  JSR $AFBD
+LA740:  JSR PollControllers     ;($AF8D)Get raw controller button presses.
+LA743:  JSR GetJoy1Buttons      ;($AFBD)Get controller 1 current buttons status.
 LA746:  LDA $04
 LA748:  BNE $A74D
 LA74A:  JSR $A75B
@@ -796,12 +846,12 @@ LA764:  LDY #$30
 LA766:  LDX #$A0
 LA768:  JSR $AEF8
 LA76B:  LDA #$DF
-LA76D:  AND $10
-LA76F:  STA $10
+LA76D:  AND PPU0Load
+LA76F:  STA PPU0Load
 LA771:  JMP $A2A4
 LA774:  LDA $04C8
 LA777:  BEQ $A7A5
-LA779:  LDA $1E
+LA779:  LDA FrameCounter
 LA77B:  AND #$07
 LA77D:  BNE $A7A5
 LA77F:  LDA $04C8
@@ -842,14 +892,14 @@ LA7C9:  AND #$7F
 LA7CB:  STA $DB
 LA7CD:  LDA $90
 LA7CF:  STA $03FA
-LA7D2:  LDA $50
+LA7D2:  LDA MacStatus
 LA7D4:  STA $03FB
 LA7D7:  LDA $0300
 LA7DA:  STA $03FC
 LA7DD:  LDA $03FD
 LA7E0:  STA $90
 LA7E2:  LDA $03FE
-LA7E5:  STA $50
+LA7E5:  STA MacStatus
 LA7E7:  LDA $03FF
 LA7EA:  STA $0300
 LA7ED:  LDA $03FA
@@ -910,10 +960,12 @@ LA85E:  JSR $BBC3
 LA861:  JMP $A867
 LA864:  JSR $BBAA
 LA867:  LDA #$FF
-LA869:  STA $1D
-LA86B:  LDA $11
-LA86D:  ORA #$06
-LA86F:  STA $11
+LA869:  STA GameStatus
+
+LA86B:  LDA PPU1Load            ;
+LA86D:  ORA #PPU_LEFT_EN        ;Enable background and sprites in left column.
+LA86F:  STA PPU1Load            ;
+
 LA871:  LDA #$81
 LA873:  STA $1B
 LA875:  JSR $AF02
@@ -963,8 +1015,8 @@ LA8E0:  JSR $AB58
 LA8E3:  LDA #$FF
 LA8E5:  STA $04
 LA8E7:  LDA #$00
-LA8E9:  STA $1C
-LA8EB:  STA $1D
+LA8E9:  STA GameEngStatus
+LA8EB:  STA GameStatus
 LA8ED:  JSR $AF02
 LA8F0:  LDA $00
 LA8F2:  CMP #$01
@@ -985,7 +1037,7 @@ LA910:  BPL $A90B
 LA912:  JSR $BF7E
 LA915:  JSR $AA1D
 LA918:  LDA #$FF
-LA91A:  STA $1D
+LA91A:  STA GameStatus
 LA91C:  LDY #$40
 LA91E:  LDX #$B0
 LA920:  JSR $AEF8
@@ -994,8 +1046,8 @@ LA925:  STA $38
 LA927:  STA $22
 LA929:  JSR $AA6E
 LA92C:  LDA #$DF
-LA92E:  AND $10
-LA930:  STA $10
+LA92E:  AND PPU0Load
+LA930:  STA PPU0Load
 LA932:  STA PPUControl0
 LA935:  LDA #$20
 LA937:  JSR $AF04
@@ -1069,10 +1121,10 @@ LA9CB:  JMP $A8E0
 LA9CE:  .byte $03, $03, $03
 
 LA9D1:  JSR $A9DF
-LA9D4:  INC $1E
-LA9D6:  LDA $1F
+LA9D4:  INC FrameCounter
+LA9D6:  LDA TransTimer
 LA9D8:  BEQ $A9DC
-LA9DA:  DEC $1F
+LA9DA:  DEC TransTimer
 LA9DC:  JMP $A09A
 LA9DF:  LDA PPUStatus
 LA9E2:  LDY #$00
@@ -1082,14 +1134,14 @@ LA9E9:  LDA $13
 LA9EB:  STA PPUScroll
 LA9EE:  LDA $20
 LA9F0:  STA PPUScroll
-LA9F3:  LDA $10
+LA9F3:  LDA PPU0Load
 LA9F5:  AND #$FC
 LA9F7:  ORA $14
-LA9F9:  STA $10
+LA9F9:  STA PPU0Load
 LA9FB:  LDA $21
 LA9FD:  ASL
-LA9FE:  ORA $10
-LAA00:  STA $10
+LA9FE:  ORA PPU0Load
+LAA00:  STA PPU0Load
 LAA02:  STA PPUControl0
 LAA05:  RTS
 LAA06:  LDA #$01
@@ -1106,8 +1158,8 @@ LAA1A:  STA $21
 LAA1C:  RTS
 LAA1D:  LDA #$01
 LAA1F:  STA $04
-LAA21:  STA $1C
-LAA23:  STA $1D
+LAA21:  STA GameEngStatus
+LAA23:  STA GameStatus
 LAA25:  RTS
 LAA26:  STA $04B0
 LAA29:  JSR $BE09
@@ -1286,8 +1338,8 @@ LAB68:  JSR $AA6E
 LAB6B:  LDA $05CC
 LAB6E:  BEQ $AB72
 LAB70:  LDA #$20
-LAB72:  ORA $10
-LAB74:  STA $10
+LAB72:  ORA PPU0Load
+LAB74:  STA PPU0Load
 LAB76:  LDA #$01
 LAB78:  JSR $C118
 LAB7B:  LDA #$02
@@ -1374,7 +1426,7 @@ LAC38:  JSR $B88A
 LAC3B:  LDA #$81
 LAC3D:  STA $1B
 LAC3F:  LDA #$FF
-LAC41:  STA $1D
+LAC41:  STA GameStatus
 LAC43:  LDA #$0E
 LAC45:  STA MusicInit
 LAC47:  LDA #$20
@@ -1389,7 +1441,7 @@ LAC5B:  JSR $B8C1
 LAC5E:  LDA #$81
 LAC60:  STA $1B
 LAC62:  LDA #$FF
-LAC64:  STA $1D
+LAC64:  STA GameStatus
 LAC66:  JSR $AE91
 LAC69:  JSR $BF7E
 LAC6C:  JMP $A2AC
@@ -1401,7 +1453,7 @@ LAC7B:  JSR $B8FF
 LAC7E:  LDA #$81
 LAC80:  STA $1B
 LAC82:  LDA #$FF
-LAC84:  STA $1D
+LAC84:  STA GameStatus
 LAC86:  LDA #$04
 LAC88:  STA MusicInit
 LAC8A:  LDY #$03
@@ -1425,7 +1477,7 @@ LACB4:  JSR $B957
 LACB7:  LDA #$81
 LACB9:  STA $1B
 LACBB:  LDA #$FF
-LACBD:  STA $1D
+LACBD:  STA GameStatus
 LACBF:  LDX #$01
 LACC1:  LDA $00
 LACC3:  AND #$01
@@ -1465,7 +1517,7 @@ LAD12:  JSR $AEA5
 LAD15:  LDA #$81
 LAD17:  STA $1B
 LAD19:  LDA #$FF
-LAD1B:  STA $1D
+LAD1B:  STA GameStatus
 LAD1D:  LDA #$1A
 LAD1F:  STA MusicInit
 LAD21:  JSR $C013
@@ -1628,12 +1680,12 @@ LAE93:  JSR $AF02
 LAE96:  LDA $F0,X
 LAE98:  BNE $AE93
 LAE9A:  RTS
-LAE9B:  LDA $10
+LAE9B:  LDA PPU0Load
 LAE9D:  AND #$FB
-LAE9F:  STA $10
+LAE9F:  STA PPU0Load
 LAEA1:  STA PPUControl0
 LAEA4:  RTS
-LAEA5:  LDA $10
+LAEA5:  LDA PPU0Load
 LAEA7:  ORA #$04
 LAEA9:  BNE $AE9F
 LAEAB:  STA $EF
@@ -1687,8 +1739,8 @@ LAEFE:  DEX
 LAEFF:  BNE $AEFA
 LAF01:  RTS
 LAF02:  LDA #$01
-LAF04:  STA $1F
-LAF06:  LDA $1F
+LAF04:  STA TransTimer
+LAF06:  LDA TransTimer
 LAF08:  BNE $AF06
 LAF0A:  RTS
 LAF0B:  LDX #$3F
@@ -1736,113 +1788,167 @@ LAF6A:  STA $04A1
 LAF6D:  LDA #$20
 LAF6F:  STA $048D
 LAF72:  RTS
+
 LAF73:  LDA $1B
 LAF75:  BPL $AF8C
 LAF77:  AND #$01
 LAF79:  STA $1B
 LAF7B:  BEQ $AF83
-LAF7D:  LDA $11
+LAF7D:  LDA PPU1Load
 LAF7F:  ORA #$18
 LAF81:  BNE $AF87
-LAF83:  LDA $11
+LAF83:  LDA PPU1Load
 LAF85:  AND #$E7
-LAF87:  STA $11
+LAF87:  STA PPU1Load
 LAF89:  STA PPUControl1
 LAF8C:  RTS
-LAF8D:  LDY #$00
-LAF8F:  LDX #$01
-LAF91:  STX CPUJoyPad1
-LAF94:  DEX
-LAF95:  STX CPUJoyPad1
-LAF98:  JSR $AFA4
-LAF9B:  INX
-LAF9C:  JSR $AFA4
-LAF9F:  CPY #$08
-LAFA1:  BNE $AF8F
-LAFA3:  RTS
-LAFA4:  LDA #$08
-LAFA6:  STA $E1
-LAFA8:  PHA
-LAFA9:  LDA CPUJoyPad1,X
-LAFAC:  STA $E0
-LAFAE:  LSR
-LAFAF:  ORA $E0
-LAFB1:  LSR
-LAFB2:  PLA
-LAFB3:  ROL
-LAFB4:  DEC $E1
-LAFB6:  BNE $AFA8
-LAFB8:  STA $06A0,Y
-LAFBB:  INY
-LAFBC:  RTS
-LAFBD:  LDY #$06
-LAFBF:  LDX #$00
-LAFC1:  JSR $B021
+
+;--------------------------------------[ Controller Functions ]--------------------------------------
+
+PollControllers:
+LAF8D:  LDY #$00                ;Reset controller poll counter.
+
+PollLoop:
+LAF8F:  LDX #$01                ;
+LAF91:  STX CPUJoyPad1          ;Tell hardware to poll both controllers.
+LAF94:  DEX                     ;
+LAF95:  STX CPUJoyPad1          ;
+
+LAF98:  JSR Read1Controller     ;($AFA4)Read first controller.
+LAF9B:  INX                     ;Prepare to read second controller buttons.
+LAF9C:  JSR Read1Controller     ;($AFA4)Read second controller.
+
+LAF9F:  CPY #$08                ;Have 8 controller reads been done(4 for each controller)?
+LAFA1:  BNE PollLoop            ;If not, branch to read another controller.
+LAFA3:  RTS                     ;
+
+Read1Controller:
+LAFA4:  LDA #$08                ;Prepare to read 8 bits from the controller.
+LAFA6:  STA GenByteE1           ;
+
+ControllerReadLoop:
+LAFA8:  PHA                     ;Save current bits read from controller onto stack.
+
+LAFA9:  LDA CPUJoyPad1,X        ;
+LAFAC:  STA GenByteE0           ;Read input bit from controller and from expansion -->
+LAFAE:  LSR                     ;controller(Famicom only) and save bit into carry.
+LAFAF:  ORA GenByteE0           ;
+LAFB1:  LSR                     ;
+
+LAFB2:  PLA                     ;Pull previous bits read from stack.
+LAFB3:  ROL                     ;Rotate in the new bit read.
+
+LAFB4:  DEC GenByteE1           ;Have 8 bits been read from controller?
+LAFB6:  BNE ControllerReadLoop  ;If not, branch to read another bit.
+
+LAFB8:  STA JoyRawReads,Y       ;Save the controller button presses.
+
+LAFBB:  INY                     ;This controller poll is complete. return.
+LAFBC:  RTS                     ;
+
+GetJoy1Buttons:
+LAFBD:  LDY #$06                ;Prepare to read the 4 polls from controller 1.
+LAFBF:  LDX #$00                ;
+LAFC1:  JSR VerifyJoyRead       ;($B021)Verify joy pad reads by ignoring any DMC conflicts.
+
 LAFC4:  LDA Joy1Buttons
-LAFC6:  AND #$0F
-LAFC8:  JSR $B001
+LAFC6:  AND #LO_NIBBLE
+LAFC8:  JSR Buttons1Status      ;($B001)Get button presses and update button history.
+
 LAFCB:  LDX #$02
 LAFCD:  LDA Joy1Buttons
 LAFCF:  AND #$80
-LAFD1:  JSR $B001
+LAFD1:  JSR Buttons1Status      ;($B001)Get button presses and update button history.
+
 LAFD4:  LDX #$04
 LAFD6:  LDA Joy1Buttons
 LAFD8:  AND #$40
-LAFDA:  JSR $B001
+LAFDA:  JSR Buttons1Status      ;($B001)Get button presses and update button history.
+
 LAFDD:  LDX #$06
 LAFDF:  LDA Joy1Buttons
 LAFE1:  AND #$10
-LAFE3:  JSR $B001
+LAFE3:  JSR Buttons1Status      ;($B001)Get button presses and update button history.
+
 LAFE6:  LDX #$08
 LAFE8:  LDA Joy1Buttons
 LAFEA:  AND #$20
-LAFEC:  JSR $B001
-LAFEF:  LDA $50
+LAFEC:  JSR Buttons1Status      ;($B001)Get button presses and update button history.
+
+LAFEF:  LDA MacStatus
 LAFF1:  AND #$7F
-LAFF3:  CMP #$07
-LAFF5:  BNE $B000
+LAFF3:  CMP #MAC_BLOCK
+LAFF5:  BNE Joy1BtnsEnd
+
 LAFF7:  LDX #$08
-LAFF9:  JSR $B016
+
+LAFF9:* JSR DPad1NoRelMask      ;($B016)
 LAFFC:  DEX
 LAFFD:  DEX
-LAFFE:  BNE $AFF9
+LAFFE:  BNE -
+
+Joy1BtnsEnd:
 LB000:  RTS
-LB001:  CMP $D2,X
-LB003:  BNE $B014
+
+Buttons1Status:
+LB001:  CMP Button1Status,X
+LB003:  BNE DPad1NotReleased
+
 LB005:  TAY
 LB006:  BEQ $B01D
-LB008:  LDA $D3,X
+
+LB008:  LDA Button1History,X
 LB00A:  ROR
 LB00B:  BCS $B013
 LB00D:  LDA #$81
-LB00F:  ORA $D3,X
-LB011:  STA $D3,X
+LB00F:  ORA Button1History,X
+LB011:  STA Button1History,X
 LB013:  RTS
-LB014:  STA $D2,X
-LB016:  LDA #$7F
-LB018:  AND $D3,X
-LB01A:  STA $D3,X
-LB01C:  RTS
-LB01D:  LDA #$7E
-LB01F:  BNE $B018
-LB021:  LDA $06A0,Y
-LB024:  STA $E0
-LB026:  DEY
-LB027:  DEY
-LB028:  BMI $B033
-LB02A:  LDA $06A0,Y
-LB02D:  CMP $E0
-LB02F:  BNE $B024
-LB031:  STA $D0,X
-LB033:  RTS
 
-LB034:  LDY #$07
-LB036:  LDX #$01
-LB038:  JSR $B021
+DPad1NotReleased:
+LB014:  STA Button1Status,X     ;Store dpad 1 status.
+
+DPad1NoRelMask:
+LB016:  LDA #$7F                ;Indicate dpad not released before direction was changed.
+
+LB018:* AND Button1History,X    ;
+LB01A:  STA Button1History,X    ;Update button history.
+LB01C:  RTS                     ;
+
+ClrDPad1History:
+LB01D:  LDA #$7E                ;Prepare to clear dpad history.
+LB01F:  BNE -                   ;
+
+VerifyJoyRead:
+LB021:  LDA JoyRawReads,Y       ;Get the last controller buttons poll.
+
+VerifyJoyLoop:
+LB024:  STA GenByteE0           ;Store the polled data for comparison.
+
+LB026:  DEY                     ;Move to the next polled byte.
+LB027:  DEY                     ;
+
+LB028:  BMI VerifyJoyExit       ;Have all 4 polled bytes been checked? If so, branch.
+
+LB02A:  LDA JoyRawReads,Y       ;Have 2 consecutive polls been identical?
+LB02D:  CMP GenByteE0           ;
+LB02F:  BNE VerifyJoyLoop       ;If so, branch. Valid button presses have been read.
+
+LB031:  STA Joy1Buttons,X       ;Save the verified button press data.
+
+VerifyJoyExit:
+LB033:  RTS                     ;Done verifying the polled data from the controller.
+
+GetJoy2Buttons:
+LB034:  LDY #$07                ;Prepare to read the 4 polls from controller 2.
+LB036:  LDX #$01                ;
+LB038:  JSR VerifyJoyRead       ;($B021)Verify joy pad reads by ignoring any DMC conflicts.
+
 LB03B:  DEX
 LB03C:  LDA Joy2Buttons
 LB03E:  AND #$0F
 LB040:  JSR $B049
+
 LB043:  LDX #$02
 LB045:  LDA Joy2Buttons
 LB047:  AND #$C0
@@ -1864,6 +1970,8 @@ LB05E:  LDA #$7F
 LB060:  AND $DD,X
 LB062:  STA $DD,X
 LB064:  RTS
+
+;----------------------------------------------------------------------------------------------------
 
 LB065:  LDA #$7E
 LB067:  BNE $B060
@@ -2232,8 +2340,8 @@ LB319:  STA $E7
 LB31B:  LDY $03C9
 LB31E:  LDA ($E6),Y
 LB320:  BNE $B32A
-LB322:  LDX $50
-LB324:  CPX #$0D
+LB322:  LDX MacStatus
+LB324:  CPX #MAC_SUPER_PUNCH
 LB326:  BEQ $B33F
 LB328:  BNE $B342
 LB32A:  BPL $B338
@@ -2535,7 +2643,7 @@ LB58A:  LDA $51
 LB58C:  CMP #$83
 LB58E:  BNE $B580
 LB590:  LDA #$C1
-LB592:  STA $50
+LB592:  STA MacStatus
 LB594:  LDA #$81
 LB596:  STA $51
 LB598:  RTS
@@ -2606,7 +2714,7 @@ LB626:  STX $0340
 LB629:  INX
 LB62A:  STX $0320
 LB62D:  LDA #$C0
-LB62F:  STA $50
+LB62F:  STA MacStatus
 LB631:  STA $90
 LB633:  LDA #$81
 LB635:  STA $51
@@ -2631,14 +2739,14 @@ LB659:  RTS
 LB65A:  LDA #$82
 LB65C:  SEC
 LB65D:  SBC $BC
-LB65F:  STA $50
+LB65F:  STA MacStatus
 LB661:  LDA #$80
 LB663:  STA $51
 LB665:  RTS
 LB666:  JSR $BD9B
 LB669:  JSR $BF3C
 LB66C:  LDA #$03
-LB66E:  STA $1D
+LB66E:  STA GameStatus
 LB670:  LDX #$08
 LB672:  LDA #$07
 LB674:  JSR $BF55
@@ -2682,7 +2790,7 @@ LB6C7:  .byte $00, $FE, $00, $00
 LB6CB:  JSR $BD9B
 LB6CE:  JSR $BF3C
 LB6D1:  LDA #$03
-LB6D3:  STA $1D
+LB6D3:  STA GameStatus
 LB6D5:  LDA #$04
 LB6D7:  LDX #$04
 LB6D9:  JSR $BF55
@@ -2737,10 +2845,12 @@ LB748:  LDA #$F8
 LB74A:  STA $13
 LB74C:  LDA #$01
 LB74E:  STA $14
-LB750:  LDA $11
+
+LB750:  LDA PPU1Load
 LB752:  AND #$F9
-LB754:  STA $11
+LB754:  STA PPU1Load
 LB756:  RTS
+
 LB757:  JSR $B666
 LB75A:  JSR $AA5C
 LB75D:  LDA #$FF
@@ -2760,7 +2870,7 @@ LB77E:  JSR $AA64
 LB781:  LDA #$81
 LB783:  STA $1B
 LB785:  LDA #$FF
-LB787:  STA $1D
+LB787:  STA GameStatus
 LB789:  JSR $AF04
 LB78C:  LDA #$C0
 LB78E:  JSR $AF04
@@ -2788,7 +2898,7 @@ LB7C0:  LDA $B866,Y
 LB7C3:  STA $05CD
 LB7C6:  STY $03D4
 LB7C9:  LDA #$03
-LB7CB:  STA $1D
+LB7CB:  STA GameStatus
 LB7CD:  JSR $AF38
 LB7D0:  JSR $AA5C
 LB7D3:  LDA #$0B
@@ -2798,7 +2908,7 @@ LB7DA:  JSR $BCBE
 LB7DD:  LDA #$81
 LB7DF:  STA $1B
 LB7E1:  LDA #$FF
-LB7E3:  STA $1D
+LB7E3:  STA GameStatus
 LB7E5:  JSR $AF04
 LB7E8:  LDA #$18
 LB7EA:  JSR $AF04
@@ -2808,7 +2918,7 @@ LB7F3:  INY
 LB7F4:  CPY #$0A
 LB7F6:  BNE $B7C0
 LB7F8:  LDA #$03
-LB7FA:  STA $1D
+LB7FA:  STA GameStatus
 LB7FC:  JSR $AF38
 LB7FF:  LDA #$00
 LB801:  LDX #$07
@@ -2847,13 +2957,13 @@ LB84B:  JSR $AEA5
 LB84E:  LDA #$81
 LB850:  STA $1B
 LB852:  LDA #$FF
-LB854:  STA $1D
+LB854:  STA GameStatus
 LB856:  LDA #$70
 LB858:  JSR $AF04
 LB85B:  LDA #$F5
 LB85D:  JSR $BDA2
 LB860:  LDA #$03
-LB862:  STA $1D
+LB862:  STA GameStatus
 LB864:  BNE $B860
 
 LB866:  .byte $00, $06, $14, $02, $04, $08, $0A, $10, $0C, $0E, $A2, $10, $B9, $80, $B8, $9D 
@@ -2887,7 +2997,7 @@ LB8C0:  RTS
 LB8C1:  JSR $BD9B
 LB8C4:  JSR $BF3C
 LB8C7:  LDA #$03
-LB8C9:  STA $1D
+LB8C9:  STA GameStatus
 LB8CB:  LDA #$07
 LB8CD:  LDX #$07
 LB8CF:  JSR $BF55
@@ -2951,7 +3061,7 @@ LB956:  RTS
 LB957:  JSR $BD9B
 LB95A:  JSR $BF36
 LB95D:  LDA #$03
-LB95F:  STA $1D
+LB95F:  STA GameStatus
 LB961:  LDA #$07
 LB963:  LDX #$04
 LB965:  LDY $03D3
@@ -3127,10 +3237,12 @@ LBAD2:  JSR $BF21
 LBAD5:  LDA #$06
 LBAD7:  LDX #$03
 LBAD9:  JSR $BF0D
-LBADC:  LDA $11
+
+LBADC:  LDA PPU1Load
 LBADE:  AND #$F9
-LBAE0:  STA $11
+LBAE0:  STA PPU1Load
 LBAE2:  RTS
+
 LBAE3:  JSR $BF36
 LBAE6:  LDA #$FD
 LBAE8:  JSR $BFAA
@@ -3434,7 +3546,7 @@ LBD75:  JSR $AEA5
 LBD78:  LDA #$81
 LBD7A:  STA $1B
 LBD7C:  LDA #$FF
-LBD7E:  STA $1D
+LBD7E:  STA GameStatus
 LBD80:  LDA #$1A
 LBD82:  STA MusicInit
 LBD84:  JSR $AF02
@@ -3447,7 +3559,7 @@ LBD94:  LDA #$80
 LBD96:  STA MusicInit
 LBD98:  JMP $BF7E
 LBD9B:  LDA #$FF
-LBD9D:  STA $1D
+LBD9D:  STA GameStatus
 LBD9F:  JMP $AF02
 LBDA2:  STA $04B0
 LBDA5:  JSR $AF02
@@ -3658,7 +3770,7 @@ LBF39:  JMP $BF3F
 LBF3C:  JSR $AA0A
 LBF3F:  JSR $AF02
 LBF42:  LDA #$02
-LBF44:  STA $1D
+LBF44:  STA GameStatus
 LBF46:  JSR $AE9B
 LBF49:  JSR $AF38
 LBF4C:  LDA #$00
@@ -3866,6 +3978,7 @@ LC10A:  STX $E0
 LC10C:  LDX $06E1
 LC10F:  STX $E1
 LC111:  BNE $C11F
+
 LC113:  LDX #$02
 LC115:  BNE $C11A
 LC117:  RTS
@@ -3975,7 +4088,7 @@ LC1D2:  CLC
 LC1D3:  ADC $E7
 LC1D5:  TAX
 LC1D6:  BNE $C1C3
-LC1D8:  LDA $10
+LC1D8:  LDA PPU0Load
 LC1DA:  AND #$04
 LC1DC:  BNE $C1ED
 LC1DE:  TXA
@@ -4005,7 +4118,7 @@ LC201:  ADC $EF
 LC203:  TAX
 LC204:  LDA $E7
 LC206:  JMP $C1E4
-LC209:  LDA $10
+LC209:  LDA PPU0Load
 LC20B:  LDX #$01
 LC20D:  AND #$04
 LC20F:  BNE $C213
@@ -4081,7 +4194,7 @@ LC2A4:  BEQ $C2F7
 LC2A6:  BMI $C2F7
 LC2A8:  LDX $04FE
 LC2AB:  BNE $C2CF
-LC2AD:  LDA $50
+LC2AD:  LDA MacStatus
 LC2AF:  AND #$7F
 LC2B1:  CMP #$01
 LC2B3:  BNE $C2F7
@@ -4221,13 +4334,17 @@ LC3D5:  LSR
 LC3D6:  CMP $E7
 LC3D8:  RTS
 LC3D9:  RTS
+
 LC3DA:  LDA $DD
 LC3DC:  BPL $C410
+
 LC3DE:  LDA $DC
 LC3E0:  AND #$0C
 LC3E2:  BEQ $C3FB
+
 LC3E4:  CMP #$08
 LC3E6:  BNE $C3F0
+
 LC3E8:  SEC
 LC3E9:  LDA $B1
 LC3EB:  SBC #$01
@@ -4272,6 +4389,7 @@ LC433:  STA $A1
 LC435:  LDA #$80
 LC437:  STA $A0
 LC439:  RTS
+
 LC43A:  LDA #$01
 LC43C:  STA $A2
 LC43E:  BNE $C435
@@ -4350,10 +4468,10 @@ LC4CC:  AND #$7F
 LC4CE:  STA $04FF
 LC4D1:  LDA $05CC
 LC4D4:  BEQ $C4E0
-LC4D6:  LDA $10
+LC4D6:  LDA PPU0Load
 LC4D8:  ORA #$20
 LC4DA:  LDX #$10
-LC4DC:  STA $10
+LC4DC:  STA PPU0Load
 LC4DE:  STX $80
 LC4E0:  LDA #$0A
 LC4E2:  BNE $C50E
@@ -4588,13 +4706,13 @@ LC6C2:  RTS
 LC6C3:  LDA #$00
 LC6C5:  STA $97
 LC6C7:  JMP $C550
-LC6CA:  LDA $10
+LC6CA:  LDA PPU0Load
 LC6CC:  AND #$DF
 LC6CE:  LDX #$08
-LC6D0:  STA $10
+LC6D0:  STA PPU0Load
 LC6D2:  STX $80
 LC6D4:  JMP $C550
-LC6D7:  LDA $10
+LC6D7:  LDA PPU0Load
 LC6D9:  ORA #$20
 LC6DB:  LDX #$10
 LC6DD:  BNE $C6D0
@@ -7460,7 +7578,7 @@ UpdateSQ2:
 LF41B:  JSR SetSQ2Control       ;($F414)Set SQ2 control registers.
 
 UpdateSQ2Note:
-LF41E:  LDX #AUD_SQ1_INDEX      ;Prepare to update SQ2 note.
+LF41E:  LDX #AUD_SQ2_INDEX      ;Prepare to update SQ2 note.
 LF420:  BNE GetChannelNote      ;Branch always.
 
 UpdateTriNote:
@@ -7471,7 +7589,7 @@ UpdateSQ1:
 LF426:  JSR SetSQ1Control       ;($F40B)Set control registers for SQ1.
 
 UpdateSQ1Note:
-LF429:  LDX #AUD_SQ0_INDEX      ;Prepare to update SQ1 note.
+LF429:  LDX #AUD_SQ1_INDEX      ;Prepare to update SQ1 note.
 
 GetChannelNote:
 LF42B:  TAY                     ;Get lower bits of next note to play for given channel.
@@ -7480,16 +7598,16 @@ LF42F:  BEQ GetNoteDone         ;If not, branch to exit.
 
 LF431:  STA SQ1Cntrl2,X         ;Update channel frequency lower bits hardware.
 
-LF434:  CPX #AUD_SQ0_INDEX      ;Is this SQ0?
+LF434:  CPX #AUD_SQ1_INDEX      ;Is this SQ0?
 LF436:  BNE +                   ;If not, branch.
 
-LF438:  STA SQ0LoFreqBits       ;Save lower frequenct bits of SQ0.
+LF438:  STA SQ1LoFreqBits       ;Save lower frequenct bits of SQ1.
 LF43B:  BNE GetNoteUpperBits    ;
 
-LF43D:* CPX #AUD_SQ1_INDEX      ;Is this SQ1?
+LF43D:* CPX #AUD_SQ2_INDEX      ;Is this SQ1?
 LF43F:  BNE GetNoteUpperBits    ;If not, branch.
 
-LF441:  STA SQ1LoFreqBits       ;Save lower frequenct bits of SQ1.
+LF441:  STA SQ2LoFreqBits       ;Save lower frequenct bits of SQ2.
 
 GetNoteUpperBits:
 LF444:  LDA NotesTbl,Y          ;Get the upper bits of next note to play for given channel.
@@ -7532,7 +7650,7 @@ LF461:  BNE $F466
 
 LF463:  LDA SQ1NoteRemain
 LF466:  LDX #$00
-LF468:  LDY SQ0LoFreqBits
+LF468:  LDY SQ1LoFreqBits
 LF46B:  BNE $F47A
 
 LF46D:  LDA SQ2SFXTimer
@@ -7541,7 +7659,7 @@ LF470:  BNE $F475
 LF472:  LDA SQ2NoteRemain
 
 LF475:  LDX #$04
-LF477:  LDY SQ1LoFreqBits
+LF477:  LDY SQ2LoFreqBits
 
 LF47A:  STY $0711
 LF47D:  LSR
@@ -7763,19 +7881,33 @@ LF66F:  .byte $38, $00, $00, $00, $00
 
 ;----------------------------------------------------------------------------------------------------
 
-;The following table is data loaded into the SQ2 channel envelope control register. A new
-;value is loaded every 4th frame.
+;The following table is data loaded into the SQ1, SQ2 channel duty cycle and envelope control
+;register. A new value is loaded every 4th frame.
 
-SQ2EnvTbl:
+SQDCEnvTbl:
+
+;The most common data used by most music.
 LF674:  .byte $DA, $DA, $DA, $D9, $D9, $D9, $D8, $D8, $D8, $D7, $D7, $D7, $D6, $D6, $D6, $D5
+
+;Used in the training music and the newspaper music.
 LF684:  .byte $9A, $9A, $9A, $99, $99, $99, $98, $98, $98, $97, $97, $97, $96, $1E, $03, $48
+
+;Used in the main fight music and whrn Little Mac or an opponent is knocked down.
 LF694:  .byte $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D3, $D4, $D4, $D4, $D5, $D5, $D6
+
+;These values do not appear to be used by any music.
 LF6A4:  .byte $53, $53, $53, $53, $53, $53, $53, $53, $53, $53, $54, $54, $54, $15, $15, $56
 LF6B4:  .byte $50, $50, $51, $51, $52, $52, $53, $53, $54, $55, $56, $57, $58, $59, $5A, $5B
 LF6C4:  .byte $90, $90, $91, $91, $92, $92, $93, $93, $94, $95, $96, $97, $98, $99, $9A, $9B
+
+;Used in the intro/attract/end music and pre-fight music.
 LF6D4:  .byte $50, $50, $50, $50, $50, $50, $50, $50, $50, $50, $51, $52, $53, $54, $55, $56
+
+;Used in the intro/attract/end music.
 LF6E4:  .byte $90, $90, $90, $90, $90, $90, $90, $90, $90, $91, $93, $94, $96, $97, $99, $9A
 
+;In the trianing music, these envelope values make the SQ2 envelope and duty cycle rapidly 
+;change which gives the effect of a fast playing violin or something similar.
 LF6F4:  .byte $10, $10, $10, $10, $12, $95, $D3, $14, $95, $17, $D4, $15, $97, $18, $DA, $D0
 LF704:  .byte $0C, $13, $D4, $15, $97, $D5, $16, $97, $19, $D6, $17, $99, $17, $DB, $D0, $0C
 

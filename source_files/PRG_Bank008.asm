@@ -18,6 +18,7 @@
 .alias LogDiv16                 $F44F
 .alias LogDiv8                  $F450
 .alias InitSQ1SFX               $F4EF
+.alias SQDCEnvTbl               $F674
 .alias NoiseDecayTbl            $F714
 .alias NoiseDatTbl              $F73C
 .alias DMCSamplePtrTbl          $F768
@@ -697,14 +698,14 @@ L8463:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame
 L8466:  LDA SQ2SFXTimer
 L8469:  AND #$07
 L846B:  BNE $8489
-L846D:  LDA $0716
+L846D:  LDA SQ2SFXByte1
 L8470:  LSR
 L8471:  LSR
 L8472:  LSR
 L8473:  LSR
 L8474:  SEC
-L8475:  ADC $0716
-L8478:  STA $0716
+L8475:  ADC SQ2SFXByte1
+L8478:  STA SQ2SFXByte1
 L847B:  ROL
 L847C:  ROL
 L847D:  ROL
@@ -719,7 +720,7 @@ L848A:  STY SFXIndexSQ2
 L848C:  LDA #$40
 L848E:  STA SQ2SFXTimer
 L8491:  LDA #$1A
-L8493:  STA $0716
+L8493:  STA SQ2SFXByte1
 L8496:  LDX #$9F
 L8498:  LDY #$83
 L849A:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
@@ -803,19 +804,19 @@ L8523:  STY SFXIndexSQ2
 L8525:  LDA #$10
 L8527:  STA SQ2SFXTimer
 L852A:  LDA #$04
-L852C:  STA $0716
-L852F:  LDY $0716
+L852C:  STA SQ2SFXByte1
+L852F:  LDY SQ2SFXByte1
 L8532:  LDA SQ2SFXTimer
 L8535:  CMP $F816,Y
 L8538:  BNE $8550
 L853A:  LDX #$84
 L853C:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 and set control bits.
-L853F:  LDY $0716
+L853F:  LDY SQ2SFXByte1
 L8542:  LDA $F81A,Y
 L8545:  STA SQ2Cntrl2
 L8548:  LDA #$08
 L854A:  STA SQ2Cntrl3
-L854D:  DEC $0716
+L854D:  DEC SQ2SFXByte1
 L8550:  JMP $8514
 
 L8553:  STY SFXIndexSQ2
@@ -912,16 +913,16 @@ L860D:  STY SFXIndexSQ2
 L860F:  LDA #$20
 L8611:  STA SQ2SFXTimer
 L8614:  LDA #$8F
-L8616:  STA $0716
+L8616:  STA SQ2SFXByte1
 L8619:  LDX #$5D
 L861B:  LDY #$81
 L861D:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
 
-L8620:  LDA $0716
+L8620:  LDA SQ2SFXByte1
 L8623:  TAY
 L8624:  JSR LogDiv16            ;($F44F)Logarithmically increase frequency.
 
-L8627:  STA $0716
+L8627:  STA SQ2SFXByte1
 L862A:  ROL
 L862B:  ROL
 L862C:  STA SQ2Cntrl2
@@ -940,15 +941,15 @@ L8646:  STY SFXIndexSQ2
 L8648:  LDA #$10
 L864A:  STA SQ2SFXTimer
 L864D:  LDA #$FF
-L864F:  STA $0716
+L864F:  STA SQ2SFXByte1
 L8652:  LDX #$5D
 L8654:  LDY #$81
 L8656:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
 
-L8659:  LDA $0716
+L8659:  LDA SQ2SFXByte1
 L865C:  TAY
 L865D:  JSR LogDiv8             ;($F450)Logarithmically increase frequency.
-L8660:  STA $0716
+L8660:  STA SQ2SFXByte1
 L8663:  JMP $862A
 
 L8666:  CPY #$09
@@ -1032,7 +1033,7 @@ L86FC:  STY SFXIndexSQ2
 L86FE:  LDA #$0A
 L8700:  STA SQ2SFXTimer
 L8703:  LDA #$1A
-L8705:  STA $0716
+L8705:  STA SQ2SFXByte1
 L8708:  LDX #$9F
 L870A:  LDY #$83
 L870C:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
@@ -1054,13 +1055,13 @@ L872B:  STY SFXIndexSQ2
 L872D:  LDA #$18
 L872F:  STA SQ2SFXTimer
 L8732:  LDA #$14
-L8734:  STA $0716
+L8734:  STA SQ2SFXByte1
 L8737:  LDX #$9E
 L8739:  LDY #$B3
 L873B:  LDA #$40
 L873D:  BNE $874D
 L873F:  LDA SQ2SFXTimer
-L8742:  CMP $0716
+L8742:  CMP SQ2SFXByte1
 L8745:  BNE $8750
 L8747:  LDX #$86
 L8749:  LDY #$C5
@@ -1072,14 +1073,14 @@ L8753:  STY SFXIndexSQ2
 L8755:  LDA #$60
 L8757:  STA SQ2SFXTimer
 L875A:  LDA #$0C
-L875C:  STA $0716
+L875C:  STA SQ2SFXByte1
 L875F:  LDA #$0F
-L8761:  STA $0717
+L8761:  STA SQ2SFXByte2
 L8764:  LDA #$00
 L8766:  STA $0728
 L8769:  LDA #$04
 L876B:  STA $0729
-L876E:  LDY $0717
+L876E:  LDY SQ2SFXByte2
 L8771:  LDA $0728
 L8774:  BEQ $877B
 L8776:  LDA $F845,Y
@@ -1087,7 +1088,7 @@ L8779:  BNE $877E
 L877B:  LDA $F835,Y
 L877E:  STA SQ2Cntrl0
 L8781:  LDA SQ2SFXTimer
-L8784:  LDY $0716
+L8784:  LDY SQ2SFXByte1
 L8787:  CMP $F822,Y
 L878A:  BNE $87CB
 L878C:  INY
@@ -1095,8 +1096,8 @@ L878D:  TYA
 L878E:  LSR
 L878F:  TAY
 L8790:  LDA $F82E,Y
-L8793:  STA $0717
-L8796:  LDA $0716
+L8793:  STA SQ2SFXByte2
+L8796:  LDA SQ2SFXByte1
 L8799:  LSR
 L879A:  BCS $87A2
 L879C:  LDA #$CA
@@ -1106,9 +1107,9 @@ L87A2:  LDA #$BB
 L87A4:  LDX #$01
 L87A6:  STX $0728
 L87A9:  STA SQ2Cntrl1
-L87AC:  LDA $0716
+L87AC:  LDA SQ2SFXByte1
 L87AF:  BEQ $87B4
-L87B1:  DEC $0716
+L87B1:  DEC SQ2SFXByte1
 L87B4:  LDY $0729
 L87B7:  LDA $F81E,Y
 L87BA:  STA SQ2Cntrl2
@@ -1118,9 +1119,9 @@ L87C3:  DEY
 L87C4:  BNE $87C8
 L87C6:  LDY #$04
 L87C8:  STY $0729
-L87CB:  LDA $0717
+L87CB:  LDA SQ2SFXByte2
 L87CE:  BEQ $87D3
-L87D0:  DEC $0717
+L87D0:  DEC SQ2SFXByte2
 L87D3:  JMP $8514
 L87D6:  JMP $8753
 L87D9:  CPY #$10
@@ -1141,7 +1142,7 @@ L87F4:  STY SFXIndexSQ2
 L87F6:  LDA #$08
 L87F8:  STA SQ2SFXTimer
 L87FB:  LDA #$1F
-L87FD:  STA $0716
+L87FD:  STA SQ2SFXByte1
 L8800:  LDX #$9A
 L8802:  LDY #$83
 L8804:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
@@ -1163,16 +1164,16 @@ L8823:  STY SFXIndexSQ2
 L8825:  LDA #$40
 L8827:  STA SQ2SFXTimer
 L882A:  LDA #$FF
-L882C:  STA $0716
+L882C:  STA SQ2SFXByte1
 L882F:  LDX #$1E
 L8831:  LDY #$82
 L8833:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
 
-L8836:  LDA $0716
+L8836:  LDA SQ2SFXByte1
 L8839:  TAY
 L883A:  JSR LogDiv16            ;($F44F)Logarithmically increase frequency.
 
-L883D:  STA $0716
+L883D:  STA SQ2SFXByte1
 L8840:  ROL
 L8841:  ROL
 L8842:  STA SQ2Cntrl2
@@ -1211,7 +1212,7 @@ L8882:  LDA #$7F
 L8884:  BNE $888B
 L8886:  LDA #$5F
 L8888:  DEC SQ2SFXTimer
-L888B:  STA $0716
+L888B:  STA SQ2SFXByte1
 L888E:  LDX #$9E
 L8890:  LDY #$82
 L8892:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
@@ -1219,11 +1220,11 @@ L8892:  JSR SetSQ2Control       ;($F414)Set control registers for SQ2.
 L8895:  LDA SQ2SFXTimer
 L8898:  CMP #$10
 L889A:  BEQ $8886
-L889C:  LDA $0716
+L889C:  LDA SQ2SFXByte1
 L889F:  TAY
 L88A0:  JSR LogDiv32            ;($F44E)Logarithmically increase frequency.
 
-L88A3:  STA $0716
+L88A3:  STA SQ2SFXByte1
 L88A6:  ROL
 L88A7:  ROL
 L88A8:  STA SQ2Cntrl2
@@ -1471,7 +1472,7 @@ L8A1A:  LDA #$3F
 L8A1C:  STA SQ2EnvIndex
 
 L8A1F:  LDA #$01
-L8A21:  STA $071A
+L8A21:  STA SQ2RestartFlag
 
 L8A24:  BNE DecSQ2NoteTime
 
@@ -1495,7 +1496,7 @@ L8A3C:  LDA (MusicDataPtr),Y
 L8A3E:  BEQ $89C0
 L8A40:  BMI $8A32
 
-L8A42:  STA $0718
+L8A42:  STA SQ2ShortPause
 L8A45:  LDY SFXIndexSQ2
 L8A47:  BNE ResetSQ2NoteLength
 
@@ -1530,17 +1531,17 @@ L8A72:  LDA SQ2EnvBase
 L8A75:  CMP #$40
 L8A77:  BCS $8A98
 
-L8A79:  LDA $0718
+L8A79:  LDA SQ2ShortPause
 L8A7C:  CMP #$02
 L8A7E:  BEQ $8A94
 
-L8A80:  LDX $071A
+L8A80:  LDX SQ2RestartFlag
 L8A83:  BEQ $8A8D
 
 L8A85:  JSR UpdateSQ2Note       ;($F41E)Update the SQ2 note frequency.
 
 L8A88:  LDX #$00
-L8A8A:  STX $071A
+L8A8A:  STX SQ2RestartFlag
 
 L8A8D:  LDA SQ2NoteRemain
 L8A90:  CMP #$02
@@ -1562,20 +1563,20 @@ L8AA2:  DEC SQ2EnvIndex
 L8AA5:  CLC
 L8AA6:  ADC SQ2EnvBase
 L8AA9:  TAY
-L8AAA:  LDA $F674,Y
+L8AAA:  LDA SQDCEnvTbl,Y
 L8AAD:  TAX
 L8AAE:  JSR SQ2CntrlAndSwpDis   ;($F412)Disable SQ2 sweep and set control bits.
 
 ;------------------------------------[ SQ1 Music Channel Update ]------------------------------------
 
 UpdateSQ1Music:
-L8AB1:  LDA SQ1NoteIndex
-L8AB3:  BNE $8AB8
+L8AB1:  LDA SQ1NoteIndex        ;Is there SQ1 music data that needs to be updated?
+L8AB3:  BNE +                   ;If not, jump to triangle music updates.
 
 L8AB5:  JMP UpdateTRIMusic      ;($8B63)Update triangle musical note.
 
-L8AB8:  LDA SFXIndexSQ1
-L8ABA:  BEQ $8AD4
+L8AB8:* LDA SFXIndexSQ1
+L8ABA:  BEQ SQ1NoteCont
 
 L8ABC:  LDA SQ1EnvBase
 L8ABF:  CMP #$40
@@ -1585,20 +1586,22 @@ L8AC3:  LDA #$3F
 L8AC5:  STA SQ1EnvIndex
 
 L8AC8:  LDA #$01
-L8ACA:  STA $071B
-L8ACD:  BNE $8AD4
+L8ACA:  STA SQ1RestartFlag
+L8ACD:  BNE SQ1NoteCont
 
 L8ACF:  LDA #$00
 L8AD1:  STA SQ1EnvIndex
 
-L8AD4:  DEC SQ1NoteRemain
-L8AD7:  BEQ $8AE1
+SQ1NoteCont:
+L8AD4:  DEC SQ1NoteRemain       ;Update note time remaining. Is it time to get a new note?
+L8AD7:  BEQ GetNextSQ1Note      ;If so, branch.
 
 L8AD9:  BNE $8B18
 
 L8ADB:  JSR GetNoteLength       ;($F400)Get the length of this note to play.
 L8ADE:  STA SQ1NoteLength       ;
 
+GetNextSQ1Note:
 L8AE1:  LDY SQ1NoteIndex
 L8AE3:  INC SQ1NoteIndex
 
@@ -1615,11 +1618,11 @@ L8AF1:  STA SQ1SweepCntrl       ;Set SQ1 sweep control byte.
 
 L8AF4:  BNE $8AE1
 
-L8AF6:  STA $0719
+L8AF6:  STA SQ1ShortPause
 L8AF9:  LDY SFXIndexSQ1
 L8AFB:  BNE $8B12
 
-L8AFD:  JSR UpdateSQ1Note       ;($F429)Update the SQ1 channel note frequency.
+L8AFD:  JSR UpdateSQ1Note       ;($F429)Update the SQ1 note frequency.
 
 L8B00:  BEQ $8B12
 L8B02:  LDA SQ1EnvBase
@@ -1627,43 +1630,53 @@ L8B05:  CMP #$80
 L8B07:  BCC $8B0D
 
 L8B09:  LDA #$7F
-L8B0B:  BNE $8B0F
+L8B0B:  BNE +
+
 L8B0D:  LDA #$3F
-L8B0F:  STA SQ1EnvIndex
+L8B0F:* STA SQ1EnvIndex
 
 L8B12:  LDA SQ1NoteLength
 L8B15:  STA SQ1NoteRemain
 
 L8B18:  LDA SFXIndexSQ1
-L8B1A:  BNE $8B63
+L8B1A:  BNE UpdateTRIMusic
+
 L8B1C:  LDA SQ1EnvBase
 L8B1F:  CMP #$40
 L8B21:  BCS $8B42
-L8B23:  LDA $0719
+
+L8B23:  LDA SQ1ShortPause
 L8B26:  CMP #$02
 L8B28:  BEQ $8B3E
-L8B2A:  LDX $071B
+
+L8B2A:  LDX SQ1RestartFlag
 L8B2D:  BEQ $8B37
 L8B2F:  JSR UpdateSQ1Note       ;($F429)Update SQ1 note frequency.
 
 L8B32:  LDX #$00
-L8B34:  STX $071B
+L8B34:  STX SQ1RestartFlag
+
 L8B37:  LDA SQ1NoteRemain
 L8B3A:  CMP #$02
 L8B3C:  BCS $8B42
+
 L8B3E:  LDX #$10
 L8B40:  BNE $8B58
+
 L8B42:  JSR $F463
+
 L8B45:  LDA SQ1EnvIndex
 L8B48:  BEQ $8B4F
+
 L8B4A:  LSR
 L8B4B:  LSR
 L8B4C:  DEC SQ1EnvIndex
+
 L8B4F:  CLC
 L8B50:  ADC SQ1EnvBase
 L8B53:  TAY
 
-L8B54:  LDA $F674,Y
+L8B54:  LDA SQDCEnvTbl,Y
 L8B57:  TAX
 
 L8B58:  LDY SQ1SweepCntrl       ;Prepare to set sweep control byte for SQ1.

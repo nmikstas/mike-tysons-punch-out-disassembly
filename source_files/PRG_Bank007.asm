@@ -24,12 +24,23 @@ L8033:  JMP $8EC1
 L8036:  JMP $8FC6
 L8039:  JMP $8FD2
 L803C:  JMP $8FF0
-L803F:  JMP $8D7D
-L8042:  JMP $8D6C
+
+DoBusyPassword:
+L803F:  JMP ChkBusyPassword     ;($8D7D)Check fur busy signal passwords.
+
+DoCircuitPassword:
+L8042:  JMP ChkCircuitPassword  ;($8D6C)Check for another world circuit password.
+
 L8045:  JMP $8D72
-L8048:  JMP $8D5D
+
+DoCreditsPassword:
+L8048:  JMP ChkCreditsPassword  ;($8D5D)Check for end credits password.
+
 L804B:  JMP $8FE5
-L804E:  JMP $8D68
+
+DoTysonPassword:
+L804E:  JMP ChkTysonPassword    ;($8D68)Check if player entered password to start at Mike Tyson.
+
 L8051:  JMP $FFD0
 L8054:  JMP $FFD3
 L8057:  JMP $FFD6
@@ -588,6 +599,7 @@ L84FE:  RTS
 
 L84FF:  LDX #$09
 L8501:  BNE $8505
+
 L8503:  LDX #$02
 L8505:  STA $E7
 L8507:  LDA $0390,X
@@ -603,6 +615,7 @@ L8519:  STA $0390,X
 L851C:  RTS
 
 L851D:  LDA #$00
+
 L851F:  STA $0390,X
 L8522:  LDA #$01
 L8524:  RTS
@@ -871,6 +884,7 @@ L871E:  RTS
 L871F:  LDY #$FF
 L8721:  ADC #$01
 L8723:  BNE $870A
+
 L8725:  DEC $0307
 L8728:  BNE $8758
 L872A:  LDA #$08
@@ -1146,6 +1160,7 @@ L896A:  BNE $898D
 L896C:  LDX $05B3
 L896F:  STX $0348
 L8972:  BNE $898D
+
 L8974:  LDA $0340
 L8977:  BEQ $89BD
 L8979:  BMI $894F
@@ -1417,53 +1432,72 @@ L8D3B:  .byte $D6, $60, $E2, $8F, $01, $D5, $08, $1F, $62, $E4, $4F, $D2, $D3, $
 L8D4B:  .byte $CC, $63, $E6, $62, $E4, $45, $C0, $C1, $D6, $64, $E9, $8F, $01, $D5, $88, $4A
 L8D5B:  .byte $0F, $00
 
-L8D5D:  LDY #$28
-L8D5F:  JSR $8D8D
-L8D62:  BNE $8D67
+;----------------------------------------------------------------------------------------------------
+
+ChkCreditsPassword:
+L8D5D:  LDY #$28                ;Look for a A+B+select password(end credits).
+L8D5F:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
+
+L8D62:  BNE +
 L8D64:  JSR $8DDE
-L8D67:  RTS
+L8D67:* RTS
 
-L8D68:  LDY #$32
-L8D6A:  BNE $8D8D
+ChkTysonPassword:
+L8D68:  LDY #$32                ;Prepare to check entered password to start at Mike Tyson.
+L8D6A:  BNE FindSpecPassword    ;($8D8D)Look for a hard coded password.
 
-L8D6C:  LDX #$00
-L8D6E:  LDY #$1E
-L8D70:  BNE $8D8F
+ChkCircuitPassword:
+L8D6C:  LDX #$00                ;Look for a A+B+select password(another world circuit).
+L8D6E:  LDY #$1E                ;Start at the 4th entry in PswrdDatTbl.
+L8D70:  BNE _FindSpecPassword   ;Branch always.
 
-L8D72:  LDY #$1E
-L8D74:  JSR $8D8D
-L8D77:  BNE $8D7C
+
+L8D72:  LDY #$1E                ;Look for a A+B+select password(another world circuit).
+L8D74:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
+
+L8D77:  BNE +
 L8D79:  JSR $8DDE
-L8D7C:  RTS
+L8D7C:* RTS
 
-L8D7D:  LDY #$00
-L8D7F:  JSR $8D8D
-L8D82:  BEQ $8DA1
-L8D84:  LDY #$0A
-L8D86:  JSR $8D8D
-L8D89:  BEQ $8DA1
-L8D8B:  LDY #$14
+ChkBusyPassword:
+L8D7D:  LDY #$00                ;Prepare to look for busy signal 1 password.
+L8D7F:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
+L8D82:  BEQ ChkPswdTblEnd
 
-L8D8D:  LDX #$10
+L8D84:  LDY #$0A                ;Prepare to look for busy signal 2 password.
+L8D86:  JSR FindSpecPassword    ;($8D8D)Look for a hard coded password.
+L8D89:  BEQ ChkPswdTblEnd
 
-L8D8F:  LDA #$0A
-L8D91:  STA $E0
-L8D93:  LDA $0110,X
-L8D96:  CMP PswrdDatTbl,Y
-L8D99:  BNE $8DA1
-L8D9B:  INX
-L8D9C:  INY
-L8D9D:  DEC $E0
-L8D9F:  BNE $8D93
-L8DA1:  RTS
+L8D8B:  LDY #$14                ;Prepare to look for busy signal 3 password.
+
+FindSpecPassword:
+L8D8D:  LDX #$10                ;Prepare to look for normally entered password(no A+B+select).
+
+_FindSpecPassword:
+L8D8F:  LDA #$0A                ;Prepare to check 10 password digits.
+L8D91:  STA GenByteE0           ;
+
+ChkPswdTblLoop:
+L8D93:  LDA EnteredPasswd,X     ;Does the current digit in the user entered password match the -->
+L8D96:  CMP PswrdDatTbl,Y       ;entry in the hard coded password table?
+L8D99:  BNE ChkPswdTblEnd       ;If not, branch to exit.
+
+L8D9B:  INX                     ;Move to next digit in used enterd password and PswrdDatTbl.
+L8D9C:  INY                     ;
+
+L8D9D:  DEC GenByteE0           ;Have all 10 password digits been compared in PswrdDatTbl?
+L8D9F:  BNE ChkPswdTblLoop      ;If not, branch to check another digit.
+
+ChkPswdTblEnd:
+L8DA1:  RTS                     ;Done checking for special password. 0=found, non-zero=not found.
 
 ;The following is a table of the 6 special passwords in the game.
-;Entry 0: 075-541-6113
-;Entry 1: 800-422-2602
-;Entry 2: 206-882-2040
-;Entry 3: 135-792-4680
-;Entry 4: 106-113-0120
-;Entry 5: 007-373-5963
+;Entry 0: 075-541-6113  Busy signal 1.
+;Entry 1: 800-422-2602  Busy signal 2.
+;Entry 2: 206-882-2040  Busy signal 3.
+;Entry 3: 135-792-4680  Another world circuit. Must press A + B + select.
+;Entry 4: 106-113-0120  End credits. Must press A + B + select.
+;Entry 5: 007-373-5963  Start at Mike Tyson.
 
 PswrdDatTbl:
 L8DA2:  .byte $00, $07, $05, $05, $04, $01, $06, $01, $01, $03
@@ -1473,10 +1507,11 @@ L8DC0:  .byte $01, $03, $05, $07, $09, $02, $04, $06, $08, $00
 L8DCA:  .byte $01, $00, $06, $01, $01, $03, $00, $01, $02, $00
 L8DD4:  .byte $00, $00, $07, $03, $07, $03, $05, $09, $06, $03
 
-L8DDE:  LDA $D5
-L8DE0:  ORA $D7
-L8DE2:  AND $DB
+L8DDE:  LDA A1History
+L8DE0:  ORA B1History
+L8DE2:  AND Sel1History
 L8DE4:  BPL $8DEA
+
 L8DE6:  LDA #$00
 L8DE8:  BEQ $8DEC
 L8DEA:  LDA #$01
@@ -1502,7 +1537,7 @@ L8E10:  RTS
 L8E11:  LDY #$00
 L8E13:  LDA #$27
 L8E15:  LDX #$0A
-L8E17:  STA $0110,Y
+L8E17:  STA EnteredPasswd,Y
 L8E1A:  INY
 L8E1B:  DEX
 L8E1C:  BNE $8E17
@@ -1526,7 +1561,7 @@ L8E3D:  LDX #$0A
 L8E3F:  LDA #$00
 L8E41:  STA $0140,X
 L8E44:  DEX
-L8E45:  LDA $0110,Y
+L8E45:  LDA EnteredPasswd,Y
 L8E48:  STA $0140,X
 L8E4B:  INC $0140,X
 L8E4E:  DEY
@@ -1598,7 +1633,7 @@ L8EBC:  BEQ $8EC3
 L8EBE:  JMP $8FC3
 L8EC1:  LDY #$10
 L8EC3:  LDX #$00
-L8EC5:  LDA $0110,Y
+L8EC5:  LDA EnteredPasswd,Y
 L8EC8:  SEC
 L8EC9:  SBC $9101,X
 L8ECC:  BPL $8ED1
@@ -1724,7 +1759,7 @@ L8FC3:  LDA #$01
 L8FC5:  RTS
 L8FC6:  LDY #$09
 L8FC8:  LDA $0120,Y
-L8FCB:  STA $0110,Y
+L8FCB:  STA EnteredPasswd,Y
 L8FCE:  DEY
 L8FCF:  BPL $8FC8
 L8FD1:  RTS
@@ -1820,13 +1855,13 @@ L9085:  ASL
 L9086:  ASL
 L9087:  ASL
 L9088:  ASL
-L9089:  STA $0110,Y
+L9089:  STA EnteredPasswd,Y
 L908C:  DEY
 L908D:  LDA $0100,X
 L9090:  ASL
 L9091:  ASL
 L9092:  AND #$E0
-L9094:  STA $0110,Y
+L9094:  STA EnteredPasswd,Y
 L9097:  DEY
 L9098:  DEX
 L9099:  BPL $9081
@@ -1834,7 +1869,7 @@ L909B:  LDA $010D
 L909E:  BEQ $90C2
 L90A0:  STA $010B
 L90A3:  LDX #$09
-L90A5:  ASL $0110,X
+L90A5:  ASL EnteredPasswd,X
 L90A8:  LDA #$00
 L90AA:  ROR
 L90AB:  DEX
@@ -1842,33 +1877,33 @@ L90AC:  BMI $90BA
 L90AE:  ROR
 L90AF:  ROR
 L90B0:  ROR
-L90B1:  ORA $0110,X
-L90B4:  STA $0110,X
+L90B1:  ORA EnteredPasswd,X
+L90B4:  STA EnteredPasswd,X
 L90B7:  JMP $90A5
 L90BA:  STA $0119
 L90BD:  DEC $010B
 L90C0:  BNE $90A3
 L90C2:  LDX #$09
-L90C4:  LDA $0110,X
+L90C4:  LDA EnteredPasswd,X
 L90C7:  LSR
 L90C8:  LSR
 L90C9:  LSR
 L90CA:  LSR
 L90CB:  LSR
-L90CC:  STA $0110,X
+L90CC:  STA EnteredPasswd,X
 L90CF:  DEX
 L90D0:  BPL $90C4
 L90D2:  LDA $010D
 L90D5:  ORA $0119
 L90D8:  STA $0119
 L90DB:  LDY #$09
-L90DD:  LDA $0110,Y
+L90DD:  LDA EnteredPasswd,Y
 L90E0:  CLC
 L90E1:  ADC $9101,Y
 L90E4:  CMP #$0A
 L90E6:  BCC $90EA
 L90E8:  SBC #$0A
-L90EA:  STA $0110,Y
+L90EA:  STA EnteredPasswd,Y
 L90ED:  DEY
 L90EE:  BPL $90DD
 L90F0:  RTS
@@ -1924,6 +1959,8 @@ L9159:  LSR
 L915A:  LSR
 L915B:  LSR
 L915C:  RTS
+
+;----------------------------------------------------------------------------------------------------
 
 ;Unused.
 L915D:  .byte $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00

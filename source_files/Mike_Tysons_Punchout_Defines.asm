@@ -1,15 +1,63 @@
 ;-------------------------------------[General Purpose Variables]------------------------------------
 
 .alias GenByteE0        $E0     ;General purpose byte.
+.alias GenByteE1        $E1     ;General purpose byte.
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
-.alias Joy1Buttons      $D0     ;Joypad 1 button presses.
-.alias Joy2Buttons      $D1     ;Joypad 2 button presses.
+.alias PPU0Load         $10     ;Value to load next into PPU control register 0.
+.alias PPU1Load         $11     ;Value to load next into PPU control register 1.
+
+.alias GameEngStatus    $1C     ;0=Main game engine running, non-zero=Main game engine not running.
+.alias GameStatus       $1D     ;Enables/disables portions of the game.
+                                ;#$00 - Main game engine running.
+                                ;#$01 - Run game timers.
+                                ;#$02 - Stop all game processing.
+                                ;#$03 - Process only audio.
+                                ;#$FF - Run non-playable portions of game(intro, cut scenes, etc).
+                                
+.alias FrameCounter     $1E     ;Increments every frame and rolls over when maxed out.
+.alias TransTimer       $1F     ;Countdown timer for various transitions.
+
+.alias MacStatus        $50     ;Status of Little Mac during a fight.
+                                
+.alias Joy1Buttons      $D0     ;Controller 1 button presses.
+.alias Joy2Buttons      $D1     ;Controller 2 button presses.
+
+.alias Button1Status    $D2     ;Base for controller 1 button statuses.
+.alias Button1History   $D3     ;Base for controller 1 button histories.      -->
+                                ;#$00=Not pressed.                            -->
+                                ;#$01=Dpad not released since last change.    -->
+                                ;#$81=Dpad/button first press since last release.
+                                
+.alias DPad1Status      $D2     ;Controller 1 dpad status.
+.alias DPad1History     $D3     ;Controller 1 dpad history.
+.alias A1Status         $D4     ;Controller 1 A button status.
+.alias A1History        $D5     ;Controller 1 A button history.
+.alias B1Status         $D6     ;Controller 1 B button status.
+.alias B1History        $D7     ;Controller 1 B button history.
+.alias Strt1Status      $D8     ;Controller 1 start status.
+.alias Strt1History     $D9     ;Controller 1 start history.
+.alias Sel1Status       $DA     ;Controller 1 select button status.
+.alias Sel1History      $DB     ;Controller 1 select button history.
+
+.alias EnteredPasswd    $0110   ;To $0119 and $0120 to $0129. The first 10 bytes are password data
+                                ;that after A+B+select were pressed. The second 10 bytes are normal
+                                ;password data entered by the user.
 
 .alias RoundMinute      $0302   ;Current minute in round.
+.alias RoundColon       $0303   ;Colon tile pointer used to separate minutes from seconds.
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
+
+.alias MacTargetHP      $0391   ;Target HP for Little Mac.
+
+.alias MacCurrentHP     $0393   ;Current HP for Little Mac.
+
+.alias JoyRawReads      $06A0   ;Through $06A8. Raw reads from controller 1 and 2. Even values -->
+                                ;are from controller 1 while odd values are from controller 2. -->
+                                ;The controllers are polled 4 times each per frame. Used to -->
+                                ;DPCM conflict.
 
 ;--------------------------------------[Sound Engine Variables]--------------------------------------
 
@@ -50,8 +98,8 @@
 .alias NoteLengthsBase  $070D   ;Base index for note lengths for a given piece of music.
 
 .alias SQ1SweepCntrl    $070E   ;Control byte for SQ1 sweep hardware.
-.alias SQ0LoFreqBits    $070F   ;Lower frequency bits of SQ0.
-.alias SQ1LoFreqBits    $0710   ;Lower frequency bits of SQ1.
+.alias SQ1LoFreqBits    $070F   ;Lower frequency bits of SQ0.
+.alias SQ2LoFreqBits    $0710   ;Lower frequency bits of SQ2.
 
 ;$0711
 
@@ -59,13 +107,14 @@
 .alias SQ1SFXByte       $0713   ;Multi purpose register for SQ1 SFX.
 
 .alias SQ2SFXTimer      $0715   ;Length timer for SQ2 SFX.
+.alias SQ2SFXByte1      $0716   ;Multi purpose register for SQ2 SFX.
+.alias SQ2SFXByte2      $0717   ;Multi purpose register for SQ2 SFX.
 
-;$0716
-;$0717
-;$0718
-;$0719
-;$071A
-;$071B
+.alias SQ2ShortPause    $0718   ;Creates a short 2 frame pause in SQ2 music.
+.alias SQ1ShortPause    $0719   ;Creates a short 2 frame pause in SQ1 music.
+
+.alias SQ2RestartFlag   $071A   ;Flag indicating SQ2 music needs to resume after SFX completes.
+.alias SQ1RestartFlag   $071B   ;Flag indicating SQ1 music needs to resume after SFX completes.
 
 .alias SQ2EnvBase       $071C   ;Base index for SQ2 envelope data while playing music.
 .alias SQ1EnvBase       $071D   ;Base index for SQ1 envelope data while playing music.
@@ -150,8 +199,8 @@
 ;--------------------------------------------[Constants]---------------------------------------------
 
 ;Sound channel indexes.
-.alias AUD_SQ0_INDEX    $00     ;Square wave 0 channel index.
-.alias AUD_SQ1_INDEX    $04     ;Square wave 1 channel index.
+.alias AUD_SQ1_INDEX    $00     ;Square wave 1 channel index.
+.alias AUD_SQ2_INDEX    $04     ;Square wave 2 channel index.
 .alias AUD_TRI_INDEX    $08     ;Triangle wave channel index.
 
 ;Drum beat types.
@@ -219,7 +268,7 @@
 .alias SQ2_STUN1        $0E     ;Opponent stunned SFX, version 1.
 .alias SQ2_TIGER_PUNCH  $0F     ;Great Tiger magic punch SFX.
 .alias SQ2_MAGIC        $10     ;Great Tiger Dissapear SFX.
-.alias SQ2_STUN2        $11     ;Opponent stunned SFX, version 2.
+.alias SQ2_FLEX         $11     ;Mike Tyson muscle flex.
 .alias SQ2_MACHO_PUNCH  $12     ;Super Macho Man super punch SFX.
 .alias SQ2_HIPPO_TALK   $13     ;King Hippo talking SFX.
 .alias SQ2_WIND_UP      $14     ;Opponent punch wind up SFX.
@@ -258,6 +307,25 @@
 .alias MUS_MAC_DOWN     $1E     ;Little Mac on the mat music.
 .alias MUS_FIGHT        $1F     ;Main fight music.
 
+;Little Mac status.
+.alias MAC_NO_FIGHT     $00     ;Fight not running.
+.alias MAC_WAITING      $01     ;Normal. Waiting for player input.
+.alias MAC_NO_HEARTS    $02     ;No hearts.
+.alias MAC_DODGE_RIGHT  $03     ;Dodging right.
+.alias MAC_DODGE_LEFT   $05     ;Dodging left.
+.alias MAC_BLOCK        $07     ;Blocking.
+.alias MAC_BLOCK_HIT    $08     ;Blocking hit.
+.alias MAC_RP_LOW       $09     ;Right punching opponent's stomach.
+.alias MAC_LP_LOW       $0A     ;Left punching opponent's stomach.
+.alias MAC_RP_HIGH      $0B     ;Right punching opponent's face.
+.alias MAC_LP_HI        $0C     ;Left punching opponent's face.
+.alias MAC_SUPER_PUNCH  $0D     ;Super punching opponent.
+.alias MAC_STUN_RIGHT   $10     ;Little Mac stunned to the right.
+.alias MAC_STUN_LEFT    $11     ;Little Mac stunned to the left.
+.alias MAC_PRE_WAIT     $40     ;Pre-fight wait.
+.alias MAC_OPP_WAIT     $41     ;Opponent down wait.
+.alias MAC_ROUND_WAIT   $42     ;Round over.
+
 ;Controller bits.
 .alias IN_RIGHT         $01
 .alias IN_LEFT          $02
@@ -268,5 +336,11 @@
 .alias IN_B             $40
 .alias IN_A             $80
 
+;Nibble selection bit masks.
+.alias LO_NIBBLE        $0F     ;Bitmask for lower nibble.
+.alias HI_NIBBLE        $F0     ;Bitmask for upper nibble.
+
 ;Misc. items.
 .alias SND_OFF          $80     ;Silences sound channel.
+.alias PPU_LEFT_EN      $06     ;Enable both left background column and left sprite column.
+.alias GAME_ENG_RUN     $00     ;Enables the main game engine.
