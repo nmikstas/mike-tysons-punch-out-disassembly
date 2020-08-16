@@ -19,6 +19,9 @@
 .alias FrameCounter     $1E     ;Increments every frame and rolls over when maxed out.
 .alias TransTimer       $1F     ;Countdown timer for various transitions.
 
+.alias ComboTimer       $4A     ;Frames left until another punch must be landed to keep combo alive.
+.alias ComboCountDown   $4B     ;Hits left in current combo.
+
 .alias MacStatus        $50     ;Status of Little Mac during a fight.
                                 
 .alias Joy1Buttons      $D0     ;Controller 1 button presses.
@@ -50,9 +53,31 @@
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
 
+.alias NewHeartsUD      $0321   ;New amount of hearts, upper digit(base 10).
+.alias NewHeartsLD      $0322   ;New amount of hearts, lower digit(base 10).
+.alias CurHeartsUD      $0323   ;Current amount of hearts, upper digit(base 10).
+.alias CurHeartsLD      $0324   ;Current amount of hearts, lower digit(base 10).
+
+.alias HeartRecover     $032D   ;recover hearts this round, base address.
+.alias HeartNormRecUD   $032D   ;recover hearts this round, normal amount, upper digit(base 10).
+.alias HeartNormRecLD   $032E   ;recover hearts this round, normal amount, lower digit(base 10).
+.alias HeartNormRedUD   $032F   ;recover hearts this round, reduced amount, upper digit(base 10).
+.alias HeartNormRedLD   $0330   ;recover hearts this round, reduced amount, lower digit(base 10).
+
+.alias NumStars         $0342   ;Current number of stars Little Mac has.
+.alias IncStars         $0343   ;#$01=Increment number of stars.
+
+.alias StarCountDown    $0347   ;Must count down to 1 before stars will be given.
+
 .alias MacTargetHP      $0391   ;Target HP for Little Mac.
 
 .alias MacCurrentHP     $0393   ;Current HP for Little Mac.
+
+.alias VulnerableTimer  $04FD   ;Opponent is vunerable while counting down. Does not count on combos.
+
+.alias StarCountReset   $05B0   ;Reset value for StarCountDown.
+
+.alias ReactTimer       $05B8   ;Opponents reaction time. Does not count on combos.
 
 .alias JoyRawReads      $06A0   ;Through $06A8. Raw reads from controller 1 and 2. Even values -->
                                 ;are from controller 1 while odd values are from controller 2. -->
@@ -320,6 +345,7 @@
 .alias MAC_RP_HIGH      $0B     ;Right punching opponent's face.
 .alias MAC_LP_HI        $0C     ;Left punching opponent's face.
 .alias MAC_SUPER_PUNCH  $0D     ;Super punching opponent.
+.alias MAC_DUCK         $0E     ;Ducking.
 .alias MAC_STUN_RIGHT   $10     ;Little Mac stunned to the right.
 .alias MAC_STUN_LEFT    $11     ;Little Mac stunned to the left.
 .alias MAC_PRE_WAIT     $40     ;Pre-fight wait.
@@ -327,14 +353,14 @@
 .alias MAC_ROUND_WAIT   $42     ;Round over.
 
 ;Controller bits.
-.alias IN_RIGHT         $01
-.alias IN_LEFT          $02
-.alias IN_DOWN          $04
-.alias IN_UP            $08
-.alias IN_START         $10
-.alias IN_SELECT        $20
-.alias IN_B             $40
-.alias IN_A             $80
+.alias IN_RIGHT         $01     ;Right on the dpad.
+.alias IN_LEFT          $02     ;Left on the dpad.
+.alias IN_DOWN          $04     ;Down on the dpad.
+.alias IN_UP            $08     ;Up on the dpad.
+.alias IN_START         $10     ;Start button.
+.alias IN_SELECT        $20     ;Select button.
+.alias IN_B             $40     ;B button.
+.alias IN_A             $80     ;A button.
 
 ;Nibble selection bit masks.
 .alias LO_NIBBLE        $0F     ;Bitmask for lower nibble.

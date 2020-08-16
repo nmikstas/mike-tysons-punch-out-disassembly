@@ -4,9 +4,9 @@
 //starting address must be manually changed in the program along
 //with ths string to convert.  The program takes no arguments.
 
-let inString = "00 00";
+let inString = "5C 82 69 82 76 82 83 82 90 82 9D 82 AA 82 B3 82 BE 82 CB 82 D6 82 E1 82 EC 82 F7 82 02 83 0F 83 1A 83 27 83 32 83 3F 83 4A 83 55 83 60 83 6B 83 76 83 81 83 8C 83 97 83 A2 83 AD 83 BA 83 C5 83 D2 83 DB 83 E4 83 ED 83 01 84 D9 81 E0 81 E7 81 EE 81 F5 81 FA 81 FA 83";
 
-let address = 0x8000;
+let address = 0x8204;
 
 let byteCount = 0;
 let outString = "";

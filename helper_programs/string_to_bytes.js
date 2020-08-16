@@ -6,7 +6,7 @@
 
 let inString = "00 00";
 
-let address = 0x8000;
+let address = 0x808C;
 
 let byteCount = 0;
 let outString = "";
