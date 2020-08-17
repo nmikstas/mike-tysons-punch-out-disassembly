@@ -24,6 +24,12 @@
 
 .alias MacStatus        $50     ;Status of Little Mac during a fight.
                                 
+.alias OppStateTimer	$92		;Timer for opponents current state.
+.alias OppStateIndex	$93		;Index to opponent current state data.
+.alias OppStBasePtr		$94		;Pase pointer to opponent's current state data.
+.alias OppStBasePtrLB	$94		;Pase pointer to opponent's current state data, lower byte.
+.alias OppStBasePtrUB	$95		;Pase pointer to opponent's current state data, upper byte.
+								
 .alias Joy1Buttons      $D0     ;Controller 1 button presses.
 .alias Joy2Buttons      $D1     ;Controller 2 button presses.
 
@@ -340,9 +346,9 @@
 .alias MAC_DODGE_LEFT   $05     ;Dodging left.
 .alias MAC_BLOCK        $07     ;Blocking.
 .alias MAC_BLOCK_HIT    $08     ;Blocking hit.
-.alias MAC_RP_LOW       $09     ;Right punching opponent's stomach.
-.alias MAC_LP_LOW       $0A     ;Left punching opponent's stomach.
-.alias MAC_RP_HIGH      $0B     ;Right punching opponent's face.
+.alias MAC_RP_LO        $09     ;Right punching opponent's stomach.
+.alias MAC_LP_LO        $0A     ;Left punching opponent's stomach.
+.alias MAC_RP_HI        $0B     ;Right punching opponent's face.
 .alias MAC_LP_HI        $0C     ;Left punching opponent's face.
 .alias MAC_SUPER_PUNCH  $0D     ;Super punching opponent.
 .alias MAC_DUCK         $0E     ;Ducking.
