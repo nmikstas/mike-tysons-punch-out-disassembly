@@ -23,13 +23,43 @@
 .alias ComboCountDown   $4B     ;Hits left in current combo.
 
 .alias MacStatus        $50     ;Status of Little Mac during a fight.
-                                
-.alias OppStateTimer	$92		;Timer for opponents current state.
-.alias OppStateIndex	$93		;Index to opponent current state data.
-.alias OppStBasePtr		$94		;Pase pointer to opponent's current state data.
-.alias OppStBasePtrLB	$94		;Pase pointer to opponent's current state data, lower byte.
-.alias OppStBasePtrUB	$95		;Pase pointer to opponent's current state data, upper byte.
-								
+
+.alias MacPunchType     $74     ;Little Mac punch type.
+                                ;#$00=Right punch to face.
+                                ;#$01=Left punch to face.
+                                ;#$02=Right punch to stomach.
+                                ;#$03=Left punch to stomach.
+                                ;#$80=Super punch.
+.alias MacPunchDamage   $75     ;The amount of damage Little Mac's puch will do to opponent.
+ 
+.alias OppStateTimer    $92     ;Timer for opponents current state.
+.alias OppStateIndex    $93     ;Index to opponent current state data.
+.alias OppStBasePtr     $94     ;Pase pointer to opponent's current state data.
+.alias OppStBasePtrLB   $94     ;Pase pointer to opponent's current state data, lower byte.
+.alias OppStBasePtrUB   $95     ;Pase pointer to opponent's current state data, upper byte.
+
+.alias OppPunching      $97     ;#$00=Opponent not punching, #$01=Opponent punching.
+
+.alias OppBaseAnimIndex $A1     ;Base animation index for opponent sprites.
+
+.alias OppBaseSprite    $B0     ;Base address for opponent sprite X,Y positions.
+.alias OppBaseXSprite   $B0     ;Base X position for opponent sprites.
+.alias OppBaseYSprite   $B1     ;Base Y position for opponent sprites.
+
+.alias OppPunchDamage   $B5     ;The amount of damage the current punch will do to Little Mac.
+.alias OppHitDefense    $B6     ;Base address to opponent defense to Little Mac's various punches.
+.alias OppHitDefenseUR  $B6     ;Amount to subtract from Little Mac right punch to face damage.
+.alias OppHitDefenseUL  $B7     ;Amount to subtract from Little Mac left punch to face damage.
+.alias OppHitDefenseLR  $B8     ;Amount to subtract from Little Mac right punch to stomach damage.
+.alias OppHitDefenseLL  $B9     ;Amount to subtract from Little Mac left punch to stomach damage.
+
+.alias OppLastPunchSts  $BD     ;Last punch status of opponent.
+                                ;#$00=No last status.
+                                ;#$01=Blocked by Little Mac.
+                                ;#$02=Ducked by Little Mac.
+                                ;#$03=Hit Little Mac.
+                                ;#$04=Dodged by Little Mac.
+ 
 .alias Joy1Buttons      $D0     ;Controller 1 button presses.
 .alias Joy2Buttons      $D1     ;Controller 2 button presses.
 
@@ -49,6 +79,11 @@
 .alias Strt1History     $D9     ;Controller 1 start history.
 .alias Sel1Status       $DA     ;Controller 1 select button status.
 .alias Sel1History      $DB     ;Controller 1 select button history.
+
+.alias _IndJumpPtr      $00EE   ;Pointer for indirect jump.
+.alias IndJumpPtr       $EE     ;Pointer for indirect jump.
+.alias IndJumpPtrLB     $EE     ;Pointer for indirect jump, lower byte.
+.alias IndJumpPtrUB     $EF     ;Pointer for indirect jump, upper byte.
 
 .alias EnteredPasswd    $0110   ;To $0119 and $0120 to $0129. The first 10 bytes are password data
                                 ;that after A+B+select were pressed. The second 10 bytes are normal
@@ -78,6 +113,8 @@
 .alias MacTargetHP      $0391   ;Target HP for Little Mac.
 
 .alias MacCurrentHP     $0393   ;Current HP for Little Mac.
+
+.alias DatIndexTemp     $04C9   ;Temporary storage for data index.
 
 .alias VulnerableTimer  $04FD   ;Opponent is vunerable while counting down. Does not count on combos.
 
@@ -357,6 +394,13 @@
 .alias MAC_PRE_WAIT     $40     ;Pre-fight wait.
 .alias MAC_OPP_WAIT     $41     ;Opponent down wait.
 .alias MAC_ROUND_WAIT   $42     ;Round over.
+
+;Opponent state functions.
+.alias ST_SPRITES       $10     ;Load sprite data for current opponent sub-state.
+.alias ST_TIMER         $80     ;Number of frames for sub-state to wait.
+.alias ST_DEFENSE       $E0     ;Load opponent's defense values against Little Mac's punches.
+.alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
+.alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
 
 ;Controller bits.
 .alias IN_RIGHT         $01     ;Right on the dpad.

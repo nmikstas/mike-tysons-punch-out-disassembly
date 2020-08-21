@@ -502,11 +502,11 @@ LA494:  BNE $A48B
 LA496:  LDX #$A0
 LA498:  JSR $AF3A
 LA49B:  LDX #$0C
-LA49D:  STX $A1
+LA49D:  STX OppBaseAnimIndex
 LA49F:  JSR $C850
 LA4A2:  LDA #$02
 LA4A4:  JSR $AF04
-LA4A7:  LDX $A1
+LA4A7:  LDX OppBaseAnimIndex
 LA4A9:  INX
 LA4AA:  INX
 LA4AB:  CPX #$14
@@ -1073,7 +1073,7 @@ LA95A:  LDX #$02
 LA95C:  JSR $AE28
 LA95F:  LDA $09
 LA961:  BMI $A9B5
-LA963:  JSR $BF99
+LA963:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LA966:  TAY
 LA967:  LDA $0173
 LA96A:  CMP $A9CD,Y
@@ -1354,9 +1354,9 @@ LAB8E:  LDX #$05
 LAB90:  JSR $BF55
 LAB93:  JSR $AEA5
 LAB96:  LDA $05CE
-LAB99:  STA $B0
+LAB99:  STA OppBaseXSprite
 LAB9B:  LDA $05CF
-LAB9E:  STA $B1
+LAB9E:  STA OppBaseYSprite
 LABA0:  LDY #$01
 LABA2:  LDA #$B0
 LABA4:  STY $14
@@ -1710,23 +1710,28 @@ LAECE:  STA $EF
 LAED0:  LDA #$FF
 LAED2:  BNE $AEAF
 
-LAED4:  STY $04C9
-LAED7:  ASL
-LAED8:  TAY
-LAED9:  PLA
-LAEDA:  STA $EE
-LAEDC:  PLA
-LAEDD:  STA $EF
-LAEDF:  INY
-LAEE0:  LDA ($EE),Y
-LAEE2:  PHA
-LAEE3:  INY
-LAEE4:  LDA ($EE),Y
-LAEE6:  STA $EF
-LAEE8:  PLA
-LAEE9:  STA $EE
-LAEEB:  LDY $04C9
-LAEEE:  JMP ($00EE)
+IndFuncJump:
+LAED4:  STY DatIndexTemp        ;Save index to next data byte.
+
+LAED7:  ASL                     ;*2. Function pointers are 2 bytes.
+LAED8:  TAY                     ;Transfer index to desired function pointer to Y.
+
+LAED9:  PLA                     ;
+LAEDA:  STA IndJumpPtrLB        ;Pull the return value off the stack as it is the base -->
+LAEDC:  PLA                     ;address for the function pointer table.
+LAEDD:  STA IndJumpPtrUB        ;
+
+LAEDF:  INY                     ;
+LAEE0:  LDA (IndJumpPtr),Y      ;
+LAEE2:  PHA                     ;
+LAEE3:  INY                     ;Get jump address from table and load it into IndJumpPtr
+LAEE4:  LDA (IndJumpPtr),Y      ;
+LAEE6:  STA IndJumpPtrUB        ;
+LAEE8:  PLA                     ;
+LAEE9:  STA IndJumpPtrLB        ;
+
+LAEEB:  LDY DatIndexTemp        ;Restore the data index.
+LAEEE:  JMP (_IndJumpPtr)       ;Indirect jump do desired function.
 
 LAEF1:  ROR $18
 LAEF3:  ROR $18
@@ -2159,8 +2164,8 @@ LB1AE:  INC $3A
 LB1B0:  INY
 LB1B1:  CMP #$80
 LB1B3:  BCS $B1F4
-LB1B5:  JSR $BF99
-LB1B8:  JSR $AED4
+LB1B5:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
+LB1B8:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LB1BB:  .word $B1C1, $B1CE, $B1DF
 
@@ -2233,7 +2238,7 @@ LB237:  STY $3A
 LB239:  JMP $B1A5
 
 LB23C:  TXA
-LB23D:  JSR $AED4
+LB23D:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LB240:  .word $B24A, $B250, $B259, $B26A, $B273 
 
@@ -2371,7 +2376,7 @@ LB358:  BEQ $B2EA
 LB35A:  LDX #$07
 LB35C:  JSR $B439
 LB35F:  LDA ($E6),Y
-LB361:  JSR $BF99
+LB361:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LB364:  BEQ $B37A
 LB366:  CMP #$01
 LB368:  BEQ $B372
@@ -2385,7 +2390,7 @@ LB376:  ADC #$99
 LB378:  BNE $B387
 LB37A:  LDA $18
 LB37C:  JSR $AEF1
-LB37F:  JSR $BF99
+LB37F:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LB382:  LSR
 LB383:  TAY
 LB384:  LDA $05E0,Y
@@ -2411,11 +2416,11 @@ LB3B7:  BNE $B3CB
 LB3B9:  INY
 LB3BA:  LDA ($4E),Y
 LB3BC:  BMI $B3C2
-LB3BE:  CMP $74
+LB3BE:  CMP MacPunchType
 LB3C0:  BNE $B3CB
 LB3C2:  INY
 LB3C3:  STY $4D
-LB3C5:  LDA $74
+LB3C5:  LDA MacPunchType
 LB3C7:  STA $03B0
 LB3CA:  INX
 LB3CB:  STX $4C
@@ -2438,7 +2443,7 @@ LB3EA:  RTS
 LB3EB:  LDY $4D
 LB3ED:  LDA ($4E),Y
 LB3EF:  BMI $B408
-LB3F1:  LDA $74
+LB3F1:  LDA MacPunchType
 LB3F3:  AND #$83
 LB3F5:  CMP ($4E),Y
 LB3F7:  BEQ $B400
@@ -2447,7 +2452,7 @@ LB3FB:  AND #$FE
 LB3FD:  STA $4C
 LB3FF:  RTS
 LB400:  INC $4D
-LB402:  LDA $74
+LB402:  LDA MacPunchType
 LB404:  STA $03B0
 LB407:  RTS
 LB408:  TAX
@@ -2463,7 +2468,7 @@ LB415:  STA $4D
 LB417:  BNE $B3EB
 LB419:  LDA $03B0
 LB41C:  EOR #$01
-LB41E:  CMP $74
+LB41E:  CMP MacPunchType
 LB420:  BEQ $B400
 LB422:  BNE $B3F9
 LB424:  LDX #$01
@@ -2473,7 +2478,7 @@ LB42A:  BNE $B42E
 LB42C:  LDX #$03
 LB42E:  STA $E7
 LB430:  TXA
-LB431:  AND $74
+LB431:  AND MacPunchType
 LB433:  CLC
 LB434:  ADC $E7
 LB436:  STA $90
@@ -2602,8 +2607,8 @@ LB532:  BMI $B52F
 LB534:  AND #$0F
 LB536:  TAX
 LB537:  LDA $00
-LB539:  JSR $BF99
-LB53C:  JSR $AED4
+LB539:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
+LB53C:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LB53F:  .word $B549, $B5A8, $B5A8, $B5A9, $B63E
 
@@ -2668,12 +2673,12 @@ LB5B9:  TAX
 LB5BA:  CMP #$03
 LB5BC:  BEQ $B5CB
 LB5BE:  LDA $05A3,X
-LB5C1:  JSR $BF99
+LB5C1:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LB5C4:  CMP CurHeartsUD
 LB5C7:  BEQ $B5DF
 LB5C9:  BCC $B5EC
 LB5CB:  LDA $05A3,X
-LB5CE:  JSR $BF99
+LB5CE:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LB5D1:  STA CurHeartsUD
 LB5D4:  LDA $05A3,X
 LB5D7:  AND #$0F
@@ -2687,7 +2692,7 @@ LB5E9:  STA CurHeartsLD
 LB5EC:  INX
 LB5ED:  LDY #$00
 LB5EF:  LDA $05A3,X
-LB5F2:  JSR $BF99
+LB5F2:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LB5F5:  STA HeartRecover,Y
 LB5F8:  INY
 LB5F9:  LDA $05A3,X
@@ -2801,7 +2806,7 @@ LB6E4:  LDA #$23
 LB6E6:  LDX #$0C
 LB6E8:  JSR $BF21
 LB6EB:  LDA #$0C
-LB6ED:  STA $A1
+LB6ED:  STA OppBaseAnimIndex
 LB6EF:  JSR $C850
 LB6F2:  LDA #$14
 LB6F4:  LDX #$02
@@ -2832,9 +2837,9 @@ LB72A:  JSR $BFAE
 LB72D:  LDA #$FD
 LB72F:  JSR $BFAA
 LB732:  LDA #$48
-LB734:  STA $B0
+LB734:  STA OppBaseXSprite
 LB736:  LDA #$A0
-LB738:  STA $B1
+LB738:  STA OppBaseYSprite
 LB73A:  LDA #$30
 LB73C:  LDX #$04
 LB73E:  JSR $BF21
@@ -2884,9 +2889,9 @@ LB7A0:  LDA #$10
 LB7A2:  JSR $AF04
 LB7A5:  JSR $BF7E
 LB7A8:  LDA #$B8
-LB7AA:  STA $B0
+LB7AA:  STA OppBaseXSprite
 LB7AC:  LDA #$20
-LB7AE:  STA $B1
+LB7AE:  STA OppBaseYSprite
 LB7B0:  LDA #$D0
 LB7B2:  STA $20
 LB7B4:  LDA #$01
@@ -2940,9 +2945,9 @@ LB822:  STA $0490
 LB825:  LDA #$81
 LB827:  STA $04A0
 LB82A:  LDA #$54
-LB82C:  STA $B0
+LB82C:  STA OppBaseXSprite
 LB82E:  LDA #$B9
-LB830:  STA $B1
+LB830:  STA OppBaseYSprite
 LB832:  JSR $B695
 LB835:  LDA #$1A
 LB837:  LDX #$01
@@ -3100,7 +3105,7 @@ LB9B0:  BNE $B9D3
 LB9B2:  LDA #$58
 LB9B4:  JSR $C113
 LB9B7:  LDA $09
-LB9B9:  JSR $BF99
+LB9B9:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LB9BC:  BNE $B9C3
 LB9BE:  LDA #$44
 LB9C0:  JSR $C113
@@ -3108,7 +3113,7 @@ LB9C3:  LDA #$1A
 LB9C5:  LDX #$01
 LB9C7:  JSR $BF0D
 LB9CA:  LDA $09
-LB9CC:  JSR $BF99
+LB9CC:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LB9CF:  ASL
 LB9D0:  CLC
 LB9D1:  ADC #$1C
@@ -3165,12 +3170,12 @@ LBA38:  LDA #$54
 LBA3A:  LDX $013E
 LBA3D:  BNE $BA51
 LBA3F:  LDA $09
-LBA41:  JSR $BF99
+LBA41:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LBA44:  CLC
 LBA45:  ADC #$40
 LBA47:  BNE $BA51
 LBA49:  LDA $09
-LBA4B:  JSR $BF99
+LBA4B:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LBA4E:  CLC
 LBA4F:  ADC #$41
 LBA51:  JSR $C113
@@ -3184,7 +3189,7 @@ LBA61:  LDA #$55
 LBA63:  LDX $013E
 LBA66:  BNE $BA70
 LBA68:  LDA $09
-LBA6A:  JSR $BF99
+LBA6A:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LBA6D:  CLC
 LBA6E:  ADC #$5B
 LBA70:  JSR $C113
@@ -3268,7 +3273,7 @@ LBB16:  LDA #$52
 LBB18:  LDX $013E
 LBB1B:  BNE $BB25
 LBB1D:  LDA $09
-LBB1F:  JSR $BF99
+LBB1F:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LBB22:  CLC
 LBB23:  ADC #$05
 LBB25:  JSR $C113
@@ -3282,7 +3287,7 @@ LBB35:  LDA #$53
 LBB37:  LDX $013E
 LBB3A:  BNE $BB44
 LBB3C:  LDA $09
-LBB3E:  JSR $BF99
+LBB3E:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LBB41:  CLC
 LBB42:  ADC #$10
 LBB44:  JSR $C113
@@ -3514,10 +3519,10 @@ LBD29:  JSR $C105
 LBD2C:  LDA #$03
 LBD2E:  JSR $C105
 LBD31:  LDA #$00
-LBD33:  STA $A1
+LBD33:  STA OppBaseAnimIndex
 LBD35:  JSR $C85C
 LBD38:  LDA #$02
-LBD3A:  STA $A1
+LBD3A:  STA OppBaseAnimIndex
 LBD3C:  JSR $C85C
 LBD3F:  JMP $AA64
 LBD42:  JSR $BF3C
@@ -3748,12 +3753,12 @@ LBF07:  INX
 LBF08:  DEC $E2
 LBF0A:  BNE $BF01
 LBF0C:  RTS
-LBF0D:  STA $A1
+LBF0D:  STA OppBaseAnimIndex
 LBF0F:  STX $06B1
-LBF12:  LDA $A1
+LBF12:  LDA OppBaseAnimIndex
 LBF14:  JSR $C850
-LBF17:  INC $A1
-LBF19:  INC $A1
+LBF17:  INC OppBaseAnimIndex
+LBF19:  INC OppBaseAnimIndex
 LBF1B:  DEC $06B1
 LBF1E:  BNE $BF12
 LBF20:  RTS
@@ -3774,8 +3779,8 @@ LBF44:  STA GameStatus
 LBF46:  JSR $AE9B
 LBF49:  JSR $AF38
 LBF4C:  LDA #$00
-LBF4E:  STA $B0
-LBF50:  STA $B1
+LBF4E:  STA OppBaseXSprite
+LBF50:  STA OppBaseYSprite
 LBF52:  JMP $AA64
 LBF55:  STA $E000
 LBF58:  LDA #$00
@@ -3810,11 +3815,12 @@ LBF92:  STA $1B
 LBF94:  LDA #$08
 LBF96:  JMP $AF04
 
-LBF99:  LSR
-LBF9A:  LSR
-LBF9B:  LSR
-LBF9C:  LSR
-LBF9D:  RTS
+Div16:
+LBF99:  LSR                     ;
+LBF9A:  LSR                     ;Divide by 16. Move upper nibble to lower nibble.
+LBF9B:  LSR                     ;
+LBF9C:  LSR                     ;
+LBF9D:  RTS                     ;
 
 LBF9E:  LDA $8000,X
 LBFA1:  STA $E0
@@ -4245,11 +4251,11 @@ LC312:  LDX $05BB
 LC315:  STX VulnerableTimer
 LC318:  RTS
 
-LC319:  LDA $97
+LC319:  LDA OppPunching
 LC31B:  BNE $C318
 LC31D:  LDA ComboTimer
 LC31F:  BNE $C318
-LC321:  LDX $74
+LC321:  LDX MacPunchType
 LC323:  LDA $0348
 LC326:  BNE $C32B
 LC328:  TXA
@@ -4351,13 +4357,13 @@ LC3E4:  CMP #$08
 LC3E6:  BNE $C3F0
 
 LC3E8:  SEC
-LC3E9:  LDA $B1
+LC3E9:  LDA OppBaseYSprite
 LC3EB:  SBC #$01
 LC3ED:  JMP $C3F5
 LC3F0:  CLC
-LC3F1:  LDA $B1
+LC3F1:  LDA OppBaseYSprite
 LC3F3:  ADC #$01
-LC3F5:  STA $B1
+LC3F5:  STA OppBaseYSprite
 LC3F7:  LDA #$01
 LC3F9:  STA $A0
 LC3FB:  LDA $DC
@@ -4365,9 +4371,9 @@ LC3FD:  AND #$03
 LC3FF:  BEQ $C410
 LC401:  CMP #$01
 LC403:  BEQ $C40A
-LC405:  DEC $B0
+LC405:  DEC OppBaseXSprite
 LC407:  JMP $C40C
-LC40A:  INC $B0
+LC40A:  INC OppBaseXSprite
 LC40C:  LDA #$01
 LC40E:  STA $A0
 LC410:  LDA $DF
@@ -4384,13 +4390,13 @@ LC421:  AND #$01
 LC423:  STA $DF
 LC425:  TXA
 LC426:  BPL $C43A
-LC428:  LDA $A1
+LC428:  LDA OppBaseAnimIndex
 LC42A:  CLC
 LC42B:  ADC #$02
 LC42D:  CMP #$3C
 LC42F:  BCC $C433
 LC431:  LDA #$00
-LC433:  STA $A1
+LC433:  STA OppBaseAnimIndex
 LC435:  LDA #$80
 LC437:  STA $A0
 LC439:  RTS
@@ -4503,7 +4509,7 @@ LC50C:  LDA #$82
 LC50E:  SEC
 LC50F:  SBC $04FF
 LC512:  SBC $04FF
-LC515:  STA $A1
+LC515:  STA OppBaseAnimIndex
 LC517:  LDA #$81
 LC519:  STA $A0
 LC51B:  JSR $C890
@@ -4513,13 +4519,15 @@ LC522:  ASL
 LC523:  TAY
 LC524:  LDX #$00
 LC526:  STX $B4
-LC528:  STX $B5
+LC528:  STX OppPunchDamage
+
 LC52A:  LDA $C828,Y
 LC52D:  INY
-LC52E:  STA $B6,X
+LC52E:  STA OppHitDefense,X
 LC530:  INX
 LC531:  CPX #$04
 LC533:  BNE $C52A
+
 LC535:  INC OppStateTimer
 LC537:  LDA $AF
 LC539:  BEQ $C53E
@@ -4533,6 +4541,7 @@ LC548:  DEC OppStateIndex
 LC54A:  LDY OppStateIndex
 LC54C:  JMP $C5D6
 LC54F:  RTS
+
 LC550:  LDY OppStateIndex
 LC552:  LDA (OppStBasePtr),Y
 LC554:  INC OppStateIndex
@@ -4540,8 +4549,8 @@ LC556:  AND #$0F
 LC558:  TAX
 LC559:  LDA (OppStBasePtr),Y
 LC55B:  INY
-LC55C:  JSR $BF99
-LC55F:  JSR $AED4
+LC55C:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
+LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC562:  .word $C58D, $C59B, $C5B3, $C5B7, $C5C8, $C5CE, $C5D4, $C5E6
 LC572:  .word $C5F9, $C600, $C61E, $C670, $C670, $C670, $C670, $C720
@@ -4555,25 +4564,27 @@ LC58C:  RTS
 
 LC58D:  STX OppStateTimer
 LC58F:  LDA (OppStBasePtr),Y
-LC591:  STA $A1
+LC591:  STA OppBaseAnimIndex
 LC593:  LDA #$80
 LC595:  STA $A0
 LC597:  INC OppStateIndex
 LC599:  BNE $C582
+
 LC59B:  STX OppStateTimer
 LC59D:  LDA (OppStBasePtr),Y
 LC59F:  INY
-LC5A0:  STA $A1
+LC5A0:  STA OppBaseAnimIndex
 LC5A2:  LDA #$80
 LC5A4:  STA $A0
 LC5A6:  LDA (OppStBasePtr),Y
 LC5A8:  INY
-LC5A9:  STA $B0
+LC5A9:  STA OppBaseXSprite
 LC5AB:  LDA (OppStBasePtr),Y
 LC5AD:  INY
-LC5AE:  STA $B1
+LC5AE:  STA OppBaseYSprite
 LC5B0:  STY OppStateIndex
 LC5B2:  RTS
+
 LC5B3:  STX OppStateTimer
 LC5B5:  BNE $C5A6
 LC5B7:  TXA
@@ -4583,8 +4594,10 @@ LC5BD:  LDA (OppStBasePtr),Y
 LC5BF:  TAY
 LC5C0:  STY OppStateIndex
 LC5C2:  JMP $C550
+
 LC5C5:  INY
 LC5C6:  BNE $C5C0
+
 LC5C8:  LDA #$01
 LC5CA:  STA $A2
 LC5CC:  BNE $C58D
@@ -4612,10 +4625,12 @@ LC5F3:  TAX
 LC5F4:  INX
 LC5F5:  STX $9A
 LC5F7:  BNE $C5D6
+
 LC5F9:  LDA (OppStBasePtr),Y
 LC5FB:  INC OppStateIndex
 LC5FD:  STA OppStateTimer
 LC5FF:  RTS
+
 LC600:  STX $E0
 LC602:  LDA (OppStBasePtr),Y
 LC604:  STA $E1
@@ -4634,7 +4649,7 @@ LC619:  STY OppStateIndex
 LC61B:  JMP $C550
 LC61E:  STX OppStateTimer
 LC620:  LDX #$00
-LC622:  LDA $B0,X
+LC622:  LDA OppBaseSprite,X
 LC624:  SEC
 LC625:  SBC $04D0,X
 LC628:  JSR $C649
@@ -4643,7 +4658,7 @@ LC62D:  INX
 LC62E:  CPX #$02
 LC630:  BNE $C622
 LC632:  LDX #$00
-LC634:  LDA $B0,X
+LC634:  LDA OppBaseSprite,X
 LC636:  CMP $04D0,X
 LC639:  BNE $C646
 LC63B:  INX
@@ -4663,7 +4678,7 @@ LC650:  CMP $04D2,X
 LC653:  BCC $C658
 LC655:  LDA $04D2,X
 LC658:  STA $E7
-LC65A:  LDA $B0,X
+LC65A:  LDA OppBaseSprite,X
 LC65C:  CLC
 LC65D:  ADC $E7
 LC65F:  RTS
@@ -4671,12 +4686,13 @@ LC660:  CMP $04D2,X
 LC663:  BCC $C668
 LC665:  LDA $04D2,X
 LC668:  STA $E7
-LC66A:  LDA $B0,X
+LC66A:  LDA OppBaseSprite,X
 LC66C:  SEC
 LC66D:  SBC $E7
 LC66F:  RTS
+
 LC670:  TXA
-LC671:  JSR $AED4
+LC671:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC674:  .word $C68E, $C6AA, $0000, $0000, $C6BD, $C6C3, $C6CA, $C6D7
 LC684:  .word $C6DF, $C6EA, $0000, $0000, $C70C
@@ -4696,6 +4712,7 @@ LC6A1:  STX OppStBasePtrLB
 LC6A3:  LDY #$00
 LC6A5:  STY OppStateIndex
 LC6A7:  JMP $C550
+
 LC6AA:  LDA $9E
 LC6AC:  STA OppStBasePtrLB
 LC6AE:  LDA $9F
@@ -4709,7 +4726,7 @@ LC6BD:  LDA $0581
 LC6C0:  STA OppStateTimer
 LC6C2:  RTS
 LC6C3:  LDA #$00
-LC6C5:  STA $97
+LC6C5:  STA OppPunching
 LC6C7:  JMP $C550
 LC6CA:  LDA PPU0Load
 LC6CC:  AND #$DF
@@ -4755,8 +4772,9 @@ LC719:  LSR
 LC71A:  LSR
 LC71B:  STA $F0,X
 LC71D:  JMP $C550
+
 LC720:  TXA
-LC721:  JSR $AED4
+LC721:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC724:  .word $C744, $C770, $C784, $C7A7, $C7B6, $C7BB, $C7C2, $C7D1
 LC734:  .word $C7E1, $C7EA, $C7F1, $C806, $C80C, $C816, $C81D, $C821
@@ -4815,6 +4833,7 @@ LC79A:  LDA (OppStBasePtr),Y
 LC79C:  TAY
 LC79D:  STY OppStateIndex
 LC79F:  JMP $C550
+
 LC7A2:  LDY OppStateIndex
 LC7A4:  INY
 LC7A5:  BNE $C79D
@@ -4824,40 +4843,48 @@ LC7AB:  LDA (OppStBasePtr),Y
 LC7AD:  TAY
 LC7AE:  STY OppStateIndex
 LC7B0:  JMP $C550
+
 LC7B3:  INY
 LC7B4:  BNE $C7AE
 LC7B6:  LDA #$81
 LC7B8:  STA $90
 LC7BA:  RTS
+
 LC7BB:  LDA (OppStBasePtr),Y
 LC7BD:  STA $96
 LC7BF:  INC OppStateIndex
 LC7C1:  RTS
+
 LC7C2:  LDA (OppStBasePtr),Y
 LC7C4:  INY
 LC7C5:  STA $B4
 LC7C7:  LDA (OppStBasePtr),Y
 LC7C9:  INY
-LC7CA:  STA $B5
+LC7CA:  STA OppPunchDamage
+
 LC7CC:  STY OppStateIndex
 LC7CE:  JMP $C582
+
 LC7D1:  LDY OppStateIndex
 LC7D3:  LDX #$00
 LC7D5:  LDA (OppStBasePtr),Y
 LC7D7:  INY
-LC7D8:  STA $B6,X
+LC7D8:  STA OppHitDefense,X
 LC7DA:  INX
 LC7DB:  CPX #$04
 LC7DD:  BNE $C7D5
 LC7DF:  BEQ $C7CC
+
 LC7E1:  INC $53
 LC7E3:  INC $53
 LC7E5:  LDA #$01
 LC7E7:  STA $52
 LC7E9:  RTS
+
 LC7EA:  LDA #$01
-LC7EC:  STA $97
+LC7EC:  STA OppPunching
 LC7EE:  JMP $C550
+
 LC7F1:  LDA #$00
 LC7F3:  STA $E1
 LC7F5:  LDA (OppStBasePtr),Y
@@ -4869,9 +4896,11 @@ LC7FD:  STY OppStateIndex
 LC7FF:  LDY #$00
 LC801:  STA ($E0),Y
 LC803:  JMP $C582
+
 LC806:  LDA $0585
 LC809:  STA ComboTimer
 LC80B:  RTS
+
 LC80C:  LDA ComboTimer
 LC80E:  BNE $C813
 LC810:  JMP $C550
@@ -4899,7 +4928,7 @@ LC83E:  CLC
 LC83F:  ADC $00,X
 LC841:  STA $00,X
 LC843:  RTS
-LC844:  JSR $BF99
+LC844:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LC847:  AND #$0F
 LC849:  CMP #$08
 LC84B:  BCC $C84F
@@ -4914,7 +4943,7 @@ LC85C:  LDA $06E2
 LC85F:  STA $E0
 LC861:  LDA $06E3
 LC864:  STA $E1
-LC866:  LDY $A1
+LC866:  LDY OppBaseAnimIndex
 LC868:  LDA ($E0),Y
 LC86A:  STA $A3
 LC86C:  INY
@@ -4950,14 +4979,14 @@ LC8A7:  STY $A0
 LC8A9:  TXA
 LC8AA:  BMI $C8AF
 LC8AC:  JMP $C925
-LC8AF:  LDA $A1
+LC8AF:  LDA OppBaseAnimIndex
 LC8B1:  BMI $C8D3
 LC8B3:  LDA ($E0),Y
 LC8B5:  INY
 LC8B6:  STA $E2
 LC8B8:  LDA ($E0),Y
 LC8BA:  STA $E3
-LC8BC:  LDY $A1
+LC8BC:  LDY OppBaseAnimIndex
 LC8BE:  LDA ($E2),Y
 LC8C0:  STA $A3
 LC8C2:  INY
@@ -5007,14 +5036,14 @@ LC919:  JSR $D3FE
 LC91C:  JSR $D043
 LC91F:  JSR $D16E
 LC922:  JMP $C88B
-LC925:  LDA $A1
+LC925:  LDA OppBaseAnimIndex
 LC927:  BMI $C946
 LC929:  LDA ($E0),Y
 LC92B:  INY
 LC92C:  STA $E2
 LC92E:  LDA ($E0),Y
 LC930:  STA $E3
-LC932:  LDY $A1
+LC932:  LDY OppBaseAnimIndex
 LC934:  LDA ($E2),Y
 LC936:  STA $A3
 LC938:  INY
@@ -5048,19 +5077,20 @@ LC96C:  JSR $D3FE
 LC96F:  JSR $D043
 LC972:  JMP $C88B
 LC975:  RTS
+
 LC976:  LDY #$00
 LC978:  LDX $AA
 LC97A:  LDA ($A3),Y
 LC97C:  INY
 LC97D:  STA $B2
 LC97F:  CLC
-LC980:  ADC $B0
+LC980:  ADC OppBaseXSprite
 LC982:  STA $020F,X
 LC985:  LDA ($A3),Y
 LC987:  INY
 LC988:  STA $B3
 LC98A:  CLC
-LC98B:  ADC $B1
+LC98B:  ADC OppBaseYSprite
 LC98D:  STA $020C,X
 LC990:  INX
 LC991:  INX
@@ -5537,6 +5567,7 @@ LCD06:  BNE $CCF4
 LCD08:  BEQ $CCA6
 LCD0A:  JMP $CD6A
 LCD0D:  RTS
+
 LCD0E:  LDA $020C,X
 LCD11:  CMP $E7
 LCD13:  BCS $CD24
@@ -6542,7 +6573,7 @@ LD3DD:  LDA ($A3),Y
 LD3DF:  INY
 LD3E0:  STA $B2
 LD3E2:  CLC
-LD3E3:  ADC $B0
+LD3E3:  ADC OppBaseXSprite
 LD3E5:  SEC
 LD3E6:  SBC $020F
 LD3E9:  TAX
@@ -6551,7 +6582,7 @@ LD3EC:  INY
 LD3ED:  STY $A5
 LD3EF:  STA $B3
 LD3F1:  CLC
-LD3F2:  ADC $B1
+LD3F2:  ADC OppBaseYSprite
 LD3F4:  SEC
 LD3F5:  SBC $020C
 LD3F8:  TAY
@@ -6565,13 +6596,13 @@ LD404:  BNE $D3DD
 LD406:  STY $A5
 LD408:  LDA $B2
 LD40A:  CLC
-LD40B:  ADC $B0
+LD40B:  ADC OppBaseXSprite
 LD40D:  SEC
 LD40E:  SBC $020F
 LD411:  TAX
 LD412:  LDA $B3
 LD414:  CLC
-LD415:  ADC $B1
+LD415:  ADC OppBaseYSprite
 LD417:  SEC
 LD418:  SBC $020C
 LD41B:  TAY
