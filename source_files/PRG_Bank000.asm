@@ -628,7 +628,7 @@ L8C2C:  .byte $F4, $F2, $59, $00, $23, $80, $FF, $F2, $03, $20, $7A, $FA, $9C, $
 L8C3C:  .byte $01, $C2, $70, $C2, $06, $08, $3F, $23, $E0, $9E, $92, $F5, $02, $F1, $4D, $8C
 L8C4C:  .byte $05
 
-;Glass Joe right hook punch state.
+;Right hook punch state.
 L8C4D:  .byte ST_DEFENSE        ;Load defense values against Little Mac's punches.
 L8C4E:  .word $929E             ;Defense data pointer.
 
@@ -645,8 +645,17 @@ L8C57:  .byte $B6               ;Sprite Y base location.
 
 L8C58:  .byte ST_PUNCH          ;Indicate opponent is punching.
 
-L8C59:  .byte $F7, $06, $00, $08
-L8C5D:  .byte $08, $00, $FA, $BB, $02, $00, $03, $16, $75, $DF, $FA, $9C, $84, $E4, $F3, $24
+L8C59:  .byte ST_DEF_INLINE		;Load opponent's defense data from following 4 bytes.
+l8C5A:	.byte $06				;-6 damage from right face punch.
+l8C5B:	.byte $00				;Full damage from left face punch.
+l8C5C:	.byte $08				;-8 damage from right stomach punch.
+L8C5D:  .byte $08				;-8 damage from left stomach punch.
+L8C5E:	.byte $00				;End defense data.
+
+L8C5F:	.byte $FA, $BB
+L8C61:	.byte $02, $00
+
+L8C63:	.byte $03, $16, $75, $DF, $FA, $9C, $84, $E4, $F3, $24
 L8C6D:  .byte $F2, $50, $0D, $59, $EC, $25, $F6, $00, $07, $00, $FA, $BB, $00, $00, $11, $18
 L8C7D:  .byte $7E, $B3, $F0, $45, $49, $49, $80, $04, $64, $22, $62, $22, $02, $1A, $79, $2F
 L8C8D:  .byte $6F, $1C, $80, $05, $FF, $F1, $C2, $8B, $3B, $FB, $E0, $B0, $92, $66, $14, $04
@@ -690,11 +699,11 @@ L8DE1:  .byte $EC, $80, $E0, $AA, $92, $EC, $20, $FA, $4A, $80, $00, $EC, $39, $
 L8DF1:  .byte $B2, $F1, $F6, $8D, $0F
 
 ;Glass Joe stunned state.
-L8DF6:  .byte $EC, $80, $E0, $AA, $92, $EC
-L8DFC:  .byte $20, $FA, $4A, $60, $00, $11, $1E, $91, $B2, $F2, $68, $03, $1F, $F2, $4B, $08
-L8E0C:  .byte $3C, $F2, $4B, $06, $3C, $80, $08, $3F, $23, $F2, $4B, $01, $35, $80, $06, $11
-L8E1C:  .byte $0A, $86, $B6, $01, $C0, $01, $0C, $63, $0C, $FC, $FA, $68, $00, $00, $F4, $FA
-L8E2C:  .byte $68, $00, $80, $08, $3F, $23, $FA, $68, $03, $3F, $23
+L8DF6:  .byte $EC, $80, $E0, $AA, $92, $EC, $20, $FA, $4A, $60, $00, $11, $1E, $91, $B2, $F2
+L8E06:	.byte $68, $03, $1F, $F2, $4B, $08, $3C, $F2, $4B, $06, $3C, $80, $08, $3F, $23, $F2
+L8E16:	.byte $4B, $01, $35, $80, $06, $11, $0A, $86, $B6, $01, $C0, $01, $0C, $63, $0C, $FC
+L8E26:	.byte $FA, $68, $00, $00, $F4, $FA, $68, $00, $80, $08, $3F, $23, $FA, $68, $03, $3F
+L8E36:	.byte $23
 
 L8E37:  .byte $EC, $80, $E0, $A4, $92, $EC, $4C, $FA, $4A, $60, $00, $18, $1C, $80, $B3, $F1
 L8E47:  .byte $4A, $8E, $0F
@@ -761,7 +770,7 @@ L909C:  .byte $00, $F4, $FA, $BD, $03, $00, $F4
 
 ;----------------------------------------------------------------------------------------------------
 
-;Don Flamenco state machine data.
+;Don Flamenco additional state data.
 
 L90A3:	.byte $F2, $06, $01, $0F, $94, $9D, $04, $26, $30
 L90AC:  .byte $8F, $80, $F1, $FD, $90, $00, $01, $3E, $F2, $1B, $00, $0F, $80, $20, $EC, $83
@@ -773,7 +782,7 @@ L90FC:  .byte $1A
 
 ;----------------------------------------------------------------------------------------------------
 
-;Glass Joe state machine data.
+;Glass Joe additonal state data.
 
 L90FD:  .byte $01, $02, $F2, $1B
 L9101:	.byte $00, $00, $F2, $06

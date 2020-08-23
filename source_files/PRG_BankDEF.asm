@@ -1712,6 +1712,7 @@ LAEA4:  RTS
 LAEA5:  LDA PPU0Load
 LAEA7:  ORA #$04
 LAEA9:  BNE $AE9F
+
 LAEAB:  STA $EF
 LAEAD:  LDA #$0F
 LAEAF:  STA $EE
@@ -1727,12 +1728,17 @@ LAEC2:  CMP $EE
 LAEC4:  BNE $AEC7
 LAEC6:  CLC
 LAEC7:  RTS
+
 LAEC8:  STA $EF
 LAECA:  LDA #$7F
 LAECC:  BNE $AEAF
 LAECE:  STA $EF
 LAED0:  LDA #$FF
 LAED2:  BNE $AEAF
+
+;----------------------------------------------------------------------------------------------------
+
+;This function is used to call a function indirectly from a function pointer table.
 
 IndFuncJump:
 LAED4:  STY DatIndexTemp        ;Save index to next data byte.
@@ -1756,6 +1762,8 @@ LAEE9:  STA IndJumpPtrLB        ;
 
 LAEEB:  LDY DatIndexTemp        ;Restore the data index.
 LAEEE:  JMP (_IndJumpPtr)       ;Indirect jump do desired function.
+
+;----------------------------------------------------------------------------------------------------
 
 LAEF1:  ROR $18
 LAEF3:  ROR $18
@@ -4410,8 +4418,10 @@ LC3F0:  CLC
 LC3F1:  LDA OppBaseYSprite
 LC3F3:  ADC #$01
 LC3F5:  STA OppBaseYSprite
-LC3F7:  LDA #$01
-LC3F9:  STA $A0
+
+LC3F7:  LDA #OPP_CHNG_POS
+LC3F9:  STA OppAnimFlags
+
 LC3FB:  LDA $DC
 LC3FD:  AND #$03
 LC3FF:  BEQ $C410
@@ -4420,8 +4430,10 @@ LC403:  BEQ $C40A
 LC405:  DEC OppBaseXSprite
 LC407:  JMP $C40C
 LC40A:  INC OppBaseXSprite
-LC40C:  LDA #$01
-LC40E:  STA $A0
+
+LC40C:  LDA #OPP_CHNG_POS
+LC40E:  STA OppAnimFlags
+
 LC410:  LDA $DF
 LC412:  BPL $C439
 LC414:  TAY
@@ -4429,7 +4441,7 @@ LC415:  LDA $DE
 LC417:  AND #$C0
 LC419:  BEQ $C439
 LC41B:  TAX
-LC41C:  LDA $A0
+LC41C:  LDA OppAnimFlags
 LC41E:  BMI $C439
 LC420:  TYA
 LC421:  AND #$01
@@ -4443,8 +4455,8 @@ LC42D:  CMP #$3C
 LC42F:  BCC $C433
 LC431:  LDA #$00
 LC433:  STA OppBaseAnimIndex
-LC435:  LDA #$80
-LC437:  STA $A0
+LC435:  LDA #OPP_CHNG_SPRT
+LC437:  STA OppAnimFlags
 LC439:  RTS
 
 LC43A:  LDA #$01
@@ -4556,8 +4568,10 @@ LC50E:  SEC
 LC50F:  SBC $04FF
 LC512:  SBC $04FF
 LC515:  STA OppBaseAnimIndex
-LC517:  LDA #$81
-LC519:  STA $A0
+
+LC517:  LDA #OPP_CHNG_BOTH
+LC519:  STA OppAnimFlags
+
 LC51B:  JSR $C890
 LC51E:  LDA $04FF
 LC521:  ASL
@@ -4579,7 +4593,8 @@ LC537:  LDA $AF
 LC539:  BEQ $C53E
 LC53B:  JSR $AA38
 LC53E:  LDA $9A
-LC540:  BEQ $C550
+LC540:  BEQ OppStateUpdate		;($C550)Advance to the opponent's next state.
+
 LC542:  DEC $9A
 LC544:  LDA $9B
 LC546:  STA OppStateTimer
@@ -4588,61 +4603,103 @@ LC54A:  LDY OppStateIndex
 LC54C:  JMP $C5D6
 LC54F:  RTS
 
-LC550:  LDY OppStateIndex
-LC552:  LDA (OppStBasePtr),Y
-LC554:  INC OppStateIndex
-LC556:  AND #$0F
-LC558:  TAX
-LC559:  LDA (OppStBasePtr),Y
-LC55B:  INY
+;----------------------------------------------------------------------------------------------------
+
+;This function is the entry point for updating the opponent's state.  It uses the upper nibble of
+;a control byte to pick a function to run from the table below.  The function it calls may then
+;call another set of functions with the lower nibble of the same control byte(or it may not).
+
+OppStateUpdate:
+LC550:  LDY OppStateIndex		;Get the control byte containing the function pointer index.
+LC552:  LDA (OppStBasePtr),Y	;
+
+LC554:  INC OppStateIndex		;Advance index to next state data byte.
+
+LC556:  AND #$0F				;Keep lower nibble for later.
+LC558:  TAX						;
+
+LC559:  LDA (OppStBasePtr),Y	;Get next data byte from the state data.
+LC55B:  INY						;
+
 LC55C:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC562:  .word $C58D, $C59B, $C5B3, $C5B7, $C5C8, $C5CE, $C5D4, $C5E6
-LC572:  .word $C5F9, $C600, $C61E, $C670, $C670, $C670, $C670, $C720
+LC562:  .word ChngOppSprites, SpritesNxtXYState, $C5B3, $C5B7
+LC56A:  .word $C5C8, $C5CE, $C5D4, $C5E6
+LC572:  .word $C5F9, $C600, $C61E, $C670
+LC57A:  .word $C670, $C670, $C670, $C720
 
-LC582:  LDY OppStateIndex
-LC584:  LDA (OppStBasePtr),Y
-LC586:  BNE $C58C
-LC588:  INC OppStateIndex
-LC58A:  BNE $C550
-LC58C:  RTS
+;----------------------------------------------------------------------------------------------------
 
-LC58D:  STX OppStateTimer
-LC58F:  LDA (OppStBasePtr),Y
-LC591:  STA OppBaseAnimIndex
-LC593:  LDA #$80
-LC595:  STA $A0
-LC597:  INC OppStateIndex
-LC599:  BNE $C582
+ZeroByteInc:
+LC582:  LDY OppStateIndex		;Get next opponent state data byte.
+LC584:  LDA (OppStBasePtr),Y	;Is it zero?
+LC586:  BNE ChngSpritesExit		;If not, branch to exit. Valid state data.
 
-LC59B:  STX OppStateTimer
-LC59D:  LDA (OppStBasePtr),Y
-LC59F:  INY
-LC5A0:  STA OppBaseAnimIndex
-LC5A2:  LDA #$80
-LC5A4:  STA $A0
-LC5A6:  LDA (OppStBasePtr),Y
-LC5A8:  INY
-LC5A9:  STA OppBaseXSprite
-LC5AB:  LDA (OppStBasePtr),Y
-LC5AD:  INY
-LC5AE:  STA OppBaseYSprite
-LC5B0:  STY OppStateIndex
-LC5B2:  RTS
+LC588:  INC OppStateIndex		;Increment past the zero byte.
+LC58A:  BNE OppStateUpdate		;($C550)Advance to the opponent's next state.
+
+ChngSpritesExit:
+LC58C:  RTS						;Done setting data to change opponent sprites.
+
+ChngOppSprites:
+LC58D:  STX OppStateTimer		;Store the number of frames for the next animation.
+
+LC58F:  LDA (OppStBasePtr),Y	;Get the index for the next animation frame data.
+LC591:  STA OppBaseAnimIndex	;
+
+LC593:  LDA #OPP_CHNG_SPRT		;Indicate the opponent's sprites need to be changed.
+LC595:  STA OppAnimFlags		;
+
+LC597:  INC OppStateIndex		;Increment to next opponent state data byte.
+LC599:  BNE ZeroByteInc			;Should always branch.
+
+;----------------------------------------------------------------------------------------------------
+
+;This function is similar to the one above but it also provides new X and Y coordinates for the
+;opponents new sprites.
+
+SpritesNxtXYState:
+LC59B:  STX OppStateTimer		;Store the number of frames for the next animation.
+
+LC59D:  LDA (OppStBasePtr),Y	;
+LC59F:  INY						;Get the index for the next animation frame data.
+LC5A0:  STA OppBaseAnimIndex	;
+
+LC5A2:  LDA #OPP_CHNG_SPRT		;Indicate the opponent's sprites need to be changed.
+LC5A4:  STA OppAnimFlags		;
+
+OppXYPos:
+LC5A6:  LDA (OppStBasePtr),Y	;
+LC5A8:  INY						;Get the data byte for the opponent's new X position.
+LC5A9:  STA OppBaseXSprite		;
+
+LC5AB:  LDA (OppStBasePtr),Y	;
+LC5AD:  INY						;Get the data byte for the opponent's new Y position.
+LC5AE:  STA OppBaseYSprite		;
+
+LC5B0:  STY OppStateIndex		;Update the index to the next state data byte.
+LC5B2:  RTS						;
+
+;----------------------------------------------------------------------------------------------------
 
 LC5B3:  STX OppStateTimer
-LC5B5:  BNE $C5A6
+LC5B5:  BNE OppXYPos
+
 LC5B7:  TXA
 LC5B8:  JSR $AEAB
 LC5BB:  BCC $C5C5
+
 LC5BD:  LDA (OppStBasePtr),Y
 LC5BF:  TAY
+
 LC5C0:  STY OppStateIndex
-LC5C2:  JMP $C550
+LC5C2:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
 
 LC5C5:  INY
 LC5C6:  BNE $C5C0
+
+;----------------------------------------------------------------------------------------------------
 
 LC5C8:  LDA #$01
 LC5CA:  STA $A2
@@ -4655,9 +4712,11 @@ LC5D6:  LDA (OppStBasePtr),Y
 LC5D8:  INC OppStateIndex
 LC5DA:  LDX #$B0
 LC5DC:  JSR $C830
-LC5DF:  LDA #$01
-LC5E1:  STA $A0
-LC5E3:  JMP $C582
+
+LC5DF:  LDA #OPP_CHNG_POS
+LC5E1:  STA OppAnimFlags
+
+LC5E3:  JMP ZeroByteInc			;($C582)Increment past zero data byte.
 LC5E6:  TXA
 LC5E7:  AND #$03
 LC5E9:  CLC
@@ -4692,7 +4751,8 @@ LC613:  INC $E1
 LC615:  DEC $E0
 LC617:  BNE $C60E
 LC619:  STY OppStateIndex
-LC61B:  JMP $C550
+LC61B:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+
 LC61E:  STX OppStateTimer
 LC620:  LDX #$00
 LC622:  LDA OppBaseSprite,X
@@ -4740,8 +4800,10 @@ LC66F:  RTS
 LC670:  TXA
 LC671:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC674:  .word $C68E, $C6AA, $0000, $0000, $C6BD, $C6C3, $C6CA, $C6D7
-LC684:  .word $C6DF, $C6EA, $0000, $0000, $C70C
+LC674:  .word $C68E, $C6AA, $0000, $0000
+LC67C:	.word $C6BD, $C6C3, $C6CA, $C6D7
+LC684:  .word $C6DF, $C6EA, $0000, $0000
+LC68C:	.word $C70C
 
 LC68E:  LDA OppStBasePtrLB
 LC690:  STA $9E
@@ -4757,7 +4819,7 @@ LC69F:  STA OppStBasePtrUB
 LC6A1:  STX OppStBasePtrLB
 LC6A3:  LDY #$00
 LC6A5:  STY OppStateIndex
-LC6A7:  JMP $C550
+LC6A7:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
 
 LC6AA:  LDA $9E
 LC6AC:  STA OppStBasePtrLB
@@ -4767,19 +4829,22 @@ LC6B2:  LDY $9D
 LC6B4:  STY OppStateIndex
 LC6B6:  LDA #$00
 LC6B8:  STA $9F
-LC6BA:  JMP $C550
+LC6BA:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+
 LC6BD:  LDA $0581
 LC6C0:  STA OppStateTimer
 LC6C2:  RTS
 LC6C3:  LDA #$00
 LC6C5:  STA OppPunching
-LC6C7:  JMP $C550
+LC6C7:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+
 LC6CA:  LDA PPU0Load
 LC6CC:  AND #$DF
 LC6CE:  LDX #$08
 LC6D0:  STA PPU0Load
 LC6D2:  STX $80
-LC6D4:  JMP $C550
+LC6D4:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+
 LC6D7:  LDA PPU0Load
 LC6D9:  ORA #$20
 LC6DB:  LDX #$10
@@ -4817,13 +4882,15 @@ LC717:  BMI $C71B
 LC719:  LSR
 LC71A:  LSR
 LC71B:  STA $F0,X
-LC71D:  JMP $C550
+LC71D:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
 
 LC720:  TXA
 LC721:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC724:  .word $C744, $C770, $C784, $C7A7, $C7B6, $C7BB, $C7C2, $C7D1
-LC734:  .word $C7E1, $C7EA, $C7F1, $C806, $C80C, $C816, $C81D, $C821
+LC724:  .word $C744, $C770, ChkMemAndBranch, $C7A7
+LC72C:  .word $C7B6, $C7BB, $C7C2, OppDefInline
+LC734:  .word $C7E1, $C7EA, $C7F1, $C806
+LC73C:  .word $C80C, $C816, $C81D, $C821
 
 LC744:  LDX $98
 LC746:  BMI $C74E
@@ -4846,7 +4913,8 @@ LC760:  TAY
 LC761:  LDA #$00
 LC763:  STA $98
 LC765:  STY OppStateIndex
-LC767:  JMP $C550
+LC767:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+
 LC76A:  TYA
 LC76B:  CLC
 LC76C:  ADC #$03
@@ -4866,6 +4934,11 @@ LC782:  BNE $C765
 
 ;----------------------------------------------------------------------------------------------------
 
+;This function will check for a specific value in a memory address. If the value is not equal
+;to a given value, it will continue on in a linear fashin in the state. If the value is equal
+;to a given value, the state will jump to a new index given by the proceeding data byte.
+
+ChkMemAndBranch:
 LC784:  LDA (OppStBasePtr),Y
 LC786:  INY
 LC787:  STA $E0
@@ -4883,11 +4956,13 @@ LC79A:  LDA (OppStBasePtr),Y
 LC79C:  TAY
 
 LC79D:  STY OppStateIndex
-LC79F:  JMP $C550
+LC79F:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
 
 LC7A2:  LDY OppStateIndex
 LC7A4:  INY
 LC7A5:  BNE $C79D
+
+;----------------------------------------------------------------------------------------------------
 
 LC7A7:  DEC OppStRepeatCntr
 LC7A9:  BEQ $C7B3
@@ -4896,7 +4971,7 @@ LC7AB:  LDA (OppStBasePtr),Y
 LC7AD:  TAY
 
 LC7AE:  STY OppStateIndex
-LC7B0:  JMP $C550
+LC7B0:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
 
 LC7B3:  INY
 LC7B4:  BNE $C7AE
@@ -4919,18 +4994,30 @@ LC7C7:  LDA (OppStBasePtr),Y
 LC7C9:  INY
 LC7CA:  STA OppPunchDamage
 
-LC7CC:  STY OppStateIndex
-LC7CE:  JMP $C582
+UpdateStateIndex1:
+LC7CC:  STY OppStateIndex		;Update index to opponent state data.
+LC7CE:  JMP ZeroByteInc			;($C582)Increment past zero data byte.
 
-LC7D1:  LDY OppStateIndex
-LC7D3:  LDX #$00
-LC7D5:  LDA (OppStBasePtr),Y
-LC7D7:  INY
-LC7D8:  STA OppHitDefense,X
-LC7DA:  INX
-LC7DB:  CPX #$04
-LC7DD:  BNE $C7D5
-LC7DF:  BEQ $C7CC
+;----------------------------------------------------------------------------------------------------
+
+;Load the opponent's defense values from data that is inline with the state data.
+
+OppDefInline:
+LC7D1:  LDY OppStateIndex		;Set indexes for data copy.
+LC7D3:  LDX #$00				;
+
+DefLoadLoop1:
+LC7D5:  LDA (OppStBasePtr),Y	;
+LC7D7:  INY						;Get defense data from state data and load it onto opponents stats.
+LC7D8:  STA OppHitDefense,X		;
+LC7DA:  INX						;
+
+LC7DB:  CPX #$04				;Have all 4 defense data bytes been loaded?
+LC7DD:  BNE DefLoadLoop1		;If not, branch to load another.
+
+LC7DF:  BEQ UpdateStateIndex1	;Increment past a trailing zero byte.
+
+;----------------------------------------------------------------------------------------------------
 
 LC7E1:  INC $53
 LC7E3:  INC $53
@@ -4938,9 +5025,13 @@ LC7E5:  LDA #$01
 LC7E7:  STA $52
 LC7E9:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 LC7EA:  LDA #$01
 LC7EC:  STA OppPunching
-LC7EE:  JMP $C550
+LC7EE:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+
+;----------------------------------------------------------------------------------------------------
 
 LC7F1:  LDA #$00
 LC7F3:  STA $E1
@@ -4952,7 +5043,9 @@ LC7FC:  INY
 LC7FD:  STY OppStateIndex
 LC7FF:  LDY #$00
 LC801:  STA ($E0),Y
-LC803:  JMP $C582
+LC803:  JMP ZeroByteInc			;($C582)Increment past zero data byte.
+
+;----------------------------------------------------------------------------------------------------
 
 LC806:  LDA $0585
 LC809:  STA ComboTimer
@@ -4960,7 +5053,8 @@ LC80B:  RTS
 
 LC80C:  LDA ComboTimer
 LC80E:  BNE $C813
-LC810:  JMP $C550
+LC810:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+
 LC813:  JMP $C74E
 LC816:  LDA (OppStBasePtr),Y
 LC818:  STA $5A
@@ -4978,8 +5072,10 @@ LC828:  .byte $00, $00, $08, $08, $08, $08, $00, $00
 LC830:  STA $E0
 LC832:  JSR $C844
 LC835:  JSR $C83E
+
 LC838:  LDA $E0
 LC83A:  JSR $C847
+
 LC83D:  INX
 LC83E:  CLC
 LC83F:  ADC $00,X
@@ -5021,7 +5117,8 @@ LC888:  JMP $C88B
 LC88B:  LDA #$01
 LC88D:  STA $17
 LC88F:  RTS
-LC890:  LDA $A0
+
+LC890:  LDA OppAnimFlags
 LC892:  BEQ $C88F
 LC894:  TAX
 LC895:  LDA #$50
@@ -5031,8 +5128,10 @@ LC89B:  LDA $8000,Y
 LC89E:  STA $E0
 LC8A0:  LDA $8001,Y
 LC8A3:  STA $E1
-LC8A5:  LDY #$00
-LC8A7:  STY $A0
+
+LC8A5:  LDY #OPP_CHNG_NONE
+LC8A7:  STY OppAnimFlags
+
 LC8A9:  TXA
 LC8AA:  BMI $C8AF
 LC8AC:  JMP $C925

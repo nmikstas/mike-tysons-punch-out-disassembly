@@ -43,6 +43,7 @@
 .alias OppStRepeatCntr	$96		;Counter used to repeat the opponent's current state.
 .alias OppPunching      $97     ;#$00=Opponent not punching, #$01=Opponent punching.
 
+.alias OppAnimFlags		$A0		;MSB set=Change opponent sprites, LSB set=Move opponent on screen.
 .alias OppBaseAnimIndex $A1     ;Base animation index for opponent sprites.
 
 .alias OppBaseSprite    $B0     ;Base address for opponent sprite X,Y positions.
@@ -401,8 +402,9 @@
 ;Opponent state functions.
 .alias ST_SPRITES       $10     ;Load sprite data for current opponent sub-state.
 .alias ST_TIMER         $80     ;Number of frames for sub-state to wait.
-.alias ST_DEFENSE       $E0     ;Load opponent's defense values against Little Mac's punches.
+.alias ST_DEFENSE       $E0     ;Load opponent's defense from an address pointer.
 .alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
+.alias ST_DEF_INLINE	$F7		;Load Opponent's defense with data from within state data.
 .alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
 
 ;Controller bits.
@@ -418,6 +420,13 @@
 ;Nibble selection bit masks.
 .alias LO_NIBBLE        $0F     ;Bitmask for lower nibble.
 .alias HI_NIBBLE        $F0     ;Bitmask for upper nibble.
+
+;Opponent sprite flags
+.alias OPP_CHNG_NONE	$00		;Done changing opponent sprites.
+.alias OPP_CHNG_POS		$01		;Move opponent's sprites on the screen.
+.alias OPP_CHNG_SPRT	$80		;Change opponent's sprites(Next animation sequence). 
+.alias OPP_CHNG_BOTH	$81		;Change both position and sprites.
+
 
 ;Misc. items.
 .alias SND_OFF          $80     ;Silences sound channel.
