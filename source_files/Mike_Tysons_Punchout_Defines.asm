@@ -3,14 +3,18 @@
 .alias GenByteE0        $E0     ;General purpose byte.
 .alias GenByteE1        $E1     ;General purpose byte.
 
+.alias GenPtrE0         $E0     ;General use pointer.
+.alias GenPtrE0LB       $E0     ;General use pointer, lower byte.
+.alias GenPtrE0UB       $E1     ;General use pointer, upper byte.
+
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
 
-.alias SprtBkgUpdt		$1B		;MSB set=update sprite/background enable/disable.
-								;#$80=Disable sprites and background.
-								;#$81=Enable sprites and background.
+.alias SprtBkgUpdt      $1B     ;MSB set=update sprite/background enable/disable.
+                                ;#$80=Disable sprites and background.
+                                ;#$81=Enable sprites and background.
 .alias GameEngStatus    $1C     ;0=Main game engine running, non-zero=Main game engine not running.
 .alias GameStatus       $1D     ;Enables/disables portions of the game.
                                 ;#$00 - Main game engine running.
@@ -34,16 +38,19 @@
                                 ;#$03=Left punch to stomach.
                                 ;#$80=Super punch.
 .alias MacPunchDamage   $75     ;The amount of damage Little Mac's puch will do to opponent.
+.alias MacDefense1      $76     ;Little Mac's defense. there are 2 values but they are always -->
+.alias MacDefense2      $77     ;written to the same value. Maybe there was plans for a left and -->
+                                ;right defense? #$FF=Dodge, #$08=Block, #$80=Duck.
  
 .alias OppStateTimer    $92     ;Timer for opponents current state.
 .alias OppStateIndex    $93     ;Index to opponent current state data.
 .alias OppStBasePtr     $94     ;Pase pointer to opponent's current state data.
 .alias OppStBasePtrLB   $94     ;Pase pointer to opponent's current state data, lower byte.
 .alias OppStBasePtrUB   $95     ;Pase pointer to opponent's current state data, upper byte.
-.alias OppStRepeatCntr	$96		;Counter used to repeat the opponent's current state.
+.alias OppStRepeatCntr  $96     ;Counter used to repeat the opponent's current state.
 .alias OppPunching      $97     ;#$00=Opponent not punching, #$01=Opponent punching.
 
-.alias OppAnimFlags		$A0		;MSB set=Change opponent sprites, LSB set=Move opponent on screen.
+.alias OppAnimFlags     $A0     ;MSB set=Change opponent sprites, LSB set=Move opponent on screen.
 .alias OppBaseAnimIndex $A1     ;Base animation index for opponent sprites.
 
 .alias OppBaseSprite    $B0     ;Base address for opponent sprite X,Y positions.
@@ -56,6 +63,15 @@
 .alias OppHitDefenseUL  $B7     ;Amount to subtract from Little Mac left punch to face damage.
 .alias OppHitDefenseLR  $B8     ;Amount to subtract from Little Mac right punch to stomach damage.
 .alias OppHitDefenseLL  $B9     ;Amount to subtract from Little Mac left punch to stomach damage.
+
+.alias GameStatusBB     $BB     ;Various game statuses.
+                                ;#$01=Referee moving on screen.
+                                ;#$02=Opponent throwing right hook.
+                                ;#$03=Opponent getting up.
+                                ;#$04=Opponent walking to Little Mac after knowck down.
+                                ;#$80=Little Mac falling down.
+                                ;#$FD=Freeze fight.
+                                ;#$FF=Opponent victory dance.
 
 .alias OppLastPunchSts  $BD     ;Last punch status of opponent.
                                 ;#$00=No last status.
@@ -379,6 +395,9 @@
 .alias MUS_MAC_DOWN     $1E     ;Little Mac on the mat music.
 .alias MUS_FIGHT        $1F     ;Main fight music.
 
+;Game status.
+.alias ST_REF_MOVING    $01     ;Indicates ref is moving on the screen.
+
 ;Little Mac status.
 .alias MAC_NO_FIGHT     $00     ;Fight not running.
 .alias MAC_WAITING      $01     ;Normal. Waiting for player input.
@@ -404,7 +423,7 @@
 .alias ST_TIMER         $80     ;Number of frames for sub-state to wait.
 .alias ST_DEFENSE       $E0     ;Load opponent's defense from an address pointer.
 .alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
-.alias ST_DEF_INLINE	$F7		;Load Opponent's defense with data from within state data.
+.alias ST_DEF_INLINE    $F7     ;Load Opponent's defense with data from within state data.
 .alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
 
 ;Controller bits.
@@ -422,15 +441,14 @@
 .alias HI_NIBBLE        $F0     ;Bitmask for upper nibble.
 
 ;Opponent sprite flags
-.alias OPP_CHNG_NONE	$00		;Done changing opponent sprites.
-.alias OPP_CHNG_POS		$01		;Move opponent's sprites on the screen.
-.alias OPP_CHNG_SPRT	$80		;Change opponent's sprites(Next animation sequence). 
-.alias OPP_CHNG_BOTH	$81		;Change both position and sprites.
-
+.alias OPP_CHNG_NONE    $00     ;Done changing opponent sprites.
+.alias OPP_CHNG_POS     $01     ;Move opponent's sprites on the screen.
+.alias OPP_CHNG_SPRT    $80     ;Change opponent's sprites(Next animation sequence). 
+.alias OPP_CHNG_BOTH    $81     ;Change both position and sprites.
 
 ;Misc. items.
 .alias SND_OFF          $80     ;Silences sound channel.
 .alias PPU_LEFT_EN      $06     ;Enable both left background column and left sprite column.
 .alias GAME_ENG_RUN     $00     ;Enables the main game engine.
-.alias SPRT_BKG_OFF		$80		;Disable sprites and background.
-.alias SPRT_BKG_ON		$81		;Enable sprites and background.
+.alias SPRT_BKG_OFF     $80     ;Disable sprites and background.
+.alias SPRT_BKG_ON      $81     ;Enable sprites and background.

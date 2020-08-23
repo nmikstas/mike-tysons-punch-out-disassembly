@@ -300,8 +300,8 @@ LA2CD:  STA $F0
 LA2CF:  STA $F1
 LA2D1:  STA $F3
 
-LA2D3:  LDA #SPRT_BKG_OFF		;Disable sprites and background.
-LA2D5:  STA SprtBkgUpdt			;
+LA2D3:  LDA #SPRT_BKG_OFF       ;Disable sprites and background.
+LA2D5:  STA SprtBkgUpdt         ;
 
 LA2D7:  JSR $AF02
 LA2DA:  JSR $B6CB
@@ -312,8 +312,8 @@ LA2E4:  STX $04C0
 LA2E7:  STX $04C1
 LA2EA:  JSR $AE9B
 
-LA2ED:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LA2EF:  STA SprtBkgUpdt			;
+LA2ED:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LA2EF:  STA SprtBkgUpdt         ;
 
 LA2F1:  LDA #$FF
 LA2F3:  STA GameStatus
@@ -532,8 +532,8 @@ LA4CB:  RTS
 LA4CC:  JSR $B70B
 LA4CF:  JSR $AEA5
 
-LA4D2:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LA4D4:  STA SprtBkgUpdt			;
+LA4D2:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LA4D4:  STA SprtBkgUpdt         ;
 
 LA4D6:  LDA #$FF
 LA4D8:  STA GameStatus
@@ -563,8 +563,8 @@ LA50C:  LDA PPU1Load            ;
 LA50E:  ORA #PPU_LEFT_EN        ;Enable background and sprites in left column.
 LA510:  STA PPU1Load            ;
 
-LA512:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LA514:  STA SprtBkgUpdt			;
+LA512:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LA514:  STA SprtBkgUpdt         ;
 
 LA516:  LDA #$FF
 LA518:  STA GameStatus
@@ -620,8 +620,8 @@ LA581:  BNE $A57A
 LA583:  LDA #$02
 LA585:  JSR $AF04
 
-LA588:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LA58A:  STA SprtBkgUpdt			;
+LA588:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LA58A:  STA SprtBkgUpdt         ;
 
 LA58C:  LDA #$01
 LA58E:  STA $22
@@ -698,7 +698,7 @@ LA632:  JMP $A63E
 LA635:  JSR $C0BB
 LA638:  JMP $A63E
 LA63B:  JSR $C0E0
-LA63E:  JSR ChkEnDisSprtBkg		;($AF73)Enable/disable sprites and background.
+LA63E:  JSR ChkEnDisSprtBkg     ;($AF73)Enable/disable sprites and background.
 LA641:  JSR $A9DF
 LA644:  INC FrameCounter
 LA646:  LDA TransTimer
@@ -796,7 +796,7 @@ LA6EE:  LDX #$02
 LA6F0:  STX SPRDMAReg
 LA6F3:  NOP
 LA6F4:  NOP
-LA6F5:  JSR ChkEnDisSprtBkg		;($AF73)Enable/disable sprites and background.
+LA6F5:  JSR ChkEnDisSprtBkg     ;($AF73)Enable/disable sprites and background.
 LA6F8:  INC FrameCounter
 LA6FA:  LDA TransTimer
 LA6FC:  BEQ $A700
@@ -975,8 +975,8 @@ LA86B:  LDA PPU1Load            ;
 LA86D:  ORA #PPU_LEFT_EN        ;Enable background and sprites in left column.
 LA86F:  STA PPU1Load            ;
 
-LA871:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LA873:  STA SprtBkgUpdt			;
+LA871:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LA873:  STA SprtBkgUpdt         ;
 
 LA875:  JSR $AF02
 LA878:  JSR $AEA5
@@ -1034,8 +1034,8 @@ LA8F4:  BNE $A8ED
 LA8F6:  LDA #$02
 LA8F8:  JSR $AF04
 
-LA8FB:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LA8FD:  STA SprtBkgUpdt			;
+LA8FB:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LA8FD:  STA SprtBkgUpdt         ;
 
 LA8FF:  LDA #$01
 LA901:  LDY $06
@@ -1436,8 +1436,8 @@ LAC35:  STA $38
 LAC37:  RTS
 LAC38:  JSR $B88A
 
-LAC3B:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LAC3D:  STA SprtBkgUpdt			;
+LAC3B:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LAC3D:  STA SprtBkgUpdt         ;
 
 LAC3F:  LDA #$FF
 LAC41:  STA GameStatus
@@ -1453,8 +1453,8 @@ LAC55:  JSR $AF04
 LAC58:  JMP $BF7E
 LAC5B:  JSR $B8C1
 
-LAC5E:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LAC60:  STA SprtBkgUpdt			;
+LAC5E:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LAC60:  STA SprtBkgUpdt         ;
 
 LAC62:  LDA #$FF
 LAC64:  STA GameStatus
@@ -1467,8 +1467,8 @@ LAC75:  JSR $802A
 LAC78:  JSR $802D
 LAC7B:  JSR $B8FF
 
-LAC7E:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LAC80:  STA SprtBkgUpdt			;
+LAC7E:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LAC80:  STA SprtBkgUpdt         ;
 
 LAC82:  LDA #$FF
 LAC84:  STA GameStatus
@@ -1493,8 +1493,8 @@ LACAE:  JMP $AE84
 LACB1:  STA $03D3
 LACB4:  JSR $B957
 
-LACB7:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LACB9:  STA SprtBkgUpdt			;
+LACB7:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LACB9:  STA SprtBkgUpdt         ;
 
 LACBB:  LDA #$FF
 LACBD:  STA GameStatus
@@ -1535,8 +1535,8 @@ LAD0C:  JMP $AE84
 LAD0F:  JSR $BA74
 LAD12:  JSR $AEA5
 
-LAD15:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LAD17:  STA SprtBkgUpdt			;
+LAD15:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LAD17:  STA SprtBkgUpdt         ;
 
 LAD19:  LDA #$FF
 LAD1B:  STA GameStatus
@@ -1601,8 +1601,8 @@ LADA3:  BNE $AD9D
 LADA5:  LDA #$08
 LADA7:  JSR $AF04
 
-LADAA:  LDA #SPRT_BKG_OFF		;Disable sprites and background.
-LADAC:  STA SprtBkgUpdt			;
+LADAA:  LDA #SPRT_BKG_OFF       ;Disable sprites and background.
+LADAC:  STA SprtBkgUpdt         ;
 
 LADAE:  LDA #$08
 LADB0:  JSR $AF04
@@ -1829,28 +1829,28 @@ LAF72:  RTS
 ;----------------------------------------------------------------------------------------------------
 
 ChkEnDisSprtBkg:
-LAF73:  LDA SprtBkgUpdt			;Does the sprites and background state need to be updated?
-LAF75:  BPL SprtBkgUpdEnd		;If not, branch to exit.
+LAF73:  LDA SprtBkgUpdt         ;Does the sprites and background state need to be updated?
+LAF75:  BPL SprtBkgUpdEnd       ;If not, branch to exit.
 
-LAF77:  AND #$01				;Get enable/disable bit.
-LAF79:  STA SprtBkgUpdt			;Does sprites/background need to be disabled?
-LAF7B:  BEQ SprtBkgOff			;If so, branch.
+LAF77:  AND #$01                ;Get enable/disable bit.
+LAF79:  STA SprtBkgUpdt         ;Does sprites/background need to be disabled?
+LAF7B:  BEQ SprtBkgOff          ;If so, branch.
 
 SprtBkgOn:
-LAF7D:  LDA PPU1Load			;Enable sprites and background.
-LAF7F:  ORA #$18				;
-LAF81:  BNE UpdatePPUCntrl1		;Branch always.
+LAF7D:  LDA PPU1Load            ;Enable sprites and background.
+LAF7F:  ORA #$18                ;
+LAF81:  BNE UpdatePPUCntrl1     ;Branch always.
 
 SprtBkgOff:
-LAF83:  LDA PPU1Load			;Disable sprites and background.
-LAF85:  AND #$E7				;
+LAF83:  LDA PPU1Load            ;Disable sprites and background.
+LAF85:  AND #$E7                ;
 
 UpdatePPUCntrl1:
-LAF87:  STA PPU1Load			;Update sprites/background state.
-LAF89:  STA PPUControl1			;
+LAF87:  STA PPU1Load            ;Update sprites/background state.
+LAF89:  STA PPUControl1         ;
 
 SprtBkgUpdEnd:
-LAF8C:  RTS						;End updating the sprites and background visibility.
+LAF8C:  RTS                     ;End updating the sprites and background visibility.
 
 ;--------------------------------------[ Controller Functions ]--------------------------------------
 
@@ -2917,8 +2917,8 @@ LB778:  JSR $AA54
 LB77B:  JSR $805A
 LB77E:  JSR $AA64
 
-LB781:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LB783:  STA SprtBkgUpdt			;
+LB781:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LB783:  STA SprtBkgUpdt         ;
 
 LB785:  LDA #$FF
 LB787:  STA GameStatus
@@ -2957,8 +2957,8 @@ LB7D5:  LDX #$04
 LB7D7:  JSR $BF21
 LB7DA:  JSR $BCBE
 
-LB7DD:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LB7DF:  STA SprtBkgUpdt			;
+LB7DD:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LB7DF:  STA SprtBkgUpdt         ;
 
 LB7E1:  LDA #$FF
 LB7E3:  STA GameStatus
@@ -3008,8 +3008,8 @@ LB846:  LDY #$B4
 LB848:  JSR $BE96
 LB84B:  JSR $AEA5
 
-LB84E:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LB850:  STA SprtBkgUpdt			;
+LB84E:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LB850:  STA SprtBkgUpdt         ;
 
 LB852:  LDA #$FF
 LB854:  STA GameStatus
@@ -3599,8 +3599,8 @@ LBD72:  DEX
 LBD73:  BNE $BD6F
 LBD75:  JSR $AEA5
 
-LBD78:  LDA #SPRT_BKG_ON		;Enable sprites and background.
-LBD7A:  STA SprtBkgUpdt			;
+LBD78:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
+LBD7A:  STA SprtBkgUpdt         ;
 
 LBD7C:  LDA #$FF
 LBD7E:  STA GameStatus
@@ -3863,8 +3863,8 @@ LBF89:  BNE $BF83
 LBF8B:  LDA #$08
 LBF8D:  JSR $AF04
 
-LBF90:  LDA #SPRT_BKG_OFF		;Disable sprites and background.
-LBF92:  STA SprtBkgUpdt			;
+LBF90:  LDA #SPRT_BKG_OFF       ;Disable sprites and background.
+LBF92:  STA SprtBkgUpdt         ;
 
 LBF94:  LDA #$08
 LBF96:  JMP $AF04
@@ -4593,7 +4593,7 @@ LC537:  LDA $AF
 LC539:  BEQ $C53E
 LC53B:  JSR $AA38
 LC53E:  LDA $9A
-LC540:  BEQ OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC540:  BEQ OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC542:  DEC $9A
 LC544:  LDA $9B
@@ -4610,16 +4610,16 @@ LC54F:  RTS
 ;call another set of functions with the lower nibble of the same control byte(or it may not).
 
 OppStateUpdate:
-LC550:  LDY OppStateIndex		;Get the control byte containing the function pointer index.
-LC552:  LDA (OppStBasePtr),Y	;
+LC550:  LDY OppStateIndex       ;Get the control byte containing the function pointer index.
+LC552:  LDA (OppStBasePtr),Y    ;
 
-LC554:  INC OppStateIndex		;Advance index to next state data byte.
+LC554:  INC OppStateIndex       ;Advance index to next state data byte.
 
-LC556:  AND #$0F				;Keep lower nibble for later.
-LC558:  TAX						;
+LC556:  AND #$0F                ;Keep lower nibble for later.
+LC558:  TAX                     ;
 
-LC559:  LDA (OppStBasePtr),Y	;Get next data byte from the state data.
-LC55B:  INY						;
+LC559:  LDA (OppStBasePtr),Y    ;Get next data byte from the state data.
+LC55B:  INY                     ;
 
 LC55C:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
@@ -4632,27 +4632,27 @@ LC57A:  .word $C670, $C670, $C670, $C720
 ;----------------------------------------------------------------------------------------------------
 
 ZeroByteInc:
-LC582:  LDY OppStateIndex		;Get next opponent state data byte.
-LC584:  LDA (OppStBasePtr),Y	;Is it zero?
-LC586:  BNE ChngSpritesExit		;If not, branch to exit. Valid state data.
+LC582:  LDY OppStateIndex       ;Get next opponent state data byte.
+LC584:  LDA (OppStBasePtr),Y    ;Is it zero?
+LC586:  BNE ChngSpritesExit     ;If not, branch to exit. Valid state data.
 
-LC588:  INC OppStateIndex		;Increment past the zero byte.
-LC58A:  BNE OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC588:  INC OppStateIndex       ;Increment past the zero byte.
+LC58A:  BNE OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ChngSpritesExit:
-LC58C:  RTS						;Done setting data to change opponent sprites.
+LC58C:  RTS                     ;Done setting data to change opponent sprites.
 
 ChngOppSprites:
-LC58D:  STX OppStateTimer		;Store the number of frames for the next animation.
+LC58D:  STX OppStateTimer       ;Store the number of frames for the next animation.
 
-LC58F:  LDA (OppStBasePtr),Y	;Get the index for the next animation frame data.
-LC591:  STA OppBaseAnimIndex	;
+LC58F:  LDA (OppStBasePtr),Y    ;Get the index for the next animation frame data.
+LC591:  STA OppBaseAnimIndex    ;
 
-LC593:  LDA #OPP_CHNG_SPRT		;Indicate the opponent's sprites need to be changed.
-LC595:  STA OppAnimFlags		;
+LC593:  LDA #OPP_CHNG_SPRT      ;Indicate the opponent's sprites need to be changed.
+LC595:  STA OppAnimFlags        ;
 
-LC597:  INC OppStateIndex		;Increment to next opponent state data byte.
-LC599:  BNE ZeroByteInc			;Should always branch.
+LC597:  INC OppStateIndex       ;Increment to next opponent state data byte.
+LC599:  BNE ZeroByteInc         ;Should always branch.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4660,26 +4660,26 @@ LC599:  BNE ZeroByteInc			;Should always branch.
 ;opponents new sprites.
 
 SpritesNxtXYState:
-LC59B:  STX OppStateTimer		;Store the number of frames for the next animation.
+LC59B:  STX OppStateTimer       ;Store the number of frames for the next animation.
 
-LC59D:  LDA (OppStBasePtr),Y	;
-LC59F:  INY						;Get the index for the next animation frame data.
-LC5A0:  STA OppBaseAnimIndex	;
+LC59D:  LDA (OppStBasePtr),Y    ;
+LC59F:  INY                     ;Get the index for the next animation frame data.
+LC5A0:  STA OppBaseAnimIndex    ;
 
-LC5A2:  LDA #OPP_CHNG_SPRT		;Indicate the opponent's sprites need to be changed.
-LC5A4:  STA OppAnimFlags		;
+LC5A2:  LDA #OPP_CHNG_SPRT      ;Indicate the opponent's sprites need to be changed.
+LC5A4:  STA OppAnimFlags        ;
 
 OppXYPos:
-LC5A6:  LDA (OppStBasePtr),Y	;
-LC5A8:  INY						;Get the data byte for the opponent's new X position.
-LC5A9:  STA OppBaseXSprite		;
+LC5A6:  LDA (OppStBasePtr),Y    ;
+LC5A8:  INY                     ;Get the data byte for the opponent's new X position.
+LC5A9:  STA OppBaseXSprite      ;
 
-LC5AB:  LDA (OppStBasePtr),Y	;
-LC5AD:  INY						;Get the data byte for the opponent's new Y position.
-LC5AE:  STA OppBaseYSprite		;
+LC5AB:  LDA (OppStBasePtr),Y    ;
+LC5AD:  INY                     ;Get the data byte for the opponent's new Y position.
+LC5AE:  STA OppBaseYSprite      ;
 
-LC5B0:  STY OppStateIndex		;Update the index to the next state data byte.
-LC5B2:  RTS						;
+LC5B0:  STY OppStateIndex       ;Update the index to the next state data byte.
+LC5B2:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4694,7 +4694,7 @@ LC5BD:  LDA (OppStBasePtr),Y
 LC5BF:  TAY
 
 LC5C0:  STY OppStateIndex
-LC5C2:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC5C2:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC5C5:  INY
 LC5C6:  BNE $C5C0
@@ -4716,7 +4716,7 @@ LC5DC:  JSR $C830
 LC5DF:  LDA #OPP_CHNG_POS
 LC5E1:  STA OppAnimFlags
 
-LC5E3:  JMP ZeroByteInc			;($C582)Increment past zero data byte.
+LC5E3:  JMP ZeroByteInc         ;($C582)Increment past zero data byte.
 LC5E6:  TXA
 LC5E7:  AND #$03
 LC5E9:  CLC
@@ -4751,7 +4751,7 @@ LC613:  INC $E1
 LC615:  DEC $E0
 LC617:  BNE $C60E
 LC619:  STY OppStateIndex
-LC61B:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC61B:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC61E:  STX OppStateTimer
 LC620:  LDX #$00
@@ -4801,9 +4801,9 @@ LC670:  TXA
 LC671:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC674:  .word $C68E, $C6AA, $0000, $0000
-LC67C:	.word $C6BD, $C6C3, $C6CA, $C6D7
+LC67C:  .word $C6BD, $C6C3, $C6CA, $C6D7
 LC684:  .word $C6DF, $C6EA, $0000, $0000
-LC68C:	.word $C70C
+LC68C:  .word $C70C
 
 LC68E:  LDA OppStBasePtrLB
 LC690:  STA $9E
@@ -4819,7 +4819,7 @@ LC69F:  STA OppStBasePtrUB
 LC6A1:  STX OppStBasePtrLB
 LC6A3:  LDY #$00
 LC6A5:  STY OppStateIndex
-LC6A7:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC6A7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC6AA:  LDA $9E
 LC6AC:  STA OppStBasePtrLB
@@ -4829,21 +4829,21 @@ LC6B2:  LDY $9D
 LC6B4:  STY OppStateIndex
 LC6B6:  LDA #$00
 LC6B8:  STA $9F
-LC6BA:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC6BA:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC6BD:  LDA $0581
 LC6C0:  STA OppStateTimer
 LC6C2:  RTS
 LC6C3:  LDA #$00
 LC6C5:  STA OppPunching
-LC6C7:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC6C7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC6CA:  LDA PPU0Load
 LC6CC:  AND #$DF
 LC6CE:  LDX #$08
 LC6D0:  STA PPU0Load
 LC6D2:  STX $80
-LC6D4:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC6D4:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC6D7:  LDA PPU0Load
 LC6D9:  ORA #$20
@@ -4882,15 +4882,19 @@ LC717:  BMI $C71B
 LC719:  LSR
 LC71A:  LSR
 LC71B:  STA $F0,X
-LC71D:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC71D:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+
+;----------------------------------------------------------------------------------------------------
 
 LC720:  TXA
 LC721:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC724:  .word $C744, $C770, ChkMemAndBranch, $C7A7
-LC72C:  .word $C7B6, $C7BB, $C7C2, OppDefInline
-LC734:  .word $C7E1, $C7EA, $C7F1, $C806
-LC73C:  .word $C80C, $C816, $C81D, $C821
+LC72C:  .word $C7B6, $C7BB, $C7C2,           OppDefInline
+LC734:  .word $C7E1, $C7EA, WriteZPageByte,  $C806
+LC73C:  .word $C80C, $C816, $C81D,           $C821
+
+;----------------------------------------------------------------------------------------------------
 
 LC744:  LDX $98
 LC746:  BMI $C74E
@@ -4913,7 +4917,7 @@ LC760:  TAY
 LC761:  LDA #$00
 LC763:  STA $98
 LC765:  STY OppStateIndex
-LC767:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC767:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC76A:  TYA
 LC76B:  CLC
@@ -4939,28 +4943,33 @@ LC782:  BNE $C765
 ;to a given value, the state will jump to a new index given by the proceeding data byte.
 
 ChkMemAndBranch:
-LC784:  LDA (OppStBasePtr),Y
-LC786:  INY
-LC787:  STA $E0
-LC789:  LDA #$00
-LC78B:  STA $E1
-LC78D:  LDA (OppStBasePtr),Y
-LC78F:  INY
-LC790:  STY OppStateIndex
-LC792:  LDY #$00
-LC794:  CMP ($E0),Y
-LC796:  BNE $C7A2
+LC784:  LDA (OppStBasePtr),Y    ;
+LC786:  INY                     ;Get address to check.
+LC787:  STA $E0                 ;
 
-LC798:  LDY OppStateIndex
-LC79A:  LDA (OppStBasePtr),Y
-LC79C:  TAY
+LC789:  LDA #$00                ;Upper address byte is always 0 for zero page access.
+LC78B:  STA $E1                 ;
 
-LC79D:  STY OppStateIndex
-LC79F:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC78D:  LDA (OppStBasePtr),Y    ;
+LC78F:  INY                     ;Get byte to compare against.
+LC790:  STY OppStateIndex       ;
 
-LC7A2:  LDY OppStateIndex
-LC7A4:  INY
-LC7A5:  BNE $C79D
+LC792:  LDY #$00                ;Is value in memory equal to byte from state data?
+LC794:  CMP ($E0),Y             ;
+LC796:  BNE ChkNotEqual         ;If not, branch. No branch in state index.
+
+LC798:  LDY OppStateIndex       ;State branch will occur.  Get next data byte and use it as the -->
+LC79A:  LDA (OppStBasePtr),Y    ;new index into the state data.
+LC79C:  TAY                     ;
+
+UpdateStateIndex2:
+LC79D:  STY OppStateIndex       ;Update opponent state index.
+LC79F:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+
+ChkNotEqual:
+LC7A2:  LDY OppStateIndex       ;
+LC7A4:  INY                     ;Move past next byte in state data as branch will not occur.
+LC7A5:  BNE UpdateStateIndex2   ;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4971,7 +4980,7 @@ LC7AB:  LDA (OppStBasePtr),Y
 LC7AD:  TAY
 
 LC7AE:  STY OppStateIndex
-LC7B0:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC7B0:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC7B3:  INY
 LC7B4:  BNE $C7AE
@@ -4995,27 +5004,27 @@ LC7C9:  INY
 LC7CA:  STA OppPunchDamage
 
 UpdateStateIndex1:
-LC7CC:  STY OppStateIndex		;Update index to opponent state data.
-LC7CE:  JMP ZeroByteInc			;($C582)Increment past zero data byte.
+LC7CC:  STY OppStateIndex       ;Update index to opponent state data.
+LC7CE:  JMP ZeroByteInc         ;($C582)Increment past zero data byte.
 
 ;----------------------------------------------------------------------------------------------------
 
 ;Load the opponent's defense values from data that is inline with the state data.
 
 OppDefInline:
-LC7D1:  LDY OppStateIndex		;Set indexes for data copy.
-LC7D3:  LDX #$00				;
+LC7D1:  LDY OppStateIndex       ;Set indexes for data copy.
+LC7D3:  LDX #$00                ;
 
 DefLoadLoop1:
-LC7D5:  LDA (OppStBasePtr),Y	;
-LC7D7:  INY						;Get defense data from state data and load it onto opponents stats.
-LC7D8:  STA OppHitDefense,X		;
-LC7DA:  INX						;
+LC7D5:  LDA (OppStBasePtr),Y    ;
+LC7D7:  INY                     ;Get defense data from state data and load it onto opponents stats.
+LC7D8:  STA OppHitDefense,X     ;
+LC7DA:  INX                     ;
 
-LC7DB:  CPX #$04				;Have all 4 defense data bytes been loaded?
-LC7DD:  BNE DefLoadLoop1		;If not, branch to load another.
+LC7DB:  CPX #$04                ;Have all 4 defense data bytes been loaded?
+LC7DD:  BNE DefLoadLoop1        ;If not, branch to load another.
 
-LC7DF:  BEQ UpdateStateIndex1	;Increment past a trailing zero byte.
+LC7DF:  BEQ UpdateStateIndex1   ;Increment past a trailing zero byte.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5029,21 +5038,27 @@ LC7E9:  RTS
 
 LC7EA:  LDA #$01
 LC7EC:  STA OppPunching
-LC7EE:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC7EE:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7F1:  LDA #$00
-LC7F3:  STA $E1
-LC7F5:  LDA (OppStBasePtr),Y
-LC7F7:  INY
-LC7F8:  STA $E0
-LC7FA:  LDA (OppStBasePtr),Y
-LC7FC:  INY
-LC7FD:  STY OppStateIndex
-LC7FF:  LDY #$00
-LC801:  STA ($E0),Y
-LC803:  JMP ZeroByteInc			;($C582)Increment past zero data byte.
+;This function writes a value to a zero page byte. The information comes from the state data.
+
+WriteZPageByte:
+LC7F1:  LDA #$00                ;For zero page access, upper byte is always 0.
+LC7F3:  STA GenPtrE0UB          ;
+
+LC7F5:  LDA (OppStBasePtr),Y    ;
+LC7F7:  INY                     ;Get address of byte to write.
+LC7F8:  STA GenPtrE0LB          ;
+
+LC7FA:  LDA (OppStBasePtr),Y    ;
+LC7FC:  INY                     ;Get byte to write.
+LC7FD:  STY OppStateIndex       ;
+
+LC7FF:  LDY #$00                ;Write byte to address.
+LC801:  STA (GenPtrE0),Y        ;
+LC803:  JMP ZeroByteInc         ;($C582)Increment past zero data byte.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5053,7 +5068,7 @@ LC80B:  RTS
 
 LC80C:  LDA ComboTimer
 LC80E:  BNE $C813
-LC810:  JMP OppStateUpdate		;($C550)Advance to the opponent's next state.
+LC810:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC813:  JMP $C74E
 LC816:  LDA (OppStBasePtr),Y
