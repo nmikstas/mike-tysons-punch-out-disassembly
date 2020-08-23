@@ -299,8 +299,10 @@ LA2CB:  LDA #$80
 LA2CD:  STA $F0
 LA2CF:  STA $F1
 LA2D1:  STA $F3
-LA2D3:  LDA #$80
-LA2D5:  STA $1B
+
+LA2D3:  LDA #SPRT_BKG_OFF		;Disable sprites and background.
+LA2D5:  STA SprtBkgUpdt			;
+
 LA2D7:  JSR $AF02
 LA2DA:  JSR $B6CB
 LA2DD:  LDA #$05
@@ -309,8 +311,10 @@ LA2E2:  LDX #$00
 LA2E4:  STX $04C0
 LA2E7:  STX $04C1
 LA2EA:  JSR $AE9B
-LA2ED:  LDA #$81
-LA2EF:  STA $1B
+
+LA2ED:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LA2EF:  STA SprtBkgUpdt			;
+
 LA2F1:  LDA #$FF
 LA2F3:  STA GameStatus
 LA2F5:  LDA #$40
@@ -527,8 +531,10 @@ LA4CB:  RTS
 
 LA4CC:  JSR $B70B
 LA4CF:  JSR $AEA5
-LA4D2:  LDA #$81
-LA4D4:  STA $1B
+
+LA4D2:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LA4D4:  STA SprtBkgUpdt			;
+
 LA4D6:  LDA #$FF
 LA4D8:  STA GameStatus
 LA4DA:  LDA #$03
@@ -557,8 +563,9 @@ LA50C:  LDA PPU1Load            ;
 LA50E:  ORA #PPU_LEFT_EN        ;Enable background and sprites in left column.
 LA510:  STA PPU1Load            ;
 
-LA512:  LDA #$81
-LA514:  STA $1B
+LA512:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LA514:  STA SprtBkgUpdt			;
+
 LA516:  LDA #$FF
 LA518:  STA GameStatus
 LA51A:  LDA $013F
@@ -612,8 +619,10 @@ LA57F:  CMP #$01
 LA581:  BNE $A57A
 LA583:  LDA #$02
 LA585:  JSR $AF04
-LA588:  LDA #$81
-LA58A:  STA $1B
+
+LA588:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LA58A:  STA SprtBkgUpdt			;
+
 LA58C:  LDA #$01
 LA58E:  STA $22
 LA590:  JSR $AF02
@@ -689,7 +698,7 @@ LA632:  JMP $A63E
 LA635:  JSR $C0BB
 LA638:  JMP $A63E
 LA63B:  JSR $C0E0
-LA63E:  JSR $AF73
+LA63E:  JSR ChkEnDisSprtBkg		;($AF73)Enable/disable sprites and background.
 LA641:  JSR $A9DF
 LA644:  INC FrameCounter
 LA646:  LDA TransTimer
@@ -787,7 +796,7 @@ LA6EE:  LDX #$02
 LA6F0:  STX SPRDMAReg
 LA6F3:  NOP
 LA6F4:  NOP
-LA6F5:  JSR $AF73
+LA6F5:  JSR ChkEnDisSprtBkg		;($AF73)Enable/disable sprites and background.
 LA6F8:  INC FrameCounter
 LA6FA:  LDA TransTimer
 LA6FC:  BEQ $A700
@@ -966,8 +975,9 @@ LA86B:  LDA PPU1Load            ;
 LA86D:  ORA #PPU_LEFT_EN        ;Enable background and sprites in left column.
 LA86F:  STA PPU1Load            ;
 
-LA871:  LDA #$81
-LA873:  STA $1B
+LA871:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LA873:  STA SprtBkgUpdt			;
+
 LA875:  JSR $AF02
 LA878:  JSR $AEA5
 LA87B:  LDA $03D8
@@ -1023,8 +1033,10 @@ LA8F2:  CMP #$01
 LA8F4:  BNE $A8ED
 LA8F6:  LDA #$02
 LA8F8:  JSR $AF04
-LA8FB:  LDA #$81
-LA8FD:  STA $1B
+
+LA8FB:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LA8FD:  STA SprtBkgUpdt			;
+
 LA8FF:  LDA #$01
 LA901:  LDY $06
 LA903:  CPY #$04
@@ -1423,8 +1435,10 @@ LAC33:  STA $30
 LAC35:  STA $38
 LAC37:  RTS
 LAC38:  JSR $B88A
-LAC3B:  LDA #$81
-LAC3D:  STA $1B
+
+LAC3B:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LAC3D:  STA SprtBkgUpdt			;
+
 LAC3F:  LDA #$FF
 LAC41:  STA GameStatus
 LAC43:  LDA #$0E
@@ -1438,8 +1452,10 @@ LAC53:  LDA #$20
 LAC55:  JSR $AF04
 LAC58:  JMP $BF7E
 LAC5B:  JSR $B8C1
-LAC5E:  LDA #$81
-LAC60:  STA $1B
+
+LAC5E:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LAC60:  STA SprtBkgUpdt			;
+
 LAC62:  LDA #$FF
 LAC64:  STA GameStatus
 LAC66:  JSR $AE91
@@ -1450,8 +1466,10 @@ LAC72:  JSR $803C
 LAC75:  JSR $802A
 LAC78:  JSR $802D
 LAC7B:  JSR $B8FF
-LAC7E:  LDA #$81
-LAC80:  STA $1B
+
+LAC7E:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LAC80:  STA SprtBkgUpdt			;
+
 LAC82:  LDA #$FF
 LAC84:  STA GameStatus
 LAC86:  LDA #$04
@@ -1474,8 +1492,10 @@ LACAB:  JSR $BF7E
 LACAE:  JMP $AE84
 LACB1:  STA $03D3
 LACB4:  JSR $B957
-LACB7:  LDA #$81
-LACB9:  STA $1B
+
+LACB7:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LACB9:  STA SprtBkgUpdt			;
+
 LACBB:  LDA #$FF
 LACBD:  STA GameStatus
 LACBF:  LDX #$01
@@ -1514,8 +1534,10 @@ LAD09:  JSR $BF7E
 LAD0C:  JMP $AE84
 LAD0F:  JSR $BA74
 LAD12:  JSR $AEA5
-LAD15:  LDA #$81
-LAD17:  STA $1B
+
+LAD15:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LAD17:  STA SprtBkgUpdt			;
+
 LAD19:  LDA #$FF
 LAD1B:  STA GameStatus
 LAD1D:  LDA #$1A
@@ -1578,8 +1600,10 @@ LADA0:  LDA $04C8
 LADA3:  BNE $AD9D
 LADA5:  LDA #$08
 LADA7:  JSR $AF04
-LADAA:  LDA #$80
-LADAC:  STA $1B
+
+LADAA:  LDA #SPRT_BKG_OFF		;Disable sprites and background.
+LADAC:  STA SprtBkgUpdt			;
+
 LADAE:  LDA #$08
 LADB0:  JSR $AF04
 LADB3:  JMP $AE84
@@ -1794,19 +1818,31 @@ LAF6D:  LDA #$20
 LAF6F:  STA $048D
 LAF72:  RTS
 
-LAF73:  LDA $1B
-LAF75:  BPL $AF8C
-LAF77:  AND #$01
-LAF79:  STA $1B
-LAF7B:  BEQ $AF83
-LAF7D:  LDA PPU1Load
-LAF7F:  ORA #$18
-LAF81:  BNE $AF87
-LAF83:  LDA PPU1Load
-LAF85:  AND #$E7
-LAF87:  STA PPU1Load
-LAF89:  STA PPUControl1
-LAF8C:  RTS
+;----------------------------------------------------------------------------------------------------
+
+ChkEnDisSprtBkg:
+LAF73:  LDA SprtBkgUpdt			;Does the sprites and background state need to be updated?
+LAF75:  BPL SprtBkgUpdEnd		;If not, branch to exit.
+
+LAF77:  AND #$01				;Get enable/disable bit.
+LAF79:  STA SprtBkgUpdt			;Does sprites/background need to be disabled?
+LAF7B:  BEQ SprtBkgOff			;If so, branch.
+
+SprtBkgOn:
+LAF7D:  LDA PPU1Load			;Enable sprites and background.
+LAF7F:  ORA #$18				;
+LAF81:  BNE UpdatePPUCntrl1		;Branch always.
+
+SprtBkgOff:
+LAF83:  LDA PPU1Load			;Disable sprites and background.
+LAF85:  AND #$E7				;
+
+UpdatePPUCntrl1:
+LAF87:  STA PPU1Load			;Update sprites/background state.
+LAF89:  STA PPUControl1			;
+
+SprtBkgUpdEnd:
+LAF8C:  RTS						;End updating the sprites and background visibility.
 
 ;--------------------------------------[ Controller Functions ]--------------------------------------
 
@@ -2872,8 +2908,10 @@ LB775:  JSR $BF0D
 LB778:  JSR $AA54
 LB77B:  JSR $805A
 LB77E:  JSR $AA64
-LB781:  LDA #$81
-LB783:  STA $1B
+
+LB781:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LB783:  STA SprtBkgUpdt			;
+
 LB785:  LDA #$FF
 LB787:  STA GameStatus
 LB789:  JSR $AF04
@@ -2910,8 +2948,10 @@ LB7D3:  LDA #$0B
 LB7D5:  LDX #$04
 LB7D7:  JSR $BF21
 LB7DA:  JSR $BCBE
-LB7DD:  LDA #$81
-LB7DF:  STA $1B
+
+LB7DD:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LB7DF:  STA SprtBkgUpdt			;
+
 LB7E1:  LDA #$FF
 LB7E3:  STA GameStatus
 LB7E5:  JSR $AF04
@@ -2959,8 +2999,10 @@ LB844:  LDX #$26
 LB846:  LDY #$B4
 LB848:  JSR $BE96
 LB84B:  JSR $AEA5
-LB84E:  LDA #$81
-LB850:  STA $1B
+
+LB84E:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LB850:  STA SprtBkgUpdt			;
+
 LB852:  LDA #$FF
 LB854:  STA GameStatus
 LB856:  LDA #$70
@@ -3548,8 +3590,10 @@ LBD6F:  STA PPUIOReg
 LBD72:  DEX
 LBD73:  BNE $BD6F
 LBD75:  JSR $AEA5
-LBD78:  LDA #$81
-LBD7A:  STA $1B
+
+LBD78:  LDA #SPRT_BKG_ON		;Enable sprites and background.
+LBD7A:  STA SprtBkgUpdt			;
+
 LBD7C:  LDA #$FF
 LBD7E:  STA GameStatus
 LBD80:  LDA #$1A
@@ -3810,8 +3854,10 @@ LBF86:  LDA $04C8
 LBF89:  BNE $BF83
 LBF8B:  LDA #$08
 LBF8D:  JSR $AF04
-LBF90:  LDA #$80
-LBF92:  STA $1B
+
+LBF90:  LDA #SPRT_BKG_OFF		;Disable sprites and background.
+LBF92:  STA SprtBkgUpdt			;
+
 LBF94:  LDA #$08
 LBF96:  JMP $AF04
 
@@ -4817,6 +4863,9 @@ LC77C:  LDA $E0
 LC77E:  STA OppStBasePtrUB
 LC780:  STX OppStBasePtrLB
 LC782:  BNE $C765
+
+;----------------------------------------------------------------------------------------------------
+
 LC784:  LDA (OppStBasePtr),Y
 LC786:  INY
 LC787:  STA $E0
@@ -4828,30 +4877,38 @@ LC790:  STY OppStateIndex
 LC792:  LDY #$00
 LC794:  CMP ($E0),Y
 LC796:  BNE $C7A2
+
 LC798:  LDY OppStateIndex
 LC79A:  LDA (OppStBasePtr),Y
 LC79C:  TAY
+
 LC79D:  STY OppStateIndex
 LC79F:  JMP $C550
 
 LC7A2:  LDY OppStateIndex
 LC7A4:  INY
 LC7A5:  BNE $C79D
-LC7A7:  DEC $96
+
+LC7A7:  DEC OppStRepeatCntr
 LC7A9:  BEQ $C7B3
+
 LC7AB:  LDA (OppStBasePtr),Y
 LC7AD:  TAY
+
 LC7AE:  STY OppStateIndex
 LC7B0:  JMP $C550
 
 LC7B3:  INY
 LC7B4:  BNE $C7AE
+
 LC7B6:  LDA #$81
 LC7B8:  STA $90
 LC7BA:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 LC7BB:  LDA (OppStBasePtr),Y
-LC7BD:  STA $96
+LC7BD:  STA OppStRepeatCntr
 LC7BF:  INC OppStateIndex
 LC7C1:  RTS
 

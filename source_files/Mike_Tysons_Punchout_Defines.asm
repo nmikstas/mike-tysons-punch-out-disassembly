@@ -8,6 +8,9 @@
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
 
+.alias SprtBkgUpdt		$1B		;MSB set=update sprite/background enable/disable.
+								;#$80=Disable sprites and background.
+								;#$81=Enable sprites and background.
 .alias GameEngStatus    $1C     ;0=Main game engine running, non-zero=Main game engine not running.
 .alias GameStatus       $1D     ;Enables/disables portions of the game.
                                 ;#$00 - Main game engine running.
@@ -37,7 +40,7 @@
 .alias OppStBasePtr     $94     ;Pase pointer to opponent's current state data.
 .alias OppStBasePtrLB   $94     ;Pase pointer to opponent's current state data, lower byte.
 .alias OppStBasePtrUB   $95     ;Pase pointer to opponent's current state data, upper byte.
-
+.alias OppStRepeatCntr	$96		;Counter used to repeat the opponent's current state.
 .alias OppPunching      $97     ;#$00=Opponent not punching, #$01=Opponent punching.
 
 .alias OppBaseAnimIndex $A1     ;Base animation index for opponent sprites.
@@ -420,3 +423,5 @@
 .alias SND_OFF          $80     ;Silences sound channel.
 .alias PPU_LEFT_EN      $06     ;Enable both left background column and left sprite column.
 .alias GAME_ENG_RUN     $00     ;Enables the main game engine.
+.alias SPRT_BKG_OFF		$80		;Disable sprites and background.
+.alias SPRT_BKG_ON		$81		;Enable sprites and background.
