@@ -13,9 +13,9 @@ L8000:  .word $8030             ;Sprite patterns pointer.
 L8002:  .word $8AEF
 L8004:  .word $8B23
 L8006:  .word $92B6             ;Palette data pointer.
-L8008:  .word $0000             ;Unused.
-L800A:  .word $0000             ;Unused.
-L800C:  .word $0000             ;Unused.
+L8008:  .word NULL_PNTR         ;Unused.
+L800A:  .word NULL_PNTR         ;Unused.
+L800C:  .word NULL_PNTR			;Unused.
 L800E:  .word $9316             ;Fight data pointer.
 
 ;Don Flamenco 1 data entry point.
@@ -571,7 +571,7 @@ L8ACC:  .byte $6F, $58, $59, $5A, $70, $DF, $5B, $5C, $5D, $08, $E0, $21, $C8, $
 L8ADC:  .byte $F7, $30, $1F, $00, $03, $43, $2B, $2B, $47, $48, $2D, $2E, $FF, $4B, $50, $FF
 L8AEC:  .byte $FF, $4D, $00
 
-;----------------------------------------------------------------------------------------------------
+;----------------------------------[ Opponent State Data Pointers ]----------------------------------
 
 ;Glass Joe state data pointers.
 L8AEF:  .word $0000, $8B71, $8E93, $8D8A, $8D8A, $8CAC, $8CAC, $8D43
@@ -579,14 +579,9 @@ L8AFF:  .word $8D43, $8D98, $8D98, $8DAE, $8DAE, $8EAC, $8F46, $8FE6
 L8B0F:  .word $901F, $8DB9, $8DE1, $8E37, $8E4A, $8C4D, $8BC2, $0000
 L8B1F:  .word $0000, $905B
 
-;Glass Joe state machine data pointers.
 L8B23:  .word $90FD, $91BA
 
-;----------------------------------------------------------------------------------------------------
-
-;********** Layer 2 **********
-
-;Don Flamenco 1 and 2.
+;Don Flamenco 1 and 2 state data pointers.
 L8B27:  .word $0000, $8B5F, $8E93, $8D8A, $8D8A, $8CAC, $8CAC, $8D43
 L8B37:  .word $8D43, $8D98, $8D98, $8DAE, $8DAE, $8EAC, $8F46, $8FE6
 L8B47:  .word $901F, $8DCE, $8DF6, $8E65, $8E78, $8C44, $8BB9, $8CE3
@@ -594,43 +589,40 @@ L8B57:  .word $8B97, $909E
 
 L8B5B:  .word $90A3, $91BA
 
-;----------------------------------------------------------------------------------------------------
+;--------------------------------------[ Opponent State Data ]---------------------------------------
 
-;********** Layer 3 **********
+;Opponent state data.
 
 ;Don Flamenco 1 and 2.
-L8B5F:  .byte $F7, $08, $08, $08, $08, $00, $FA, $BB, $00, $00, $16, $C0, $87, $B6, $F1, $71
+L8B5F:  .byte $F7, $08, $08, $08, $08, $00, ST_WRITE_BYTE, $BB, $00, $00, $16, $C0, $87, $B6, $F1, $71
 L8B6F:  .byte $8B, $0C
 
-;----------------------------------------------------------------------------------------------------
-
-;********** Layer 3 **********
-
 ;Glass Joe round 1 initial wait state.
-L8B71:  .byte $FA, $AC, $01, $00, $FA, $BB, $00, $00, $16, $C0, $87, $B6, $05, $C4, $0C, $C2
+L8B71:  .byte ST_WRITE_BYTE, $AC, $01, $00, ST_WRITE_BYTE, $BB, $00, $00, $16, $C0, $87, $B6, $05, $C4
+L8B7F:	.byte $0C, $C2
 L8B81:  .byte $1F, $C2, $87, $B6, $16, $C4, $84, $B6, $62, $01, $1F, $C0, $84, $B6, $16, $C4
-L8B91:  .byte $87, $B6, $62, $01, $3F, $10, $E0, $9E, $92, $80, $04, $1A, $08, $87, $B6, $02
+L8B91:  .byte $87, $B6, $62, $01, $3F, $10, ST_CALL_FUNC, $9E, $92, $80, $04, $1A, $08, $87, $B6, $02
 L8BA1:  .byte $82, $EC, $31, $08, $86, $08, $08, $01, $82, $EC, $31, $07, $86, $06, $08, $EC
-L8BB1:  .byte $31, $06, $86, $0F, $08, $80, $08, $F4, $E0, $A4, $92, $F5, $02, $F1, $C2, $8B
+L8BB1:  .byte $31, $06, $86, $0F, $08, $80, $08, $F4, ST_CALL_FUNC, $A4, $92, $F5, $02, $F1, $C2, $8B
 L8BC1:  .byte $05
 
 ;Glass Joe straight left punch state.
-L8BC2:  .byte $E0, $A4, $92, $F5, $01, $80, $01, $16, $08, $87
-L8BCC:  .byte $B6, $F9, $71, $4E, $02, $C0, $F3, $71, $07, $CC, $FA, $9C, $84, $80, $05, $02
+L8BC2:  .byte ST_CALL_FUNC, $A4, $92, $F5, $01, $80, $01, $16, $08, $87
+L8BCC:  .byte $B6, $F9, $71, $4E, $02, $C0, $F3, $71, $07, $CC, ST_WRITE_BYTE, $9C, $84, $80, $05, $02
 L8BDC:  .byte $C2, $71, $C2, $0F, $08, $F2, $50, $0D, $6B, $EC, $29, $F7, $06, $06, $06, $06
 L8BEC:  .byte $00, $02, $0E, $75, $D2, $F6, $01, $07, $F0, $3B, $4C, $4C, $80, $21, $71, $3E
-L8BFC:  .byte $FF, $80, $02, $EC, $81, $80, $0C, $E0, $AA, $92, $FE, $92, $4A, $00, $20, $04
-L8C0C:  .byte $FC, $F4, $E0, $AA, $92, $92, $4A, $00
+L8BFC:  .byte $FF, $80, $02, $EC, $81, $80, $0C, ST_CALL_FUNC, $AA, $92, $FE, $92, $4A, $00, $20, $04
+L8C0C:  .byte $FC, $F4, ST_CALL_FUNC, $AA, $92, $92, $4A, $00
 L8C15:  .byte $28, $04  ;Straight punch combo data.
 L8C17:  .byte $80, $0C, $71, $3C, $80, $16
 L8C1C:  .byte $F2, $50, $0B, $64, $F2, $50, $0C, $64, $FC, $F4, $92, $4A, $00, $20, $04, $FC
-L8C2C:  .byte $F4, $F2, $59, $00, $23, $80, $FF, $F2, $03, $20, $7A, $FA, $9C, $84, $80, $04
-L8C3C:  .byte $01, $C2, $70, $C2, $06, $08, $3F, $23, $E0, $9E, $92, $F5, $02, $F1, $4D, $8C
+L8C2C:  .byte $F4, $F2, $59, $00, $23, $80, $FF, $F2, $03, $20, $7A, ST_WRITE_BYTE, $9C, $84, $80, $04
+L8C3C:  .byte $01, $C2, $70, $C2, $06, $08, $3F, $23, ST_CALL_FUNC, $9E, $92, $F5, $02, $F1, $4D, $8C
 L8C4C:  .byte $05
 
 ;Right hook punch state.
-L8C4D:  .byte ST_DEFENSE        ;Load defense values against Little Mac's punches.
-L8C4E:  .word $929E             ;Defense data pointer.
+L8C4D:  .byte ST_CALL_FUNC      ;Call function to load defense values.
+L8C4E:  .word DefenseStats3     ;Defense data pointer.
 
 L8C50:  .byte ST_REPEAT         ;Load sub-state repeat.
 L8C51:  .byte $01               ;No repeat for this sub-state.
@@ -645,81 +637,88 @@ L8C57:  .byte $B6               ;Sprite Y base location.
 
 L8C58:  .byte ST_PUNCH          ;Indicate opponent is punching.
 
-L8C59:  .byte ST_DEF_INLINE     ;Load opponent's defense data from following 4 bytes.
+L8C59:  .byte ST_DEFENSE        ;Load opponent's defense data from following 4 bytes.
 l8C5A:  .byte $06               ;-6 damage from right face punch.
 l8C5B:  .byte $00               ;Full damage from left face punch.
 l8C5C:  .byte $08               ;-8 damage from right stomach punch.
 L8C5D:  .byte $08               ;-8 damage from left stomach punch.
 L8C5E:  .byte $00               ;End defense data.
 
-L8C5F:  .byte $FA, $BB
+L8C5F:  .byte ST_WRITE_BYTE, $BB
 L8C61:  .byte $02, $00
 
-L8C63:  .byte $03, $16, $75, $DF, $FA, $9C, $84, $E4, $F3, $24
-L8C6D:  .byte $F2, $50, $0D, $59, $EC, $25, $F6, $00, $07, $00, $FA, $BB, $00, $00, $11, $18
+L8C63:  .byte $03, $16, $75, $DF, ST_WRITE_BYTE, $9C, $84, $E4, $F3, $24
+L8C6D:  .byte $F2, $50, $0D, $59, $EC, $25, $F6, $00, $07, $00, ST_WRITE_BYTE, $BB, $00, $00, $11, $18
 L8C7D:  .byte $7E, $B3, $F0, $45, $49, $49, $80, $04, $64, $22, $62, $22, $02, $1A, $79, $2F
-L8C8D:  .byte $6F, $1C, $80, $05, $FF, $F1, $C2, $8B, $3B, $FB, $E0, $B0, $92, $66, $14, $04
+L8C8D:  .byte $6F, $1C, $80, $05, $FF, $F1, $C2, $8B, $3B, $FB, ST_CALL_FUNC, $B0, $92, $66, $14, $04
 L8C9D:  .byte $1A, $62, $1F, $62, $1F, $62, $1E, $FC, $F4, $F2, $59, $00, $24, $80, $FF
 
 ;Glass Joes face punch block.
 L8CAC:  .byte $F2, $AB, $01, $17, $80, $02, $11, $12, $87, $B6, $EC, $10, $80, $05, $12, $14
 L8CBC:  .byte $87, $B5, $1C, $C6, $87, $B3, $FF, $14, $12, $80, $B4, $EC, $10, $80, $08, $F9
-L8CCC:  .byte $11, $3C, $7C, $B2, $FA, $AB, $00, $14, $CC, $78, $B2, $FA, $9C, $84, $80, $04
+L8CCC:  .byte $11, $3C, $7C, $B2, ST_WRITE_BYTE, $AB, $00, $14, $CC, $78, $B2, ST_WRITE_BYTE, $9C, $84
+L8CDA:	.byte $80, $04
 L8CDC:  .byte $FE, $80, $07, $F1, $E3, $8C, $12
 
-L8CE3:  .byte $F9, $F7, $06, $20, $20, $00, $00, $11, $3C
-L8CEC:  .byte $7C, $B2, $FA, $9C, $84, $1F, $CC, $78, $B2, $E0, $98, $92, $EC, $25, $F2, $03
+L8CE3:  .byte $F9, ST_DEFENSE, $06, $20, $20, $00, $00, $11, $3C
+L8CEC:  .byte $7C, $B2, ST_WRITE_BYTE, $9C, $84, $1F, $CC, $78, $B2, ST_CALL_FUNC, $98, $92, $EC, $25
+L8CFA:	.byte $F2, $03
 L8CFC:  .byte $20, $55, $12, $16, $77, $B4, $75, $14, $F6, $00, $0F, $11, $18, $7B, $B0, $F0
-L8D0C:  .byte $35, $36, $42, $63, $22, $02, $40, $7D, $2F, $80, $1D, $FF, $FF, $E0, $9E, $92
-L8D1C:  .byte $63, $22, $02, $40, $7D, $2F, $80, $10, $F4, $FA, $4A, $68, $E0, $AA, $92, $63
-L8D2C:  .byte $22, $02, $40, $7D, $2F, $80, $20, $FA, $4A, $01, $FC, $F4, $11, $16, $77, $B4
+L8D0C:  .byte $35, $36, $42, $63, $22, $02, $40, $7D, $2F, $80, $1D, $FF, $FF, ST_CALL_FUNC, $9E, $92
+L8D1C:  .byte $63, $22, $02, $40, $7D, $2F, $80, $10, $F4, ST_WRITE_BYTE, $4A, $68, ST_CALL_FUNC, $AA
+L8D2A:	.byte $92, $63
+L8D2C:  .byte $22, $02, $40, $7D, $2F, $80, $20, ST_WRITE_BYTE, $4A, $01, $FC, $F4, $11, $16, $77, $B4
 L8D3C:  .byte $74, $14, $F6, $00, $17, $3F, $24
 
 ;Glass Joe stomach punch block.
 L8D43:  .byte $F2, $AB, $01, $23, $F2, $BB, $02, $17, $80
 L8D4C:  .byte $02, $11, $10, $87, $B6, $EC, $10, $80, $07, $1C, $C2, $89, $B3, $FF, $80, $04
 L8D5C:  .byte $EC, $10, $06, $10, $61, $2D, $00, $0C, $C2, $FF, $14, $10, $87, $B4, $EC, $10
-L8D6C:  .byte $80, $04, $14, $12, $80, $B4, $F9, $11, $3C, $7C, $B2, $FA, $AB, $00, $14, $CC
-L8D7C:  .byte $78, $B2, $FA, $9C, $84, $80, $04, $FE, $80, $07, $F1, $E3, $8C, $12
+L8D6C:  .byte $80, $04, $14, $12, $80, $B4, $F9, $11, $3C, $7C, $B2, ST_WRITE_BYTE, $AB, $00, $14, $CC
+L8D7C:  .byte $78, $B2, ST_WRITE_BYTE, $9C, $84, $80, $04, $FE, $80, $07, $F1, $E3, $8C, $12
 
 ;Glass Joe dodge.
-L8D8A:  .byte $E0, $92, $92, $14, $08, $87, $B6, $01, $14, $01, $84, $7C, $20, $FF
+L8D8A:  .byte ST_CALL_FUNC, $92, $92, $14, $08, $87, $B6, $01, $14, $01, $84, $7C, $20, $FF
 
-L8D98:  .byte $F2, $50, $0D, $0F, $E0, $A4, $92, $80, $02, $1F, $08, $87, $B6, $3F
-L8DA8:  .byte $09, $F7, $05, $00, $00, $00, $3F, $07
+L8D98:  .byte $F2, $50, $0D, $0F, ST_CALL_FUNC, $A4, $92, $80, $02, $1F, $08, $87, $B6, $3F
+L8DA8:  .byte $09, ST_DEFENSE, $05, $00, $00, $00, $3F, $07
 
-L8DAE:  .byte $E0, $AA, $92, $80, $02, $1F, $0A, $87, $B6, $3F, $05
+L8DAE:  .byte ST_CALL_FUNC, $AA, $92, $80, $02, $1F, $0A, $87, $B6, $3F, $05
 
-L8DB9:  .byte $EC, $80, $E0, $AA, $92, $EC, $20, $FA, $4A, $80, $00, $EC, $39, $51, $22, $85
-L8DC9:  .byte $B2, $F1, $F6, $8D, $0F, $EC, $80, $E0, $AA, $92, $EC, $20, $FA, $4A, $60, $00
+L8DB9:  .byte $EC, $80, ST_CALL_FUNC, $AA, $92, $EC, $20, ST_WRITE_BYTE, $4A, $80, $00, $EC, $39, $51
+L8DC7:	.byte $22, $85
+L8DC9:  .byte $B2, $F1, $F6, $8D, $0F, $EC, $80, ST_CALL_FUNC, $AA, $92, $EC, $20, ST_WRITE_BYTE, $4A
+L8DD7:	.byte $60, $00
 L8DD9:  .byte $51, $22, $85, $B2, $F1, $F6, $8D, $0F
 
 
-L8DE1:  .byte $EC, $80, $E0, $AA, $92, $EC, $20, $FA, $4A, $80, $00, $EC, $39, $11, $1E, $91
+L8DE1:  .byte $EC, $80, ST_CALL_FUNC, $AA, $92, $EC, $20, ST_WRITE_BYTE, $4A, $80, $00, $EC, $39, $11
+L8DEF:	.byte $1E, $91
 L8DF1:  .byte $B2, $F1, $F6, $8D, $0F
 
 ;Glass Joe stunned state.
-L8DF6:  .byte $EC, $80, $E0, $AA, $92, $EC, $20, $FA, $4A, $60, $00, $11, $1E, $91, $B2, $F2
+L8DF6:  .byte $EC, $80, ST_CALL_FUNC, $AA, $92, $EC, $20, ST_WRITE_BYTE, $4A, $60, $00, $11, $1E, $91
+L8E04:	.byte $B2, $F2
 L8E06:  .byte $68, $03, $1F, $F2, $4B, $08, $3C, $F2, $4B, $06, $3C, $80, $08, $3F, $23, $F2
 L8E16:  .byte $4B, $01, $35, $80, $06, $11, $0A, $86, $B6, $01, $C0, $01, $0C, $63, $0C, $FC
-L8E26:  .byte $FA, $68, $00, $00, $F4, $FA, $68, $00, $80, $08, $3F, $23, $FA, $68, $03, $3F
+L8E26:  .byte ST_WRITE_BYTE, $68, $00, $00, $F4, ST_WRITE_BYTE, $68, $00, $80, $08, $3F, $23, $FA, $68
+L8E34:	.byte $03, $3F
 L8E36:  .byte $23
 
-L8E37:  .byte $EC, $80, $E0, $A4, $92, $EC, $4C, $FA, $4A, $60, $00, $18, $1C, $80, $B3, $F1
+L8E37:  .byte $EC, $80, ST_CALL_FUNC, $A4, $92, $EC, $4C, ST_WRITE_BYTE, $4A, $60, $00, $18, $1C, $80
+L8E45:	.byte $B3, $F1
 L8E47:  .byte $4A, $8E, $0F
 
 ;Glass Joe stomach hit, part 1.
-L8E4A:  .byte $EC, $80, $E0, $A4, $92, $EC, $4C, $FA, $4A, $60, $00, $18, $1C, $8A, $B3, $11
-L8E5A:  .byte $0A, $86, $B6, $01, $C0, $0F, $0C, $01, $08, $FC, $F4, $EC, $80, $E0, $A4, $92
-L8E6A:  .byte $EC, $4C, $FA, $4A, $50, $00, $18, $1C, $80, $B3, $F1, $78, $8E, $0F
+L8E4A:  .byte $EC, $80, ST_CALL_FUNC, $A4, $92, $EC, $4C, ST_WRITE_BYTE, $4A, $60, $00, $18, $1C, $8A
+L8E58:	.byte $B3, $11
+L8E5A:  .byte $0A, $86, $B6, $01, $C0, $0F, $0C, $01, $08, $FC, $F4, $EC, $80, ST_CALL_FUNC, $A4, $92
+L8E6A:  .byte $EC, $4C, ST_WRITE_BYTE, $4A, $50, $00, $18, $1C, $80, $B3, $F1, $78, $8E, $0F
 
 ;Glass Joe stomach hit, part 2.
-L8E78:  .byte $EC, $80, $E0, $A4, $92, $EC, $4C, $FA, $4A, $50, $00, $18, $1C, $8A, $B3, $11
+L8E78:  .byte $EC, $80, ST_CALL_FUNC, $A4, $92, $EC, $4C, ST_WRITE_BYTE, $4A, $50, $00, $18, $1C, $8A
+L8E86:	.byte $B3, $11
 L8E88:  .byte $0A, $86, $B6, $01, $C0, $0F, $0C, $01, $08, $FC, $F4
-
-;----------------------------------------------------------------------------------------------------
-
-;********** Layer 3 **********
 
 ;Glass Joe, Don Flamenco 1 and 2.
 L8E93:  .byte $F2, $05, $01, $15, $51, $22, $87, $B6, $EC
@@ -731,9 +730,10 @@ L8ECC:  .byte $70, $EE, $F2, $05, $01, $33, $51, $24, $81, $B0, $78, $EE, $92, $
 L8EDC:  .byte $40, $3F, $17, $7C, $EF, $EC, $09, $7C, $EF, $51, $24, $6D, $A7, $7C, $EF, $7C
 L8EEC:  .byte $EF, $11, $26, $57, $9C, $7C, $EF, $7D, $EF, $5F, $32, $37, $8D, $80, $18, $7B
 L8EFC:  .byte $1F, $67, $2F, $66, $2F, $64, $2F, $72, $2F, $71, $2F, $58, $34, $57, $81, $F5
-L8F0C:  .byte $01, $E0, $59, $92, $80, $01, $F2, $BB, $01, $64, $EC, $39, $4F, $36, $EC, $39
-L8F1C:  .byte $80, $10, $F2, $BB, $02, $5B, $4F, $38, $80, $10, $0F, $06, $FA, $BB, $04, $0F
-L8F2C:  .byte $80, $94, $D0, $04, $87, $96, $06, $03, $E0, $42, $92, $01, $02, $FA, $BB, $00
+L8F0C:  .byte $01, ST_CALL_FUNC, $59, $92, $80, $01, $F2, $BB, $01, $64, $EC, $39, $4F, $36, $EC, $39
+L8F1C:  .byte $80, $10, $F2, $BB, $02, $5B, $4F, $38, $80, $10, $0F, $06, ST_WRITE_BYTE, $BB, $04, $0F
+L8F2C:  .byte $80, $94, $D0, $04, $87, $96, $06, $03, ST_CALL_FUNC, $42, $92, $01, $02, ST_WRITE_BYTE
+L8F2A:	.byte $BB, $00
 L8F3C:  .byte $80, $01, $F2, $BB, $00, $90, $F1, $FD, $90, $54
 
 L8F46:  .byte $EC, $80, $F2, $BB, $02, $37
@@ -744,7 +744,7 @@ L8F7C:  .byte $1B, $12, $1E, $80, $B6, $EC, $20, $7C, $1E, $92, $44, $03, $88, $
 L8F8C:  .byte $EC, $09, $5F, $32, $A6, $99, $66, $2F, $66, $2F, $66, $2F, $3F, $66, $74, $2E
 L8F9C:  .byte $13, $20, $8F, $AF, $EC, $09, $7A, $2F, $52, $30, $99, $AA, $7D, $2F, $F5, $02
 L8FAC:  .byte $EC, $09, $61, $6F, $00, $0F, $28, $6A, $EE, $73, $FF, $72, $FF, $71, $FF, $63
-L8FBC:  .byte $EE, $F3, $46, $78, $FF, $70, $EE, $18, $2A, $A7, $81, $F5, $01, $E0, $59, $92
+L8FBC:  .byte $EE, $F3, $46, $78, $FF, $70, $EE, $18, $2A, $A7, $81, $F5, $01, ST_CALL_FUNC, $59, $92
 L8FCC:  .byte $80, $01, $F2, $BB, $01, $86, $EC, $39, $0F, $2C, $EC, $39, $80, $10, $F2, $BB
 L8FDC:  .byte $02, $7D, $0F, $2E, $80, $10, $F1, $AC, $8E, $7A
 
@@ -760,15 +760,14 @@ L903C:  .byte $B1, $78, $1F, $F5, $06, $EC, $09, $80, $02, $63, $90, $00, $03, $
 L904C:  .byte $00, $01, $CA, $70, $2F, $F3, $22, $61, $11, $F5, $01, $F1, $46, $8F, $66
 
 L905B:  .byte $EC
-L905C:  .byte $2D, $E0, $11, $92, $80, $08, $F5, $02, $38, $0D, $F5, $04, $08, $06, $01, $80
+L905C:  .byte $2D, ST_CALL_FUNC, $11, $92, $80, $08, $F5, $02, $38, $0D, $F5, $04, $08, $06, $01, $80
 L906C:  .byte $EC, $31, $05, $CC, $F3, $0D, $80, $18, $61, $F1, $00, $04, $C0, $E9, $01, $80
-L907C:  .byte $05, $61, $D1, $00, $01, $C4, $E0, $9E, $92, $7A, $E5, $70, $05, $F7, $00, $00
-L908C:  .byte $00, $00, $00, $FA, $BA, $FF, $00
+L907C:  .byte $05, $61, $D1, $00, $01, $C4, ST_CALL_FUNC, $9E, $92, $7A, $E5, $70, $05, ST_DEFENSE
+L907A:	.byte $00, $00
+L908C:  .byte $00, $00, $00, ST_WRITE_BYTE, $BA, $FF, $00
 
-L9093:  .byte $04, $C0, $FA, $BA, $01, $80, $0C, $FA, $BA
-L909C:  .byte $00, $F4, $FA, $BD, $03, $00, $F4
-
-;----------------------------------------------------------------------------------------------------
+L9093:  .byte $04, $C0, ST_WRITE_BYTE, $BA, $01, $80, $0C, ST_WRITE_BYTE, $BA
+L909C:  .byte $00, $F4, ST_WRITE_BYTE, $BD, $03, $00, $F4
 
 ;Don Flamenco additional state data.
 
@@ -780,74 +779,102 @@ L90DC:  .byte $04, $26, $30, $8F, $80, $0F, $3C, $80, $0F, $08, $16, $08, $18, $
 L90EC:  .byte $40, $DF, $7A, $80, $20, $EC, $30, $80, $20, $EC, $07, $08, $00, $F1, $FD, $90
 L90FC:  .byte $1A
 
-;----------------------------------------------------------------------------------------------------
-
 ;Glass Joe additonal state data.
 
 L90FD:  .byte $01, $02, $F2, $1B
 L9101:  .byte $00, $00, $F2, $06
 L9105:  .byte $04, $85, $F2, $06
 L9109:  .byte $01, $6F, $F5, $01
-L910D:  .byte $E0, $D1, $91, $EC, $30, $F5, $01, $E0, $D1, $91, $EC, $2A, $F5, $01, $E0
-L911C:  .byte $D1, $91, $F5, $05, $E0, $EA, $91, $02, $02, $61, $E0, $00, $03, $C4, $63, $F0
-L912C:  .byte $62, $F1, $02, $06, $65, $03, $02, $04, $61, $E0, $00, $03, $C4, $63, $F0, $62
-L913C:  .byte $F1, $02, $00, $65, $03, $F8, $EC, $7E, $F5, $01, $E0, $D1, $91, $F2, $BB, $00
-L914C:  .byte $47, $F2, $BB, $FF, $85, $F8, $FA, $68, $00, $01, $80, $F5, $02, $E0, $6D, $92
-L915C:  .byte $08, $80, $FF, $D0, $80, $66, $FF, $80, $20, $EC, $1A, $FA, $00, $FE, $80, $FF
+L910D:  .byte ST_CALL_FUNC, $D1, $91, $EC, $30, $F5, $01
+L9114:	.byte ST_CALL_FUNC, $D1, $91, $EC, $2A, $F5, $01, ST_CALL_FUNC
+L911C:  .byte $D1, $91, $F5, $05, ST_CALL_FUNC
+L9121:	.byte $EA, $91, $02, $02, $61, ST_CALL_FUNC, $00, $03, $C4, $63, $F0
+L912C:  .byte $62, $F1, $02, $06, $65, $03, $02, $04, $61, ST_CALL_FUNC, $00, $03, $C4, $63, $F0, $62
+L913C:  .byte $F1, $02, $00, $65, $03, $F8, $EC, $7E, $F5, $01, ST_CALL_FUNC, $D1, $91, $F2, $BB, $00
+L914C:  .byte $47, $F2, $BB, $FF, $85, $F8, ST_WRITE_BYTE, $68, $00, $01, $80, $F5, $02, ST_CALL_FUNC
+L915A:	.byte $6D, $92
+L915C:  .byte $08, $80, $FF, $D0, $80, $66, $FF, $80, $20, $EC, $1A, ST_WRITE_BYTE, $00, $FE, $80, $FF
 L916C:  .byte $80, $20, $EC, $83, $01, $3A, $EC, $46, $80, $FF, $80, $96, $EC, $30, $80, $20
 L917C:  .byte $EC, $07, $08, $00, $3F, $1A, $F1, $86, $91, $00, $80, $01, $F2, $BB, $00, $00
-L918C:  .byte $F2, $BB, $01, $27, $F5, $02, $E0, $3B, $92, $E8, $73, $01, $02, $2F, $F8, $F5
-L919C:  .byte $07, $F2, $06, $04, $1D, $F5, $0B, $E0, $3B, $92, $FA, $BB, $ED, $80, $FF, $80
-L91AC:  .byte $FF, $08, $0A, $01, $C0, $06, $0C, $3F, $2B, $FA, $8E, $01, $3F, $14
+L918C:  .byte $F2, $BB, $01, $27, $F5, $02, ST_CALL_FUNC, $3B, $92, $E8, $73, $01, $02, $2F, $F8, $F5
+L919C:  .byte $07, $F2, $06, $04, $1D, $F5, $0B, ST_CALL_FUNC, $3B, $92, ST_WRITE_BYTE, $BB, $ED, $80
+L91AA:	.byte $FF, $80
+L91AC:  .byte $FF, $08, $0A, $01, $C0, $06, $0C, $3F, $2B, ST_WRITE_BYTE, $8E, $01, $3F, $14
 
-;----------------------------------------------------------------------------------------------------
-
-L91BA:  .byte $1F, $08, $87, $B6, $94, $D0, $04, $87, $96, $06, $04, $E0, $42, $92, $01, $02
-L91CA:  .byte $FA, $BB, $00, $F1, $FD, $90, $47
-
-;----------------------------------------------------------------------------------------------------
+L91BA:  .byte $1F, $08, $87, $B6, $94, $D0, $04, $87, $96, $06, $04, ST_CALL_FUNC, $42, $92, $01, $02
+L91CA:  .byte ST_WRITE_BYTE, $BB, $00, $F1, $FD, $90, $47
 
 L91D1:  .byte $02, $02, $04, $C4, $63, $01  ;
 
 L91D7:  .byte $61, $0F, $00, $07, $06, $02, $04, $04, $C4, $63, $01, $61, $0F, $00, $07, $00
-L91E7:  .byte $F3, $00, $E1
+L91E7:  .byte $F3, $00, ST_RETURN_FUNC
 
 L91EA:  .byte $02, $02, $61, $D0, $00, $03  ;
 
 L91F0:  .byte $C4, $63, $F0, $62, $F1, $61, $EF, $00, $02, $06, $65, $F2, $02, $04, $61, $E0
-L9200:  .byte $00, $03, $C4, $63, $D0, $62, $E1, $61, $0F, $00, $02, $00, $65, $F2, $F3, $00
-L9210:  .byte $E1
+L9200:  .byte $00, $03, $C4, $63, $D0, $62, ST_RETURN_FUNC, $61, $0F, $00, $02, $00, $65, $F2, $F3, $00
+L9210:  .byte ST_RETURN_FUNC
 
-L9211:  .byte $F9, $F7, $20, $20, $20, $20  ;
+L9211:  .byte $F9, ST_DEFENSE, $20, $20, $20, $20  ;
 
 L9217:  .byte $00, $11, $0A, $87, $B6, $E9, $00, $F5, $02, $01, $82, $61, $2E, $00, $02, $C4
 L9227:  .byte $61, $29, $61, $1B, $61, $1D, $00, $02, $80, $61, $0F, $01, $C0, $61, $01, $63
-L9237:  .byte $01, $F3, $0F, $E1
+L9237:  .byte $01, $F3, $0F, ST_RETURN_FUNC
 
 L923B:  .byte $08, $02, $08, $3A, $F3, $00  ;
 
-L9241:  .byte $E1
+L9241:  .byte ST_RETURN_FUNC
 
 L9242:  .byte $04, $C4, $00, $A4, $16, $07  ;
 
 L9248:  .byte $C0, $00, $A7, $16, $04, $C4, $00, $A4, $16, $07, $C2, $00, $A7, $16, $3F, $00
-L9258:  .byte $E1
+L9258:  .byte ST_RETURN_FUNC
 
 L9259:  .byte $64, $0C, $EC, $05, $68, $04  ;
 
-L925F:  .byte $63, $0D, $66, $03, $62, $0E, $64, $02, $F3, $0A, $FA, $BB, $01, $E1
+L925F:  .byte $63, $0D, $66, $03, $62, $0E, $64, $02, $F3, $0A, ST_WRITE_BYTE, $BB, $01, ST_RETURN_FUNC
 
 L926D:  .byte $61, $02, $00, $03, $C4, $62  ;
 
 L9273:  .byte $02, $02, $C0, $67, $04, $61, $02, $00, $03, $C4, $62, $02, $02, $C2, $67, $04
-L9283:  .byte $F3, $00, $E1, $61, $02, $00, $03, $C4, $62, $02, $02, $C2, $67, $04, $E1
+L9283:  .byte $F3, $00, ST_RETURN_FUNC, $61, $02, $00, $03, $C4, $62, $02, $02, $C2, $67, $04
+L9291:	.byte ST_RETURN_FUNC
 
-L9292:  .byte $F7, $FF, $FF, $FF, $FF, $E1  ;
-L9298:  .byte $F7, $20, $20, $20, $20, $E1  ;
-L929E:  .byte $F7, $08, $08, $08, $08, $E1  ;
-L92A4:  .byte $F7, $08, $08, $00, $00, $E1  ;
-L92AA:  .byte $F7, $00, $00, $08, $08, $E1  ;
-L92B0:  .byte $F7, $00, $00, $00, $00, $E1  ;
+DefenseStats1:
+L9292:  .byte ST_DEFENSE        ;Load opponent's defense data from following 4 bytes.
+L9293:  .byte $FF, $FF			;Face punch defense values.
+L9295:	.byte $FF, $FF			;Stomach punch defense values.
+L9297:  .byte ST_RETURN_FUNC    ;Return from function call.
+
+DefenseStats2:
+L9298:  .byte ST_DEFENSE        ;Load opponent's defense data from following 4 bytes.
+L9299:  .byte $20, $20			;Face punch defense values.
+L929B:  .byte $20, $20			;Stomach punch defense values.
+L929D:  .byte ST_RETURN_FUNC	;Return from function call.
+
+DefenseStats3:
+L929E:  .byte ST_DEFENSE        ;Load opponent's defense data from following 4 bytes.
+L929F:  .byte $08, $08			;Face punch defense values.
+L92A1:  .byte $08, $08			;Stomach punch defense values.
+L92A3:  .byte ST_RETURN_FUNC	;Return from function call.
+
+DefenseStats4:
+L92A4:  .byte ST_DEFENSE        ;Load opponent's defense data from following 4 bytes.
+L92A5:  .byte $08, $08			;Face punch defense values.
+L92A7:  .byte $00, $00			;Stomach punch defense values.
+L92A9:  .byte ST_RETURN_FUNC	;Return from function call.
+
+DefenseStats5:
+L92AA:  .byte ST_DEFENSE        ;Load opponent's defense data from following 4 bytes.
+L92AB:  .byte $00, $00			;Face punch defense values.
+L92AD:  .byte $08, $08			;Stomach punch defense values.
+L92AF:  .byte ST_RETURN_FUNC	;Return from function call.
+
+DefenseStats6:
+L92B0:  .byte ST_DEFENSE        ;Load opponent's defense data from following 4 bytes.
+L92B1:  .byte $00, $00			;Face punch defense values.
+L92B3:  .byte $00, $00			;Stomach punch defense values.
+L92B5:  .byte ST_RETURN_FUNC	;Return from function call.
 
 ;------------------------------------------[ Palette Data ]------------------------------------------
 

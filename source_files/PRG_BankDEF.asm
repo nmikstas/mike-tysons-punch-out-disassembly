@@ -4624,10 +4624,10 @@ LC55B:  INY                     ;
 LC55C:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC562:  .word ChngOppSprites, SpritesNxtXYState, $C5B3, $C5B7
-LC56A:  .word $C5C8, $C5CE, $C5D4, $C5E6
-LC572:  .word $C5F9, $C600, $C61E, $C670
-LC57A:  .word $C670, $C670, $C670, $C720
+LC562:  .word ChngOppSprites,  SpritesNxtXYState, $C5B3,           $C5B7
+LC56A:  .word $C5C8,           $C5CE,             $C5D4,           $C5E6
+LC572:  .word $C5F9,           $C600,             $C61E,           OppStateUpdate1
+LC57A:  .word OppStateUpdate1, OppStateUpdate1,   OppStateUpdate1, OppStateUpdate2
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4797,46 +4797,62 @@ LC66C:  SEC
 LC66D:  SBC $E7
 LC66F:  RTS
 
-LC670:  TXA
+;----------------------------------------------------------------------------------------------------
+
+OppStateUpdate1:
+LC670:  TXA						;Get index into table below.
 LC671:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC674:  .word $C68E, $C6AA, $0000, $0000
-LC67C:  .word $C6BD, $C6C3, $C6CA, $C6D7
-LC684:  .word $C6DF, $C6EA, $0000, $0000
+LC674:  .word OppCallFunc, OppReturnFunc, NULL_PNTR, NULL_PNTR
+LC67C:  .word $C6BD,       $C6C3,         $C6CA,     $C6D7
+LC684:  .word $C6DF,       $C6EA,         NULL_PNTR, NULL_PNTR
 LC68C:  .word $C70C
 
+;----------------------------------------------------------------------------------------------------
+
+OppCallFunc:
 LC68E:  LDA OppStBasePtrLB
-LC690:  STA $9E
+LC690:  STA OppPtrReturnLB
 LC692:  LDA OppStBasePtrUB
-LC694:  STA $9F
+LC694:  STA OppPtrReturnUB
 LC696:  LDA (OppStBasePtr),Y
 LC698:  INY
 LC699:  TAX
 LC69A:  LDA (OppStBasePtr),Y
 LC69C:  INY
-LC69D:  STY $9D
+LC69D:  STY OppIndexReturn
 LC69F:  STA OppStBasePtrUB
 LC6A1:  STX OppStBasePtrLB
 LC6A3:  LDY #$00
 LC6A5:  STY OppStateIndex
 LC6A7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
-LC6AA:  LDA $9E
+;----------------------------------------------------------------------------------------------------
+
+OppReturnFunc:
+LC6AA:  LDA OppPtrReturnLB
 LC6AC:  STA OppStBasePtrLB
-LC6AE:  LDA $9F
+LC6AE:  LDA OppPtrReturnUB
 LC6B0:  STA OppStBasePtrUB
-LC6B2:  LDY $9D
+LC6B2:  LDY OppIndexReturn
 LC6B4:  STY OppStateIndex
 LC6B6:  LDA #$00
-LC6B8:  STA $9F
+LC6B8:  STA OppPtrReturnUB
 LC6BA:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+
+;----------------------------------------------------------------------------------------------------
 
 LC6BD:  LDA $0581
 LC6C0:  STA OppStateTimer
 LC6C2:  RTS
+
+;----------------------------------------------------------------------------------------------------
+
 LC6C3:  LDA #$00
 LC6C5:  STA OppPunching
 LC6C7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+
+;----------------------------------------------------------------------------------------------------
 
 LC6CA:  LDA PPU0Load
 LC6CC:  AND #$DF
@@ -4844,6 +4860,8 @@ LC6CE:  LDX #$08
 LC6D0:  STA PPU0Load
 LC6D2:  STX $80
 LC6D4:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+
+;----------------------------------------------------------------------------------------------------
 
 LC6D7:  LDA PPU0Load
 LC6D9:  ORA #$20
@@ -4855,6 +4873,9 @@ LC6E2:  STA $E0
 LC6E4:  LDA (OppStBasePtr),Y
 LC6E6:  INY
 LC6E7:  JMP $C78B
+
+;----------------------------------------------------------------------------------------------------
+
 LC6EA:  LDA (OppStBasePtr),Y
 LC6EC:  BEQ $C6F6
 LC6EE:  LDX $0300
@@ -4871,6 +4892,8 @@ LC706:  LDA #$64
 LC708:  STA $0306
 LC70B:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 LC70C:  LDA (OppStBasePtr),Y
 LC70E:  INC OppStateIndex
 LC710:  TAY
@@ -4886,7 +4909,8 @@ LC71D:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC720:  TXA
+OppStateUpdate2:
+LC720:  TXA						;Get index into table below.
 LC721:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC724:  .word $C744, $C770, ChkMemAndBranch, $C7A7

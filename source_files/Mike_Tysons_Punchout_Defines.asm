@@ -50,6 +50,9 @@
 .alias OppStRepeatCntr  $96     ;Counter used to repeat the opponent's current state.
 .alias OppPunching      $97     ;#$00=Opponent not punching, #$01=Opponent punching.
 
+.alias OppIndexReturn	$9D		;Restore value of OppStateIndex after function return.
+.alias OppPtrReturnLB	$9E		;Restore value of OppStBasePtrLB after function return.
+.alias OppPtrReturnUB	$9F		;Restore value of OppStBasePtrUB after function return.
 .alias OppAnimFlags     $A0     ;MSB set=Change opponent sprites, LSB set=Move opponent on screen.
 .alias OppBaseAnimIndex $A1     ;Base animation index for opponent sprites.
 
@@ -421,10 +424,13 @@
 ;Opponent state functions.
 .alias ST_SPRITES       $10     ;Load sprite data for current opponent sub-state.
 .alias ST_TIMER         $80     ;Number of frames for sub-state to wait.
-.alias ST_DEFENSE       $E0     ;Load opponent's defense from an address pointer.
+.alias ST_CALL_FUNC     $E0     ;Call an opponent state subroutine.
+.alias ST_RETURN_FUNC	$E1		;Return from an opponent state subroutine.
+.alias ST_CHK_BRANCH	$F2		;Check memory for valur and branch in state data if value found.
 .alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
-.alias ST_DEF_INLINE    $F7     ;Load Opponent's defense with data from within state data.
+.alias ST_DEFENSE	    $F7     ;Load Opponent's defense from following 4 data bytes.
 .alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
+.alias ST_WRITE_BYTE	$FA		;Write a byte into zero page memory.
 
 ;Controller bits.
 .alias IN_RIGHT         $01     ;Right on the dpad.
@@ -447,6 +453,7 @@
 .alias OPP_CHNG_BOTH    $81     ;Change both position and sprites.
 
 ;Misc. items.
+.alias NULL_PNTR		$0000	;Null pointer.
 .alias SND_OFF          $80     ;Silences sound channel.
 .alias PPU_LEFT_EN      $06     ;Enable both left background column and left sprite column.
 .alias GAME_ENG_RUN     $00     ;Enables the main game engine.
