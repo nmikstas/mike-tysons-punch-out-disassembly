@@ -253,7 +253,7 @@ LA268:  LDA #$00
 LA26A:  JSR $AA6E
 LA26D:  LDA #$8F
 LA26F:  LDY #$21
-LA271:  STA $0480,Y
+LA271:  STA ThisBkgPalette,Y
 LA274:  DEY
 LA275:  BPL $A271
 LA277:  LDA #$01
@@ -667,15 +667,18 @@ LA5E7:  STA $E000
 LA5EA:  DEC $1A
 LA5EC:  LDA $1A
 LA5EE:  BEQ $A63E
-LA5F0:  LDA $04A0
+
+LA5F0:  LDA UpdatePalFlag
 LA5F3:  BEQ $A606
+
 LA5F5:  LDA PPU0Load
 LA5F7:  AND #$FB
 LA5F9:  STA PPUControl0
 LA5FC:  JSR $AF0B
 LA5FF:  LDA #$00
-LA601:  STA $04A0
+LA601:  STA UpdatePalFlag
 LA604:  DEC $1A
+
 LA606:  LDA $0410
 LA609:  BPL $A613
 LA60B:  LDX PPU0Load
@@ -758,7 +761,7 @@ LA6B7:  JSR $800F
 LA6BA:  JSR $8015
 LA6BD:  JSR $AA48
 LA6C0:  JSR $B457
-LA6C3:  JSR $C440
+LA6C3:  JSR SetOppOutlineClr    ;($C440)Set opponent outline color.
 LA6C6:  JSR $B530
 LA6C9:  JSR $A774
 LA6CC:  JSR $A7C4
@@ -804,7 +807,8 @@ LA6FE:  DEC TransTimer
 LA700:  LDA $0410
 LA703:  BPL $A708
 LA705:  JSR $C24A
-LA708:  LDA $04A0
+
+LA708:  LDA UpdatePalFlag
 LA70B:  BEQ $A721
 
 LA70D:  LDA PPU0Load
@@ -817,7 +821,8 @@ LA717:  LDA PPU0Load
 LA719:  STA PPUControl0
 
 LA71C:  LDA #$00
-LA71E:  STA $04A0
+LA71E:  STA UpdatePalFlag
+
 LA721:  JSR $A9DF
 LA724:  JSR $AA3C
 LA727:  JSR $8012
@@ -868,18 +873,18 @@ LA782:  SEC
 LA783:  SBC #$10
 LA785:  STA $04C8
 LA788:  LDX #$1F
-LA78A:  LDA $0480,X
+LA78A:  LDA ThisBkgPalette,X
 LA78D:  BMI $A79D
 LA78F:  CMP $04C8
 LA792:  BCC $A79D
 LA794:  SBC #$10
 LA796:  BCS $A79A
 LA798:  LDA #$8F
-LA79A:  STA $0480,X
+LA79A:  STA ThisBkgPalette,X
 LA79D:  DEX
 LA79E:  BPL $A78A
-LA7A0:  LDA #$81
-LA7A2:  STA $04A0
+LA7A0:  LDA #PAL_UPDATE
+LA7A2:  STA UpdatePalFlag
 LA7A5:  RTS
 LA7A6:  LDA $03D8
 LA7A9:  BPL $A7C3
@@ -1386,7 +1391,7 @@ LABBD:  STX $05
 LABBF:  STX VulnerableTimer
 LABC2:  STX $04FE
 LABC5:  STX $04FF
-LABC8:  STX $9A
+LABC8:  STX OppAnimSeg
 LABCA:  STX $36
 LABCC:  STX $35
 LABCE:  DEX
@@ -1426,8 +1431,8 @@ LAC1D:  ADC #$BF
 LAC1F:  STA PPUIOReg
 LAC22:  JSR $AA48
 LAC25:  JSR $AF5B
-LAC28:  LDA #$81
-LAC2A:  STA $04A0
+LAC28:  LDA #PAL_UPDATE
+LAC2A:  STA UpdatePalFlag
 LAC2D:  LDA #$30
 LAC2F:  STA $00
 LAC31:  LDA #$01
@@ -1638,8 +1643,8 @@ LADF1:  TYA
 LADF2:  AND #$F0
 LADF4:  TAY
 LADF5:  STY $04A2
-LADF8:  LDA #$81
-LADFA:  STA $04A0
+LADF8:  LDA #PAL_UPDATE
+LADFA:  STA UpdatePalFlag
 LADFD:  LDA #$06
 LADFF:  JSR $AF04
 LAE02:  DEC $04A3
@@ -1780,10 +1785,11 @@ LAF04:  STA TransTimer
 LAF06:  LDA TransTimer
 LAF08:  BNE $AF06
 LAF0A:  RTS
+
 LAF0B:  LDX #$3F
 LAF0D:  LDY #$00
 LAF0F:  JSR $AF2E
-LAF12:  LDA $0480,Y
+LAF12:  LDA ThisBkgPalette,Y
 LAF15:  STA PPUIOReg
 LAF18:  INY
 LAF19:  CPY #$20
@@ -1795,10 +1801,12 @@ LAF24:  STA PPUAddress
 LAF27:  STA PPUAddress
 LAF2A:  STA PPUAddress
 LAF2D:  RTS
+
 LAF2E:  LDA PPUStatus
 LAF31:  STX PPUAddress
 LAF34:  STY PPUAddress
 LAF37:  RTS
+
 LAF38:  LDX #$00
 LAF3A:  LDA #$F8
 LAF3C:  STA $0200,X
@@ -2171,7 +2179,7 @@ LB161:  LDA $0504,X
 LB164:  STA $0584
 LB167:  LDA $0505,X
 LB16A:  STA $0580
-LB16D:  STA $0581
+LB16D:  STA VariableStTime
 LB170:  LDA $0506,X
 LB173:  AND #$07
 LB175:  STA $0582
@@ -2810,8 +2818,8 @@ LB687:  STY $E2
 LB689:  LDY #$50
 LB68B:  LDX #$06
 LB68D:  JSR $BEE1
-LB690:  LDA #$81
-LB692:  STA $04A0
+LB690:  LDA #PAL_UPDATE
+LB692:  STA UpdatePalFlag
 LB695:  LDY #$03
 LB697:  LDA $B6C7,Y
 LB69A:  STA $0208,Y
@@ -2857,7 +2865,7 @@ LB6F4:  LDX #$02
 LB6F6:  JSR $BF0D
 LB6F9:  LDA #$8F
 LB6FB:  LDY #$00
-LB6FD:  STA $0480,Y
+LB6FD:  STA ThisBkgPalette,Y
 LB700:  INY
 LB701:  CPY #$20
 LB703:  BNE $B6FD
@@ -2874,8 +2882,8 @@ LB71A:  LDY #$20
 LB71C:  STY $E2
 LB71E:  LDX #$00
 LB720:  JSR $BEE1
-LB723:  LDA #$81
-LB725:  STA $04A0
+LB723:  LDA #PAL_UPDATE
+LB725:  STA UpdatePalFlag
 LB728:  LDA #$FD
 LB72A:  JSR $BFAE
 LB72D:  LDA #$FD
@@ -2989,9 +2997,9 @@ LB819:  LDX #$00
 LB81B:  LDY #$00
 LB81D:  JSR $BEE1
 LB820:  LDA #$01
-LB822:  STA $0490
-LB825:  LDA #$81
-LB827:  STA $04A0
+LB822:  STA ThisSprtPalette
+LB825:  LDA #PAL_UPDATE
+LB827:  STA UpdatePalFlag
 LB82A:  LDA #$54
 LB82C:  STA OppBaseXSprite
 LB82E:  LDA #$B9
@@ -3036,8 +3044,8 @@ LB89B:  STY $E2
 LB89D:  LDX #$00
 LB89F:  LDY #$00
 LB8A1:  JSR $BEE1
-LB8A4:  LDA #$81
-LB8A6:  STA $04A0
+LB8A4:  LDA #PAL_UPDATE
+LB8A6:  STA UpdatePalFlag
 LB8A9:  LDA #$FE
 LB8AB:  JSR $BFAE
 LB8AE:  LDA #$56
@@ -3063,8 +3071,8 @@ LB8D9:  STY $E2
 LB8DB:  LDX #$00
 LB8DD:  LDY #$30
 LB8DF:  JSR $BEE1
-LB8E2:  LDA #$81
-LB8E4:  STA $04A0
+LB8E2:  LDA #PAL_UPDATE
+LB8E4:  STA UpdatePalFlag
 LB8E7:  LDA #$FD
 LB8E9:  JSR $BFAE
 LB8EC:  LDA #$37
@@ -3090,8 +3098,8 @@ LB917:  JSR $BFAA
 LB91A:  LDX #$08
 LB91C:  JSR $BF9E
 LB91F:  JSR $BED9
-LB922:  LDA #$81
-LB924:  STA $04A0
+LB922:  LDA #PAL_UPDATE
+LB924:  STA UpdatePalFlag
 LB927:  JSR $BEED
 LB92A:  LDA #$45
 LB92C:  LDX #$04
@@ -3139,8 +3147,8 @@ LB98A:  STA $E2
 LB98C:  LDY #$20
 LB98E:  LDX #$10
 LB990:  JSR $BEE1
-LB993:  LDA #$81
-LB995:  STA $04A0
+LB993:  LDA #PAL_UPDATE
+LB995:  STA UpdatePalFlag
 LB998:  LDA #$FD
 LB99A:  JSR $BFAE
 LB99D:  LDA #$FE
@@ -3263,8 +3271,8 @@ LBA93:  LDX #$00
 LBA95:  LDA #$10
 LBA97:  STA $E2
 LBA99:  JSR $BEE1
-LBA9C:  LDA #$81
-LBA9E:  STA $04A0
+LBA9C:  LDA #PAL_UPDATE
+LBA9E:  STA UpdatePalFlag
 LBAA1:  JSR $BEED
 LBAA4:  LDX #$00
 LBAA6:  INY
@@ -3394,8 +3402,8 @@ LBBB2:  LDA #$0B
 LBBB4:  LDY #$0C
 LBBB6:  LDX #$0D
 LBBB8:  JSR $BEC9
-LBBBB:  LDA #$81
-LBBBD:  STA $04A0
+LBBBB:  LDA #PAL_UPDATE
+LBBBD:  STA UpdatePalFlag
 LBBC0:  JMP $AA64
 LBBC3:  LDA $03D0
 LBBC6:  BEQ $BBD2
@@ -3488,14 +3496,14 @@ LBC77:  INY
 LBC78:  TAX
 LBC79:  LDA ($E0),Y
 LBC7B:  INY
-LBC7C:  STA $0480,X
+LBC7C:  STA ThisBkgPalette,X
 LBC7F:  INX
 LBC80:  CPX #$13
 LBC82:  BEQ $BC88
 LBC84:  CPX #$1B
 LBC86:  BNE $BC79
-LBC88:  LDA #$81
-LBC8A:  STA $04A0
+LBC88:  LDA #PAL_UPDATE
+LBC8A:  STA UpdatePalFlag
 LBC8D:  RTS
 LBC8E:  JSR $AF2E
 LBC91:  JSR $C0F2
@@ -3548,8 +3556,8 @@ LBCF5:  LDA #$0B
 LBCF7:  LDY #$0A
 LBCF9:  LDX #$0D
 LBCFB:  JSR $BEC9
-LBCFE:  LDA #$81
-LBD00:  STA $04A0
+LBCFE:  LDA #PAL_UPDATE
+LBD00:  STA UpdatePalFlag
 LBD03:  LDA #$00
 LBD05:  STA $D000
 LBD08:  LDA $06EE
@@ -3585,8 +3593,8 @@ LBD51:  LDY #$20
 LBD53:  STY $E2
 LBD55:  LDX #$00
 LBD57:  JSR $BEE1
-LBD5A:  LDA #$81
-LBD5C:  STA $04A0
+LBD5A:  LDA #PAL_UPDATE
+LBD5C:  STA UpdatePalFlag
 LBD5F:  LDA #$FD
 LBD61:  JSR $BFAE
 LBD64:  LDX #$23
@@ -3781,7 +3789,7 @@ LBEDB:  LDY #$00
 LBEDD:  LDA #$20
 LBEDF:  STA $E2
 LBEE1:  LDA ($E0),Y
-LBEE3:  STA $0480,X
+LBEE3:  STA ThisBkgPalette,X
 LBEE6:  INY
 LBEE7:  INX
 LBEE8:  DEC $E2
@@ -4462,29 +4470,50 @@ LC439:  RTS
 LC43A:  LDA #$01
 LC43C:  STA $A2
 LC43E:  BNE $C435
-LC440:  LDA $9C
-LC442:  BEQ $C46A
-LC444:  BMI $C44E
-LC446:  DEC $9C
-LC448:  BNE $C46A
-LC44A:  LDY #$01
-LC44C:  BNE $C454
-LC44E:  AND #$7F
-LC450:  STA $9C
-LC452:  LDY #$00
-LC454:  LDA $05EC,Y
-LC457:  LDX #$04
-LC459:  LDY #$03
-LC45B:  STA $0490,Y
-LC45E:  INY
-LC45F:  INY
-LC460:  INY
-LC461:  INY
-LC462:  DEX
-LC463:  BNE $C45B
-LC465:  LDA #$81
-LC467:  STA $04A0
-LC46A:  RTS
+
+;----------------------------------------------------------------------------------------------------
+
+SetOppOutlineClr:
+LC440:  LDA OppOutlineTimer     ;Is outline color timer active?
+LC442:  BEQ OppOutlineEnd       ;If not, branch to exit.
+
+LC444:  BMI SetOutlineTimer     ;Does ouotline color timer need to be initialized? If so, branch.
+
+LC446:  DEC OppOutlineTimer     ;Decrement outline color timer. Has timer expired?
+LC448:  BNE OppOutlineEnd       ;If not, branch to exit.
+
+LC44A:  LDY #$01                ;Prepare to set normal outline color.
+LC44C:  BNE PrepOutlineWrite    ;Branch always.
+
+SetOutlineTimer:
+LC44E:  AND #$7F                ;Clear MSB to indicate timer is running.
+LC450:  STA OppOutlineTimer     ;Set outline color timer.
+LC452:  LDY #$00                ;Prepare to set dodge indicator outline color.
+
+PrepOutlineWrite:
+LC454:  LDA OppOutline,Y        ;Get opponent outline color.
+LC457:  LDX #$04                ;Prepare to change 4 sprite palette bytes.
+LC459:  LDY #$03                ;Base index of palette bytes.
+
+LoadDodgeClrLoop:
+LC45B:  STA ThisSprtPalette,Y   ;Change byte of palette color.
+
+LC45E:  INY                     ;
+LC45F:  INY                     ;Increment to next palette.
+LC460:  INY                     ;
+LC461:  INY                     ;
+
+LC462:  DEX                     ;Have all 4 palette bytes been changed?
+LC463:  BNE LoadDodgeClrLoop    ;If not, branch to change another palette byte.
+
+LC465:  LDA #PAL_UPDATE         ;Indicate the palettes need to be updated in the PPU.
+LC467:  STA UpdatePalFlag       ;
+
+OppOutlineEnd:
+LC46A:  RTS                     ;End outline color change.
+
+;----------------------------------------------------------------------------------------------------
+
 LC46B:  AND #$7F
 LC46D:  STA $90
 LC46F:  LDA #$80
@@ -4497,7 +4526,7 @@ LC47C:  LDY #$B4
 LC47E:  LDX #$06
 LC480:  JSR $AEF8
 LC483:  INX
-LC484:  STX $9C
+LC484:  STX OppOutlineTimer
 LC486:  STA $AF
 LC488:  INC OppStateTimer
 LC48A:  STA $5A
@@ -4578,7 +4607,7 @@ LC521:  ASL
 LC522:  ASL
 LC523:  TAY
 LC524:  LDX #$00
-LC526:  STX $B4
+LC526:  STX OppPunchSide
 LC528:  STX OppPunchDamage
 
 LC52A:  LDA $C828,Y
@@ -4592,18 +4621,18 @@ LC535:  INC OppStateTimer
 LC537:  LDA $AF
 LC539:  BEQ $C53E
 LC53B:  JSR $AA38
-LC53E:  LDA $9A
+LC53E:  LDA OppAnimSeg
 LC540:  BEQ OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
-LC542:  DEC $9A
-LC544:  LDA $9B
+LC542:  DEC OppAnimSeg
+LC544:  LDA OppAnimSegTimer
 LC546:  STA OppStateTimer
 LC548:  DEC OppStateIndex
 LC54A:  LDY OppStateIndex
 LC54C:  JMP $C5D6
 LC54F:  RTS
 
-;----------------------------------------------------------------------------------------------------
+;----------------------------[ Opponent State Machine Data Subroutines ]-----------------------------
 
 ;This function is the entry point for updating the opponent's state.  It uses the upper nibble of
 ;a control byte to pick a function to run from the table below.  The function it calls may then
@@ -4625,7 +4654,7 @@ LC55C:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC562:  .word ChngOppSprites,  SpritesNxtXYState, $C5B3,           $C5B7
-LC56A:  .word $C5C8,           $C5CE,             $C5D4,           $C5E6
+LC56A:  .word $C5C8,           $C5CE,             $C5D4,           OppMoveSprites
 LC572:  .word $C5F9,           $C600,             $C61E,           OppStateUpdate1
 LC57A:  .word OppStateUpdate1, OppStateUpdate1,   OppStateUpdate1, OppStateUpdate2
 
@@ -4686,6 +4715,8 @@ LC5B2:  RTS                     ;
 LC5B3:  STX OppStateTimer
 LC5B5:  BNE OppXYPos
 
+;----------------------------------------------------------------------------------------------------
+
 LC5B7:  TXA
 LC5B8:  JSR $AEAB
 LC5BB:  BCC $C5C5
@@ -4704,37 +4735,58 @@ LC5C6:  BNE $C5C0
 LC5C8:  LDA #$01
 LC5CA:  STA $A2
 LC5CC:  BNE $C58D
+
+;----------------------------------------------------------------------------------------------------
+
 LC5CE:  LDA #$01
 LC5D0:  STA $A2
 LC5D2:  BNE $C59B
-LC5D4:  STX OppStateTimer
-LC5D6:  LDA (OppStBasePtr),Y
-LC5D8:  INC OppStateIndex
-LC5DA:  LDX #$B0
-LC5DC:  JSR $C830
 
-LC5DF:  LDA #OPP_CHNG_POS
-LC5E1:  STA OppAnimFlags
+;----------------------------------------------------------------------------------------------------
+
+LC5D4:  STX OppStateTimer
+
+SprtUpdateXY:
+LC5D6:  LDA (OppStBasePtr),Y    ;Get X and Y movement values.
+LC5D8:  INC OppStateIndex       ;
+
+LC5DA:  LDX #OppBaseSprite      ;Prepare to update sprites X and Y positions.
+LC5DC:  JSR UpdateMemPair       ;($C830)Update X and Y sprite positions.
+
+LC5DF:  LDA #OPP_CHNG_POS       ;Indicate opponents sprites are moving.
+LC5E1:  STA OppAnimFlags        ;
 
 LC5E3:  JMP ZeroByteInc         ;($C582)Increment past zero data byte.
-LC5E6:  TXA
-LC5E7:  AND #$03
-LC5E9:  CLC
-LC5EA:  ADC #$01
-LC5EC:  STA OppStateTimer
-LC5EE:  STA $9B
-LC5F0:  TXA
-LC5F1:  LSR
-LC5F2:  LSR
-LC5F3:  TAX
-LC5F4:  INX
-LC5F5:  STX $9A
-LC5F7:  BNE $C5D6
+
+;----------------------------------------------------------------------------------------------------
+
+;For the current opponent animation, they will move around on the screen.
+
+OppMoveSprites:
+LC5E6:  TXA                     ;
+LC5E7:  AND #$03                ;
+LC5E9:  CLC                     ;Frames per segment is bits 0,1 incremented by 1.
+LC5EA:  ADC #$01                ;
+LC5EC:  STA OppStateTimer       ;
+LC5EE:  STA OppAnimSegTimer     ;
+
+LC5F0:  TXA                     ;
+LC5F1:  LSR                     ;
+LC5F2:  LSR                     ;Number of movement segments is bits 2,3 incremented by 1.
+LC5F3:  TAX                     ;
+LC5F4:  INX                     ;
+LC5F5:  STX OppAnimSeg          ;
+
+LC5F7:  BNE SprtUpdateXY        ;Should branch always.
+
+;----------------------------------------------------------------------------------------------------
 
 LC5F9:  LDA (OppStBasePtr),Y
 LC5FB:  INC OppStateIndex
 LC5FD:  STA OppStateTimer
 LC5FF:  RTS
+
+;----------------------------------------------------------------------------------------------------
 
 LC600:  STX $E0
 LC602:  LDA (OppStBasePtr),Y
@@ -4752,6 +4804,8 @@ LC615:  DEC $E0
 LC617:  BNE $C60E
 LC619:  STY OppStateIndex
 LC61B:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+
+;----------------------------------------------------------------------------------------------------
 
 LC61E:  STX OppStateTimer
 LC620:  LDX #$00
@@ -4774,6 +4828,7 @@ LC640:  LDA (OppStBasePtr),Y
 LC642:  TAY
 LC643:  STY OppStateIndex
 LC645:  RTS
+
 LC646:  INY
 LC647:  BNE $C643
 LC649:  BPL $C660
@@ -4788,6 +4843,7 @@ LC65A:  LDA OppBaseSprite,X
 LC65C:  CLC
 LC65D:  ADC $E7
 LC65F:  RTS
+
 LC660:  CMP $04D2,X
 LC663:  BCC $C668
 LC665:  LDA $04D2,X
@@ -4800,56 +4856,64 @@ LC66F:  RTS
 ;----------------------------------------------------------------------------------------------------
 
 OppStateUpdate1:
-LC670:  TXA						;Get index into table below.
+LC670:  TXA                     ;Get index into table below.
 LC671:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC674:  .word OppCallFunc, OppReturnFunc, NULL_PNTR, NULL_PNTR
-LC67C:  .word $C6BD,       $C6C3,         $C6CA,     $C6D7
-LC684:  .word $C6DF,       $C6EA,         NULL_PNTR, NULL_PNTR
-LC68C:  .word $C70C
+LC674:  .word OppCallFunc,  OppReturnFunc, NULL_PNTR, NULL_PNTR
+LC67C:  .word OppVarStTime, OppNotPunch,   $C6CA,     $C6D7
+LC684:  .word $C6DF,        $C6EA,         NULL_PNTR, NULL_PNTR
+LC68C:  .word InitAudio
 
 ;----------------------------------------------------------------------------------------------------
 
 OppCallFunc:
-LC68E:  LDA OppStBasePtrLB
-LC690:  STA OppPtrReturnLB
-LC692:  LDA OppStBasePtrUB
-LC694:  STA OppPtrReturnUB
-LC696:  LDA (OppStBasePtr),Y
-LC698:  INY
-LC699:  TAX
-LC69A:  LDA (OppStBasePtr),Y
-LC69C:  INY
-LC69D:  STY OppIndexReturn
-LC69F:  STA OppStBasePtrUB
-LC6A1:  STX OppStBasePtrLB
-LC6A3:  LDY #$00
-LC6A5:  STY OppStateIndex
+LC68E:  LDA OppStBasePtrLB      ;
+LC690:  STA OppPtrReturnLB      ;Store opponent state base pointer.
+LC692:  LDA OppStBasePtrUB      ;
+LC694:  STA OppPtrReturnUB      ;
+
+LC696:  LDA (OppStBasePtr),Y    ;
+LC698:  INY                     ;
+LC699:  TAX                     ;Get the address of opponent base state to call.
+LC69A:  LDA (OppStBasePtr),Y    ;
+LC69C:  INY                     ;
+
+LC69D:  STY OppIndexReturn      ;Store index into current state for when its time to return.
+
+LC69F:  STA OppStBasePtrUB      ;Jump to new opponent state base address.
+LC6A1:  STX OppStBasePtrLB      ;
+
+LC6A3:  LDY #$00                ;Zero state index to start at beginning of new state.
+LC6A5:  STY OppStateIndex       ;
 LC6A7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
 
 OppReturnFunc:
-LC6AA:  LDA OppPtrReturnLB
-LC6AC:  STA OppStBasePtrLB
-LC6AE:  LDA OppPtrReturnUB
-LC6B0:  STA OppStBasePtrUB
-LC6B2:  LDY OppIndexReturn
-LC6B4:  STY OppStateIndex
-LC6B6:  LDA #$00
-LC6B8:  STA OppPtrReturnUB
+LC6AA:  LDA OppPtrReturnLB      ;
+LC6AC:  STA OppStBasePtrLB      ;Restore opponent state base pointer.
+LC6AE:  LDA OppPtrReturnUB      ;
+LC6B0:  STA OppStBasePtrUB      ;
+
+LC6B2:  LDY OppIndexReturn      ;Restore state index.
+LC6B4:  STY OppStateIndex       ;
+
+LC6B6:  LDA #$00                ;Indicate the function has returned from subroutine.
+LC6B8:  STA OppPtrReturnUB      ;
 LC6BA:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC6BD:  LDA $0581
-LC6C0:  STA OppStateTimer
-LC6C2:  RTS
+OppVarStTime:
+LC6BD:  LDA VariableStTime      ;
+LC6C0:  STA OppStateTimer       ;Set a varying amount of time for this opponent's state time.
+LC6C2:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
-LC6C3:  LDA #$00
-LC6C5:  STA OppPunching
+OppNotPunch:
+LC6C3:  LDA #$00                ;Clear opponent punching flag.
+LC6C5:  STA OppPunching         ;
 LC6C7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
@@ -4867,6 +4931,9 @@ LC6D7:  LDA PPU0Load
 LC6D9:  ORA #$20
 LC6DB:  LDX #$10
 LC6DD:  BNE $C6D0
+
+;----------------------------------------------------------------------------------------------------
+
 LC6DF:  LDA (OppStBasePtr),Y
 LC6E1:  INY
 LC6E2:  STA $E0
@@ -4894,6 +4961,7 @@ LC70B:  RTS
 
 ;----------------------------------------------------------------------------------------------------
 
+InitAudio:
 LC70C:  LDA (OppStBasePtr),Y
 LC70E:  INC OppStateIndex
 LC710:  TAY
@@ -4902,21 +4970,23 @@ LC713:  TAX
 LC714:  TYA
 LC715:  AND #$FC
 LC717:  BMI $C71B
+
 LC719:  LSR
 LC71A:  LSR
-LC71B:  STA $F0,X
+
+LC71B:  STA SoundInitBase,X
 LC71D:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
 
 OppStateUpdate2:
-LC720:  TXA						;Get index into table below.
+LC720:  TXA                     ;Get index into table below.
 LC721:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC724:  .word $C744, $C770, ChkMemAndBranch, $C7A7
-LC72C:  .word $C7B6, $C7BB, $C7C2,           OppDefInline
-LC734:  .word $C7E1, $C7EA, WriteZPageByte,  $C806
-LC73C:  .word $C80C, $C816, $C81D,           $C821
+LC724:  .word $C744, $C770,    ChkMemAndBranch, $C7A7
+LC72C:  .word $C7B6, $C7BB,    $C7C2,           OppDefInline
+LC734:  .word $C7E1, OppPunch, WriteZPageByte,  $C806
+LC73C:  .word $C80C, $C816,    $C81D,           $C821
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4947,6 +5017,9 @@ LC76A:  TYA
 LC76B:  CLC
 LC76C:  ADC #$03
 LC76E:  BNE $C760
+
+;----------------------------------------------------------------------------------------------------
+
 LC770:  LDA (OppStBasePtr),Y
 LC772:  TAX
 LC773:  INY
@@ -4963,7 +5036,7 @@ LC782:  BNE $C765
 ;----------------------------------------------------------------------------------------------------
 
 ;This function will check for a specific value in a memory address. If the value is not equal
-;to a given value, it will continue on in a linear fashin in the state. If the value is equal
+;to a given value, it will continue on in a linear fashion in the state. If the value is equal
 ;to a given value, the state will jump to a new index given by the proceeding data byte.
 
 ChkMemAndBranch:
@@ -5009,6 +5082,8 @@ LC7B0:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 LC7B3:  INY
 LC7B4:  BNE $C7AE
 
+;----------------------------------------------------------------------------------------------------
+
 LC7B6:  LDA #$81
 LC7B8:  STA $90
 LC7BA:  RTS
@@ -5020,9 +5095,11 @@ LC7BD:  STA OppStRepeatCntr
 LC7BF:  INC OppStateIndex
 LC7C1:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 LC7C2:  LDA (OppStBasePtr),Y
 LC7C4:  INY
-LC7C5:  STA $B4
+LC7C5:  STA OppPunchSide
 LC7C7:  LDA (OppStBasePtr),Y
 LC7C9:  INY
 LC7CA:  STA OppPunchDamage
@@ -5060,8 +5137,9 @@ LC7E9:  RTS
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7EA:  LDA #$01
-LC7EC:  STA OppPunching
+OppPunch:
+LC7EA:  LDA #$01                ;Indicate the opponent is attacking.
+LC7EC:  STA OppPunching         ;
 LC7EE:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
@@ -5090,42 +5168,67 @@ LC806:  LDA $0585
 LC809:  STA ComboTimer
 LC80B:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 LC80C:  LDA ComboTimer
 LC80E:  BNE $C813
 LC810:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC813:  JMP $C74E
+
+;----------------------------------------------------------------------------------------------------
+
 LC816:  LDA (OppStBasePtr),Y
 LC818:  STA $5A
 LC81A:  INC OppStateIndex
 LC81C:  RTS
+
+;----------------------------------------------------------------------------------------------------
+
 LC81D:  LDA #$82
 LC81F:  BNE $C825
+
+;----------------------------------------------------------------------------------------------------
+
 LC821:  DEC OppStateIndex
 LC823:  LDA #$83
 LC825:  STA $91
 LC827:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 LC828:  .byte $00, $00, $08, $08, $08, $08, $00, $00
 
-LC830:  STA $E0
-LC832:  JSR $C844
-LC835:  JSR $C83E
+;----------------------------------------------------------------------------------------------------
 
-LC838:  LDA $E0
-LC83A:  JSR $C847
+UpdateMemPair:
+LC830:  STA GenByteE0           ;Save nibble data for later.
+LC832:  JSR HiNibbleSignExtend  ;($C844)Sign extend the upper nibble.
+LC835:  JSR AddMemByte          ;($C83E)Add nibble to memory location.
 
-LC83D:  INX
-LC83E:  CLC
-LC83F:  ADC $00,X
-LC841:  STA $00,X
-LC843:  RTS
+LC838:  LDA GenByteE0           ;Restore nibble dta.
+LC83A:  JSR LoNibbleSignExtend  ;($C847)Sign extend the lower nibble.
+
+LC83D:  INX                     ;Move to next memory location.
+
+AddMemByte:
+LC83E:  CLC                     ;
+LC83F:  ADC $00,X               ;Add signed nibble to memory location.
+LC841:  STA $00,X               ;
+LC843:  RTS                     ;
+
+HiNibbleSignExtend:
 LC844:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
-LC847:  AND #$0F
-LC849:  CMP #$08
-LC84B:  BCC $C84F
-LC84D:  ORA #$F0
-LC84F:  RTS
+
+LoNibbleSignExtend:
+LC847:  AND #$0F                ;Keep only lower nibble.
+LC849:  CMP #$08                ;
+LC84B:  BCC +                   ;Sign extend into upper nibble.
+LC84D:  ORA #$F0                ;
+LC84F:* RTS                     ;
+
+;----------------------------------------------------------------------------------------------------
+
 LC850:  LDA $8004
 LC853:  STA $E0
 LC855:  LDA $8005

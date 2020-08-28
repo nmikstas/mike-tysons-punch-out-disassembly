@@ -50,9 +50,12 @@
 .alias OppStRepeatCntr  $96     ;Counter used to repeat the opponent's current state.
 .alias OppPunching      $97     ;#$00=Opponent not punching, #$01=Opponent punching.
 
-.alias OppIndexReturn	$9D		;Restore value of OppStateIndex after function return.
-.alias OppPtrReturnLB	$9E		;Restore value of OppStBasePtrLB after function return.
-.alias OppPtrReturnUB	$9F		;Restore value of OppStBasePtrUB after function return.
+.alias OppAnimSeg       $9A     ;Number of timed segments in opponent's current animation.
+.alias OppAnimSegTimer  $9B     ;Number of frames per segment in Opponent's animation.
+.alias OppOutlineTimer  $9C     ;Timer for dodge indicator outline color. MSB set=set timer.
+.alias OppIndexReturn   $9D     ;Restore value of OppStateIndex after function return.
+.alias OppPtrReturnLB   $9E     ;Restore value of OppStBasePtrLB after function return.
+.alias OppPtrReturnUB   $9F     ;Restore value of OppStBasePtrUB after function return.
 .alias OppAnimFlags     $A0     ;MSB set=Change opponent sprites, LSB set=Move opponent on screen.
 .alias OppBaseAnimIndex $A1     ;Base animation index for opponent sprites.
 
@@ -60,6 +63,7 @@
 .alias OppBaseXSprite   $B0     ;Base X position for opponent sprites.
 .alias OppBaseYSprite   $B1     ;Base Y position for opponent sprites.
 
+.alias OppPunchSide     $B4     ;#$00=Punching Little Mac's left side, #$01=Little Mac's right side.
 .alias OppPunchDamage   $B5     ;The amount of damage the current punch will do to Little Mac.
 .alias OppHitDefense    $B6     ;Base address to opponent defense to Little Mac's various punches.
 .alias OppHitDefenseUR  $B6     ;Amount to subtract from Little Mac right punch to face damage.
@@ -137,13 +141,21 @@
 
 .alias MacCurrentHP     $0393   ;Current HP for Little Mac.
 
+.alias ThisBkgPalette   $0480   ;Through $048F. Current background palette data.
+.alias ThisSprtPalette  $0490   ;Through $049F. Current sprite palette data.
+.alias UpdatePalFlag    $04A0   ;Non-zero value indicates the palettes need to be updated.
+
 .alias DatIndexTemp     $04C9   ;Temporary storage for data index.
 
 .alias VulnerableTimer  $04FD   ;Opponent is vunerable while counting down. Does not count on combos.
 
+.alias VariableStTime   $0581   ;A vaiable time for states. Usually decreases after being punched.
+
 .alias StarCountReset   $05B0   ;Reset value for StarCountDown.
 
 .alias ReactTimer       $05B8   ;Opponents reaction time. Does not count on combos.
+
+.alias OppOutline       $05EC   ;Base address for determining the opponent's outline color.
 
 .alias JoyRawReads      $06A0   ;Through $06A8. Raw reads from controller 1 and 2. Even values -->
                                 ;are from controller 1 while odd values are from controller 2. -->
@@ -152,16 +164,15 @@
 
 ;--------------------------------------[Sound Engine Variables]--------------------------------------
 
+.alias SoundInitBase    $F0     ;Base address for sound initialization addresses below.
 .alias SFXInitSQ1       $F0     ;The SFX index to be started that uses SQ1.
 .alias SFXInitSQ2       $F1     ;The SFX index to be started that uses SQ2.
 .alias MusicInit        $F2     ;The music index to be started.
 .alias DMCInit          $F3     ;The DMC SFX index to be started.
-
 .alias SFXIndexSQ1      $F4     ;The SFX currently being played that uses SQ1.
 .alias SFXIndexSQ2      $F5     ;The SFX currently being played that uses SQ2.
 .alias MusicIndex       $F6     ;The music currently being played.
 .alias DMCIndex         $F7     ;The DMC SFX currently being played.
-
 .alias MusicDataPtr     $F8     ;Pointer base of music data.
 .alias MusicDataPtrLB   $F8     ;Pointer base of music data, lower byte.
 .alias MusicDataPtrUB   $F9     ;Pointer base of music data, upper byte.
@@ -173,21 +184,16 @@
 .alias SQ1NoteRemain    $0701   ;The counter used for remaining SQ1 note time.
 .alias TriNoteRemain    $0702   ;The counter used for remaining triangle note time.
 .alias NoiseNoteRemain  $0703   ;The counter used for remaining noise note time.
-
 .alias SQ2NoteLength    $0704   ;The total length of the of the current SQ2 note.
 .alias SQ1NoteLength    $0705   ;The total length of the of the current SQ1 note.
 .alias TriNoteLength    $0706   ;The total length of the of the current triangle note.
 .alias NoiseNoteLength  $0707   ;The total length of the of the current noise note.
-
 .alias SQ2EnvIndex      $0708   ;The current index to SQ2 envelope data while playing music.
 .alias SQ1EnvIndex      $0709   ;The current index to SQ1 envelope data while playing music.
-
 .alias MusSeqBase       $070A   ;Base index for finding music sequence data.
 .alias MusSeqIndex      $070B   ;Current index for finding music sequence data.
-
 .alias NoiseIndexReload $070C   ;Reload address to repeat drum beatsin song background.
 .alias NoteLengthsBase  $070D   ;Base index for note lengths for a given piece of music.
-
 .alias SQ1SweepCntrl    $070E   ;Control byte for SQ1 sweep hardware.
 .alias SQ1LoFreqBits    $070F   ;Lower frequency bits of SQ0.
 .alias SQ2LoFreqBits    $0710   ;Lower frequency bits of SQ2.
@@ -200,13 +206,10 @@
 .alias SQ2SFXTimer      $0715   ;Length timer for SQ2 SFX.
 .alias SQ2SFXByte1      $0716   ;Multi purpose register for SQ2 SFX.
 .alias SQ2SFXByte2      $0717   ;Multi purpose register for SQ2 SFX.
-
 .alias SQ2ShortPause    $0718   ;Creates a short 2 frame pause in SQ2 music.
 .alias SQ1ShortPause    $0719   ;Creates a short 2 frame pause in SQ1 music.
-
 .alias SQ2RestartFlag   $071A   ;Flag indicating SQ2 music needs to resume after SFX completes.
 .alias SQ1RestartFlag   $071B   ;Flag indicating SQ1 music needs to resume after SFX completes.
-
 .alias SQ2EnvBase       $071C   ;Base index for SQ2 envelope data while playing music.
 .alias SQ1EnvBase       $071D   ;Base index for SQ1 envelope data while playing music.
 
@@ -216,12 +219,10 @@
 
 .alias DMCLaughLength   $071E   ;Time remaining until next laugh starts.
 .alias DMCLghAudLength  $071F   ;Auduble time remaining in this laugh segment.
-
 .alias NoiseVolIndex    $0720   ;Index to noise channel control byte for volume/envelope.
 .alias NoiseBeatType    $0721   ;If drum beat is type 10 or 11, decay will be applied.
 .alias TriNoteIndex     $0722   ;Index to current triangle musical note data.
 .alias NoiseMusicIndex  $0723   ;Index to current noise music data.
-
 .alias NoiseInUse       $0724   ;Non-zero indicates an SFX is using the noise channel.
 .alias SQ2InUse         $0725   ;Non-zero indicates an SFX is using the SQ2 channel.
 .alias SQ1InUse         $0726   ;Non-zero indicates an SFX is using the SQ1 channel.
@@ -422,15 +423,21 @@
 .alias MAC_ROUND_WAIT   $42     ;Round over.
 
 ;Opponent state functions.
-.alias ST_SPRITES       $10     ;Load sprite data for current opponent sub-state.
+.alias ST_SPRITES       $00     ;Load sprite data for current opponent sub-state.
+.alias ST_SPRITES_XY    $10     ;Load sprite data and XY position for current opponent sub-state.
+.alias ST_SPRITES_MOVE  $70     ;Move opponent animation around on the screen. -->
+                                ;Bits 0,1=frames between movements, bits 2,3=number of movements.
 .alias ST_TIMER         $80     ;Number of frames for sub-state to wait.
 .alias ST_CALL_FUNC     $E0     ;Call an opponent state subroutine.
-.alias ST_RETURN_FUNC	$E1		;Return from an opponent state subroutine.
-.alias ST_CHK_BRANCH	$F2		;Check memory for valur and branch in state data if value found.
+.alias ST_RETURN_FUNC   $E1     ;Return from an opponent state subroutine.
+.alias ST_VAR_TIME      $E4     ;Set opponent's state time to a varying amount.
+.alias ST_AUD_INIT      $EC     ;Play a SFX/music.
+.alias ST_CHK_BRANCH    $F2     ;Check memory for value and branch in state data if value found.
+.alias ST_CHK_REAPEAT   $F3     ;Check if a sub-state needs to repeat.
 .alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
-.alias ST_DEFENSE	    $F7     ;Load Opponent's defense from following 4 data bytes.
+.alias ST_DEFENSE       $F7     ;Load Opponent's defense from following 4 data bytes.
 .alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
-.alias ST_WRITE_BYTE	$FA		;Write a byte into zero page memory.
+.alias ST_WRITE_BYTE    $FA     ;Write a byte into zero page memory.
 
 ;Controller bits.
 .alias IN_RIGHT         $01     ;Right on the dpad.
@@ -446,16 +453,18 @@
 .alias LO_NIBBLE        $0F     ;Bitmask for lower nibble.
 .alias HI_NIBBLE        $F0     ;Bitmask for upper nibble.
 
-;Opponent sprite flags
+;Opponent state flags
 .alias OPP_CHNG_NONE    $00     ;Done changing opponent sprites.
 .alias OPP_CHNG_POS     $01     ;Move opponent's sprites on the screen.
 .alias OPP_CHNG_SPRT    $80     ;Change opponent's sprites(Next animation sequence). 
 .alias OPP_CHNG_BOTH    $81     ;Change both position and sprites.
+.alias OPP_RGHT_HOOK    $02     ;Indicate a right hook is being thrown.
 
 ;Misc. items.
-.alias NULL_PNTR		$0000	;Null pointer.
+.alias NULL_PNTR        $0000   ;Null pointer.
 .alias SND_OFF          $80     ;Silences sound channel.
 .alias PPU_LEFT_EN      $06     ;Enable both left background column and left sprite column.
 .alias GAME_ENG_RUN     $00     ;Enables the main game engine.
 .alias SPRT_BKG_OFF     $80     ;Disable sprites and background.
 .alias SPRT_BKG_ON      $81     ;Enable sprites and background.
+.alias PAL_UPDATE       $81     ;Update palettes flag.
