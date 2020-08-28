@@ -670,7 +670,7 @@ L8C69:  .byte $84               ;Change outline color for 4 frames.
 L8C6A:  .byte ST_VAR_TIME       ;Set sub-state time to a variable amount.
 
 ;Index #$1E.
-L8C6B:  .byte ST_CHK_REAPEAT
+L8C6B:  .byte ST_CHK_REPEAT
 L8C6C:  .byte $24
 
 L8C6D:  .byte ST_CHK_BRANCH
@@ -950,14 +950,16 @@ L9336:  .word $0000, $9376      ;Combo data.
 
 L933A:  .byte $00, $03, $00, $00, $00, $00, $05, $00, $00, $00, $DF, $7A
 
-L9346:  .word $937E
+L9346:  .word $937E             ;Little Mac knock down data.
 
 L9348:  .byte $00, $08, $00
 
-L934B:  .word $93C6
+L934B:  .word $93C6             ;Opponent knock down data.
 
-L934D:  .byte $1F, $00, $00, $04, $F9, $05, $6D, $05, $F8, $9B, $9C, $9D, $9E, $9F, $A1, $9C
-L935D:  .byte $9D
+L934D:  .byte $1F, $00, $00, $04, $F9, $05, $6D, $05, $F8
+
+;Random opponent stand up times after knock down. #$9B=2 through #$A1=8.
+L9356:  .byte $9B, $9C, $9D, $9E, $9F, $A1, $9C, $9D
 
 L935E:  .word $940E, $9452
 
@@ -966,23 +968,47 @@ L9364:  .byte $08               ;Normal opponent outline color.
 
 L9365:  .word $93F6
 
-L9366:  .byte $A1, $A2, $A3, $A4, $A4, $A3, $A2, $A1, $8A, $82, $83, $84, $85, $8C, $8B, $8A
+;Opponent messages.
+L9366:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
+L9367:  .byte $A2               ;"Make it quick! I want to retire..."
+L9368:  .byte $A3               ;"Watch the jaw!! Don't hit my jaw!"
+L9369:  .byte $A4               ;"Do I have time to take a nap before the fight?"
+L936A:  .byte $A4               ;"Do I have time to take a nap before the fight?"
+L936B:  .byte $A3               ;"Watch the jaw!! Don't hit my jaw!"
+L936C:  .byte $A2               ;"Make it quick! I want to retire..."
+L936D:  .byte $A1               ;"This is my last match! I'm too old for fighting!"
+
+;Trainer and Little Mac messages.
+L936E:  .byte $8A               ;"Listen Mac!! Dodge his punch then counter-punch!"
+L936F:  .byte $82               ;"Put him away!"
+L9370:  .byte $83               ;"Stick and move, stick and move!"
+L9371:  .byte $84               ;"Watch his left!"
+L9372:  .byte $85               ;"One two, one two punch Mac!"
+L9373:  .byte $8C               ;"Listen Mac!! Catch him off-guard to stun him! Then unload on him!"
+L9374:  .byte $8B               ;"Listen Mac!! Give him a fast upper-cut when he's stunned!"
+L9375:  .byte $8A               ;"Listen Mac!! Dodge his punch then counter-punch!"
 
 ;----------------------------------------------------------------------------------------------------
 
 ;Glass Joe.
 L9376:  .byte $36               ;Combo timer byte.
 L9377:  .byte $05               ;Combo total hits byte.
-L9378:  .byte $48, $06, $7F, $08
-L937C:  .byte $FF, $01, $11, $00, $07, $25, $39, $25, $39, $25, $39, $25, $39, $25, $10, $00
+
+L9378:  .byte $48, $06, $7F, $08, $FF, $01
+
+L937E:  .byte $11, $00, $07, $25, $39, $25, $39, $25, $39, $25, $39, $25, $10, $00
 L938C:  .byte $07, $12, $26, $12, $26, $12, $26, $12, $26, $12, $0F, $00, $08, $02, $33, $02
 L939C:  .byte $33, $02, $33, $02, $33, $02, $0E, $00, $09, $01, $32, $01, $32, $01, $32, $01
 L93AC:  .byte $32, $01, $01, $00, $7F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $01, $00
-L93BC:  .byte $7F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $E0, $1C, $0A, $0A, $0A, $0A
+L93BC:  .byte $7F, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+L93C6:  .byte $E0, $1C, $0A, $0A, $0A, $0A
 L93CC:  .byte $0A, $0A, $60, $1C, $06, $06, $06, $06, $06, $06, $00, $1C, $05, $05, $05, $05
 L93DC:  .byte $05, $05, $00, $1C, $01, $01, $01, $01, $01, $01, $00, $1C, $01, $00, $01, $00
 L93EC:  .byte $01, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
-L93FC:  .byte $00, $00, $20, $20, $20, $08, $20, $40, $10, $10, $10, $10, $20, $20, $40, $40
+L93FC:  .byte $00, $00
+
+L93FE:  .byte $20, $20, $20, $08, $20, $40, $10, $10, $10, $10, $20, $20, $40, $40
 L940C:  .byte $40, $08, $C0, $FF, $00, $0D, $00, $FF, $20, $0D, $00, $FF, $20, $04, $02, $FF
 L941C:  .byte $60, $0D, $00, $FF, $60, $02, $08, $D0, $98, $D3, $FF, $00, $02, $04, $E2, $BA
 L942C:  .byte $05, $8C, $8C, $0C, $E0, $C0, $FF, $00, $02, $06, $FE, $06, $82, $FE, $26, $82

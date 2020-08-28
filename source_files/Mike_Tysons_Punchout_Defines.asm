@@ -29,7 +29,7 @@
 .alias ComboTimer       $4A     ;Frames left until another punch must be landed to keep combo alive.
 .alias ComboCountDown   $4B     ;Hits left in current combo.
 
-.alias MacStatus        $50     ;Status of Little Mac during a fight.
+.alias MacStatus        $50     ;Status of Little Mac during a fight. MSB set=status update.
 
 .alias MacPunchType     $74     ;Little Mac punch type.
                                 ;#$00=Right punch to face.
@@ -79,6 +79,7 @@
                                 ;#$80=Little Mac falling down.
                                 ;#$FD=Freeze fight.
                                 ;#$FF=Opponent victory dance.
+.alias MacCanPunch      $BC     ;#$00=Little Mac can't punch, #$01=Little Mac can punch.
 
 .alias OppLastPunchSts  $BD     ;Last punch status of opponent.
                                 ;#$00=No last status.
@@ -86,6 +87,10 @@
                                 ;#$02=Ducked by Little Mac.
                                 ;#$03=Hit Little Mac.
                                 ;#$04=Dodged by Little Mac.
+                                
+.alias CurrentCount     $C2     ;Current referee count. #$9A=1 through #$A2=9.
+                                
+.alias OppGetUpCount    $C4     ;Count opponent will get up on. #$9A=1 through #$A2=9.
  
 .alias Joy1Buttons      $D0     ;Controller 1 button presses.
 .alias Joy2Buttons      $D1     ;Controller 2 button presses.
@@ -137,9 +142,15 @@
 
 .alias StarCountDown    $0347   ;Must count down to 1 before stars will be given.
 
-.alias MacTargetHP      $0391   ;Target HP for Little Mac.
+.alias MacNextHP        $0391   ;Next value to assign to Little Mac HP.
+.alias MacCurrentHP     $0392   ;Current vlaue of Little Mac's HP.
+.alias MacDisplayedHP   $0393   ;Displayed HP for Little Mac.
 
-.alias MacCurrentHP     $0393   ;Current HP for Little Mac.
+.alias MacMaxHP         $0397   ;Max allowable HP for Little Mac.
+.alias OppHP            $0398   ;Base for HP opponent HP addresses below.
+.alias OppNextHP        $0398   ;Next value to assign to opponent's HP.
+.alias OppCurrentHP     $0399   ;Current value of opponents HP.
+.alias OppDisplayedHP   $039A   ;Displayed value of opponent's HP.
 
 .alias ThisBkgPalette   $0480   ;Through $048F. Current background palette data.
 .alias ThisSprtPalette  $0490   ;Through $049F. Current sprite palette data.
@@ -433,7 +444,7 @@
 .alias ST_VAR_TIME      $E4     ;Set opponent's state time to a varying amount.
 .alias ST_AUD_INIT      $EC     ;Play a SFX/music.
 .alias ST_CHK_BRANCH    $F2     ;Check memory for value and branch in state data if value found.
-.alias ST_CHK_REAPEAT   $F3     ;Check if a sub-state needs to repeat.
+.alias ST_CHK_REPEAT    $F3     ;Check if a sub-state needs to repeat.
 .alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
 .alias ST_DEFENSE       $F7     ;Load Opponent's defense from following 4 data bytes.
 .alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
