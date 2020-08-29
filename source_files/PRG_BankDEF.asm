@@ -904,14 +904,14 @@ LA7C5:  LDA $DB
 LA7C7:  BPL $A7FF
 LA7C9:  AND #$7F
 LA7CB:  STA $DB
-LA7CD:  LDA $90
+LA7CD:  LDA OppCurState
 LA7CF:  STA $03FA
 LA7D2:  LDA MacStatus
 LA7D4:  STA $03FB
 LA7D7:  LDA $0300
 LA7DA:  STA $03FC
 LA7DD:  LDA $03FD
-LA7E0:  STA $90
+LA7E0:  STA OppCurState
 LA7E2:  LDA $03FE
 LA7E5:  STA MacStatus
 LA7E7:  LDA $03FF
@@ -2127,7 +2127,7 @@ LB103:  INX
 LB104:  DEC $E0
 LB106:  BNE $B0FD
 LB108:  BEQ $B0AA
-LB10A:  LDA $90
+LB10A:  LDA OppCurState
 LB10C:  AND #$7F
 LB10E:  CMP #$01
 LB110:  BNE $B124
@@ -2202,7 +2202,7 @@ LB193:  STA $36
 LB195:  RTS
 LB196:  LDA $38
 LB198:  BEQ $B1CD
-LB19A:  LDX $90
+LB19A:  LDX OppCurState
 LB19C:  DEX
 LB19D:  BNE $B1CD
 LB19F:  DEC $39
@@ -2225,7 +2225,7 @@ LB1BB:  .word $B1C1, $B1CE, $B1DF
 LB1C1:  STX $39
 LB1C3:  INC $3A
 LB1C5:  LDA ($3B),Y
-LB1C7:  STA $90
+LB1C7:  STA OppCurState
 LB1C9:  LDA #$01
 LB1CB:  STA OppStateTimer
 LB1CD:  RTS
@@ -2535,7 +2535,7 @@ LB430:  TXA
 LB431:  AND MacPunchType
 LB433:  CLC
 LB434:  ADC $E7
-LB436:  STA $90
+LB436:  STA OppCurState
 LB438:  RTS
 LB439:  LDA $0398
 LB43C:  STA $039E
@@ -2668,7 +2668,7 @@ LB53F:  .word $B549, $B5A8, $B5A8, $B5A9, $B63E
 
 LB549:  LDA $0301
 LB54C:  BMI $B581
-LB54E:  LDA $90
+LB54E:  LDA OppCurState
 LB550:  BEQ $B580
 LB552:  LDA IncStars
 LB555:  BEQ $B559
@@ -2714,7 +2714,7 @@ LB59B:  CMP #STAT_FINISHED
 LB59D:  BNE $B580
 
 LB59F:  LDA #$C1
-LB5A1:  STA $90
+LB5A1:  STA OppCurState
 LB5A3:  LDA #$81
 LB5A5:  STA OppStateStatus
 LB5A7:  RTS
@@ -2779,7 +2779,7 @@ LB629:  INX
 LB62A:  STX $0320
 LB62D:  LDA #$C0
 LB62F:  STA MacStatus
-LB631:  STA $90
+LB631:  STA OppCurState
 LB633:  LDA #$81
 LB635:  STA $51
 LB637:  STA OppStateStatus
@@ -2798,7 +2798,7 @@ LB650:  RTS
 LB651:  LDA #STAT_NONE
 LB653:  STA OppStateStatus
 LB655:  LDA #$81
-LB657:  STA $90
+LB657:  STA OppCurState
 LB659:  RTS
 LB65A:  LDA #$82
 LB65C:  SEC
@@ -4258,7 +4258,7 @@ LC286:  LDA $04FF
 LC289:  ORA #$80
 LC28B:  STA $04FF
 LC28E:  JMP $C2F7
-LC291:  LDA $90
+LC291:  LDA OppCurState
 LC293:  BEQ $C2F9
 LC295:  CMP #$81
 LC297:  BEQ $C27B
@@ -4340,7 +4340,7 @@ LC338:  BNE $C342
 LC33A:  TXA
 LC33B:  BPL $C341
 LC33D:  LDA #$83
-LC33F:  STA $90
+LC33F:  STA OppCurState
 LC341:  RTS
 LC342:  TXA
 LC343:  BPL $C349
@@ -4363,7 +4363,7 @@ LC364:  LDA $058C
 LC367:  BNE $C33F
 LC369:  LDA $AC
 LC36B:  BMI $C380
-LC36D:  LDA $90
+LC36D:  LDA OppCurState
 LC36F:  AND #$7F
 LC371:  CMP #$01
 LC373:  BNE $C380
@@ -4522,7 +4522,7 @@ LC46A:  RTS                     ;End outline color change.
 ;----------------------------------------------------------------------------------------------------
 
 LC46B:  AND #$7F
-LC46D:  STA $90
+LC46D:  STA OppCurState
 LC46F:  LDA #STAT_ACTIVE
 LC471:  ORA OppStateStatus
 LC473:  STA OppStateStatus
@@ -4540,7 +4540,7 @@ LC48A:  STA $5A
 LC48C:  STA $AF
 LC48E:  JSR $AA48
 LC491:  LDY $03
-LC493:  LDA $90
+LC493:  LDA OppCurState
 LC495:  CMP #$40
 LC497:  BCS $C4A6
 LC499:  TAX
@@ -4563,7 +4563,7 @@ LC4B8:  STA OppStBasePtrLB
 LC4BA:  INY
 LC4BB:  LDA ($E0),Y
 LC4BD:  STA OppStBasePtrUB
-LC4BF:  LDA $90
+LC4BF:  LDA OppCurState
 LC4C1:  CMP #$01
 LC4C3:  BNE $C4E7
 LC4C5:  LDA #$00
@@ -4581,7 +4581,7 @@ LC4DE:  STX $80
 LC4E0:  LDA #$0A
 LC4E2:  BNE $C50E
 LC4E4:  JMP $C46B
-LC4E7:  LDA $90
+LC4E7:  LDA OppCurState
 LC4E9:  BEQ $C54F
 LC4EB:  BMI $C4E4
 LC4ED:  LDX ComboTimer
@@ -4662,7 +4662,7 @@ LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC562:  .word ChngOppSprites,  SpritesNxtXYState, $C5B3,           $C5B7
 LC56A:  .word $C5C8,           $C5CE,             SprtMove,        OppMoveSprites
-LC572:  .word $C5F9,           $C600,             $C61E,           OppStateUpdate1
+LC572:  .word OppSetTimer,     $C600,             $C61E,           OppStateUpdate1
 LC57A:  .word OppStateUpdate1, OppStateUpdate1,   OppStateUpdate1, OppStateUpdate2
 
 ;----------------------------------------------------------------------------------------------------
@@ -4789,10 +4789,11 @@ LC5F7:  BNE SprtUpdateXY        ;Should branch always.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC5F9:  LDA (OppStBasePtr),Y
-LC5FB:  INC OppStateIndex
-LC5FD:  STA OppStateTimer
-LC5FF:  RTS
+OppSetTimer:
+LC5F9:  LDA (OppStBasePtr),Y    ;
+LC5FB:  INC OppStateIndex       ;Set the opponent's state timer to the value in the data table.
+LC5FD:  STA OppStateTimer       ;
+LC5FF:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4994,23 +4995,23 @@ OppStateUpdate2:
 LC720:  TXA                     ;Get index into table below.
 LC721:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC724:  .word PunchActive, $C770,    ChkMemAndBranch, ChkRepeatState
-LC72C:  .word $C7B6,       $C7BB,    OppPunchDirDmg,  OppDefInline
-LC734:  .word $C7E1,       OppPunch, WriteZPageByte,  $C806
-LC73C:  .word $C80C,       $C816,    $C81D,           StateDone
+LC724:  .word PunchActive,  OppStateJump, ChkMemAndBranch, ChkRepeatState
+LC72C:  .word OppWaitState, OppRepeat,    OppPunchDirDmg,  OppDefInline
+LC734:  .word $C7E1,        OppPunch,     WriteZPageByte,  OppSpecTimer
+LC73C:  .word OppComboWait, $C816,        $C81D,           StateDone
 
 ;----------------------------------------------------------------------------------------------------
 
 PunchActive:
 LC744:  LDX OppPunchSts         ;Is the punch initialized but not yet processed?
-LC746:  BMI PunchInit           ;If so, branch.
+LC746:  BMI OppStateWait        ;If so, branch.
 
 LC748:  BNE PunchResults        ;Has punch been processed? If so, branch.
 
 LC74A:  LDA #PUNCH_ACTIVE       ;Indicate a punch is active.
 LC74C:  STA OppPunchSts         ;
 
-PunchInit:
+OppStateWait:
 LC74E:  DEC OppStateIndex       ;Stay on this state and exit.
 LC750:  RTS                     ;
 
@@ -5049,19 +5050,22 @@ LC76E:  BNE EndPunch            ;Branch always.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC770:  LDA (OppStBasePtr),Y
-LC772:  TAX
-LC773:  INY
-LC774:  LDA (OppStBasePtr),Y
-LC776:  STA $E0
-LC778:  INY
-LC779:  LDA (OppStBasePtr),Y
-LC77B:  TAY
-LC77C:  LDA $E0
+OppStateJump:
+LC770:  LDA (OppStBasePtr),Y    ;
+LC772:  TAX                     ;Get lower byte of new state base address.
+LC773:  INY                     ;
 
-LC77E:  STA OppStBasePtrUB
-LC780:  STX OppStBasePtrLB
-LC782:  BNE UpdateStateIndex3
+LC774:  LDA (OppStBasePtr),Y    ;
+LC776:  STA GenByteE0           ;Get upper byte of new state base address.
+LC778:  INY                     ;
+
+LC779:  LDA (OppStBasePtr),Y    ;Get nex state index value.
+LC77B:  TAY                     ;
+
+LC77C:  LDA GenByteE0           ;
+LC77E:  STA OppStBasePtrUB      ;Update state base address and state index.
+LC780:  STX OppStBasePtrLB      ;
+LC782:  BNE UpdateStateIndex3   ;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5117,16 +5121,18 @@ LC7B4:  BNE RepeatIndexUpdate   ;Branch always.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7B6:  LDA #$81
-LC7B8:  STA $90
-LC7BA:  RTS
+OppWaitState:
+LC7B6:  LDA #$81                ;
+LC7B8:  STA OppCurState         ;Put the opponent into their wait state.
+LC7BA:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7BB:  LDA (OppStBasePtr),Y
-LC7BD:  STA OppStRepeatCntr
-LC7BF:  INC OppStateIndex
-LC7C1:  RTS
+OppRepeat:
+LC7BB:  LDA (OppStBasePtr),Y    ;
+LC7BD:  STA OppStRepeatCntr     ;Load a value into the repeat counter from data table.
+LC7BF:  INC OppStateIndex       ;
+LC7C1:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5199,17 +5205,19 @@ LC803:  JMP ZeroByteInc         ;($C582)Increment past zero data byte.
 
 ;----------------------------------------------------------------------------------------------------
 
-LC806:  LDA $0585
-LC809:  STA ComboTimer
-LC80B:  RTS
+OppSpecTimer:
+LC806:  LDA TimerVal0585        ;
+LC809:  STA ComboTimer          ;Load special state timer value.
+LC80B:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
-LC80C:  LDA ComboTimer
-LC80E:  BNE $C813
-LC810:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+OppComboWait:
+LC80C:  LDA ComboTimer          ;Has combo timer expired?
+LC80E:  BNE +                   ;If not, branch to stay on this state.
 
-LC813:  JMP $C74E
+LC810:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
+LC813:* JMP OppStateWait        ;($C74E)Stay on this state until combo timer expires.
 
 ;----------------------------------------------------------------------------------------------------
 

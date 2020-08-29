@@ -41,7 +41,8 @@
 .alias MacDefense1      $76     ;Little Mac's defense. there are 2 values but they are always -->
 .alias MacDefense2      $77     ;written to the same value. Maybe there was plans for a left and -->
                                 ;right defense? #$FF=Dodge, #$08=Block, #$80=Duck.
-
+                                
+.alias OppCurState      $90     ;Opponent's current state. Set MSB=initialize new state.
 .alias OppStateStatus   $91     ;Status of opponent's current state.
 .alias OppStateTimer    $92     ;Timer for opponents current state.
 .alias OppStateIndex    $93     ;Index to opponent current state data.
@@ -159,6 +160,8 @@
 .alias VulnerableTimer  $04FD   ;Opponent is vunerable while counting down. Does not count on combos.
 
 .alias VariableStTime   $0581   ;A vaiable time for states. Usually decreases after being punched.
+
+.alias TimerVal0585     $0585   ;A variable used to load special timer values.
 
 .alias StarCountReset   $05B0   ;Reset value for StarCountDown.
 
@@ -447,13 +450,17 @@
 .alias ST_VAR_TIME      $E4     ;Set opponent's state time to a varying amount.
 .alias ST_AUD_INIT      $EC     ;Play a SFX/music.
 .alias ST_PNCH_ACTIVE   $F0     ;Indicates an opponent's punch is active.
+.alias ST_JUMP          $F1     ;Jump to new state base address and index.
 .alias ST_CHK_BRANCH    $F2     ;Check memory for value and branch in state data if value found.
 .alias ST_CHK_REPEAT    $F3     ;Check if a sub-state needs to repeat.
+.alias ST_WAIT_STATE    $F4     ;Put opponent into wait state.
 .alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
 .alias ST_PUNCH_SIDE    $F6     ;Indicate what side of Little Mac a punch is approaching.
 .alias ST_DEFENSE       $F7     ;Load Opponent's defense from following 4 data bytes.
 .alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
 .alias ST_WRITE_BYTE    $FA     ;Write a byte into zero page memory.
+.alias ST_SPEC_TIMER    $FB     ;Load a special state timer value.
+.alias ST_COMBO_WAIT    $FC     ;Wait for combo timer to expire.
 .alias ST_END           $FF     ;Indicate the end of this state has been reached.
 
 ;Opponent state status.
