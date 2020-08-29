@@ -619,6 +619,7 @@ L8C3C:  .byte $01, $C2, $70, $C2, $06, $08, $3F, $23, ST_CALL_FUNC, $9E, $92, $F
 L8C4C:  .byte $05
 
 ;**********Glass Joe Right hook punch state**********
+GJRighHook:
 
 ;Index #$00.
 L8C4D:  .byte ST_CALL_FUNC      ;Call state data subroutine
@@ -658,7 +659,7 @@ L8C63:  .byte ST_SPRITES+3      ;Load sprites, 3 frames for this sub-state.
 L8C64:  .byte $16               ;Sprite data index.
 
 ;Index #$18.
-L8C65:  .byte ST_SPRITES_MOVE+5 ;2 frames between movements, 3 movement segments.
+L8C65:  .byte ST_SPRTS_MOVE+5   ;2 frames between movements, 2 movement segments.
 L8C66:  .byte $DF               ;X=X-3 per segment, Y=Y-1 per segment.
 
 ;Index #$1A.
@@ -670,27 +671,88 @@ L8C69:  .byte $84               ;Change outline color for 4 frames.
 L8C6A:  .byte ST_VAR_TIME       ;Set sub-state time to a variable amount.
 
 ;Index #$1E.
-L8C6B:  .byte ST_CHK_REPEAT
-L8C6C:  .byte $24
+L8C6B:  .byte ST_CHK_REPEAT     ;Check if repeat counter is active.
+L8C6C:  .byte $24               ;Jump to index #$24 is repeat counter is active.
 
-L8C6D:  .byte ST_CHK_BRANCH
-L8C6E:  .byte MacStatus
-L8C6F:  .byte MAC_SUPER_PUNCH
-L8C70:  .byte $59
+L8C6D:  .byte ST_CHK_BRANCH     ;Check memory value and branch if a match is found.
+L8C6E:  .byte MacStatus         ;
+L8C6F:  .byte MAC_SUPER_PUNCH   ;Is Little Mac throwing a super punch? 
+L8C70:  .byte $59               ;If so, jump to index #$59.
 
 ;Index #$24.
-L8C71:  .byte ST_AUD_INIT, $25
+L8C71:  .byte ST_AUD_INIT       ;Initialize music/SFX.
+L8C72:  .byte $25               ;SQ2 SFX, SQ2_OPP_PUNCH2.
 
 ;Index #$26.
-L8C73:  .byte $F6, $00, $07, $00, ST_WRITE_BYTE, $BB, $00, $00, $11, $18
-L8C7D:  .byte $7E, $B3, $F0, $45, $49, $49, $80, $04, $64, $22, $62, $22, $02, $1A, $79, $2F
-L8C8D:  .byte $6F, $1C, $80, $05, $FF, $F1, $C2, $8B, $3B, $FB, ST_CALL_FUNC, $B0, $92, $66, $14, $04
+L8C73:  .byte ST_PUNCH_SIDE     ;Indicate which side of Little Mac the punch is approaching.
+L8C74:  .byte MAC_LEFT_SIDE     ;Punch is coming in on Little Mac's left side.
+L8C75:  .byte $07               ;Punch damage. Added to base damage.
+L8C76:  .byte $00               ;End data.
+
+;Index #$2A.
+L8C77:  .byte ST_WRITE_BYTE     ;Write a byte to zero page memory.
+L8C78:  .byte GameStatusBB      ;address $BB.
+L8C79:  .byte NO_ACTION         ;Indicate memory address is idle.
+L8C7A:  .byte $00               ;End data.
+
+;Index #$2E.
+L8C7B:  .byte ST_SPRITES_XY+1   ;Load sprites, change position, 1 frame for this sub-state.
+L8C7C:  .byte $18               ;Sprite data index.
+L8C7D:  .byte $7E               ;Sprite X base location.
+L8C7E:  .byte $B3               ;Sprite Y base location.
+
+;Index #$32.
+L8C7F:  .byte ST_PNCH_ACTIVE    ;Indicate a punch is active.
+L8C80:  .byte $45               ;Index to jump to if punch was blocked.
+L8C81:  .byte $49               ;Index to jump to if punch was ducked.
+L8C82:  .byte $49               ;Index to jump to if punch was dodged.
+
+;Index #$36 - Punch landed.
+L8C83:  .byte ST_TIMER          ;Load timer for this sub-state.
+L8C84:  .byte $04               ;This sub-state lasts 4 frames.
+
+;Index #$38.
+L8C85:  .byte ST_SPRT_MV_NU+4   ;Move sprites. Sub-state lasts for 4 frames.
+L8C86:  .byte $22               ;Right 2 pixels, down 2 pixels.
+
+;Index #$3A.
+L8C87:  .byte ST_SPRT_MV_NU+2   ;Move sprites. Sub-state lasts for 2 frames.
+L8C88:  .byte $22               ;Right 2 pixels, down 2 pixels.
+
+;Index #$3C.
+L8C89:  .byte ST_SPRITES+2      ;Load sprites, 2 frames for this sub-state.
+L8C8A:  .byte $1A               ;Sprite data index.
+
+;Index #$3E.
+L8C8B:  .byte ST_SPRTS_MOVE+9   ;2 frames between movements, 3 movement segments.
+L8C8C:  .byte $2F               ;X=X+2 per segment, Y=Y-1 per segment.
+
+;Index #$40.
+L8C8D:  .byte ST_SPRT_MV_NU+$F  ;Move sprites. Sub-state lasts for 15 frames.
+L8C8E:  .byte $1C               ;Right 1 pixels, up 4 pixels.
+
+;Index #$42.
+L8C8F:  .byte ST_TIMER          ;Load timer for this sub-state.
+L8C90:  .byte $05               ;This sub-state lasts 5 frames.
+
+;Index #$44.
+L8C91:  .byte ST_END            ;End of state.
+
+;Index #$45 - Punch blocked.
+L8C92:  .byte $F1
+L8C93:  .word $8BC2
+L8C95:  .byte $3B
+
+;Index #$49 - Punch dodged or ducked.
+L8CA6:  .byte $FB
+L8CA7:  .byte ST_CALL_FUNC, $B0, $92, $66, $14, $04
 L8C9D:  .byte $1A, $62, $1F, $62, $1F
 
 ;Index #$59
-L8CA2:  .byte $62, $1E, $FC, $F4, ST_CHK_BRANCH, $59, $00, $24, $80, $FF
+L8CA2:  .byte $62, $1E, $FC, $F4, ST_CHK_BRANCH, $59, $00, $24, $80, ST_END
 
-;Face punch block.
+;**********Glass Joe, Don Flamenco Face punch block**********
+
 L8CAC:  .byte ST_CHK_BRANCH, $AB, $01, $17, $80, $02, $11, $12, $87, $B6, $EC, $10, $80, $05, $12, $14
 L8CBC:  .byte $87, $B5, $1C, $C6, $87, $B3, $FF, $14, $12, $80, $B4, $EC, $10, $80, $08, $F9
 L8CCC:  .byte $11, $3C, $7C, $B2, ST_WRITE_BYTE, $AB, $00, $14, $CC, $78, $B2, ST_WRITE_BYTE, $9C, $84
@@ -930,7 +992,9 @@ L9306:  .byte $1C, $26, $30, $8F, $1C, $26, $2B, $8F, $1C, $2B, $30, $8F, $1C, $
 ;----------------------------------------------------------------------------------------------------
 
 ;Fight data - Glass Joe. Loaded into $05A0 through $05FF.
+
 L9316:  .byte $E0, $E0, $E0, $00, $20, $00
+
 L931C:  .byte $20               ;Starting number of hearts, round 1(base 10).
 L931D:  .byte $15               ;Normal heart recovery, round 1(base 10).
 L931E:  .byte $09               ;Reduced heart recovery, round 1(base 10).
@@ -942,8 +1006,11 @@ L9323:  .byte $10               ;Normal heart recovery, round 3(base 10).
 L9324:  .byte $05               ;Reduced heart recovery, round 3(base 10).
 L9325:  .byte $04               ;Base damage if opponent lands a hit on Little Mac.
 L9326:  .byte $14               ;Number of hits that must be landed before stars will be given.
+
 L9327:  .byte $08, $08, $08, $08, $00, $00, $00
+
 L932E:  .byte $40               ;Opponent reaction time to move guard up and down.
+
 L932F:  .byte $20, $9C, $8C, $80, $00, $06, $08
 
 L9336:  .word $0000, $9376      ;Combo data.

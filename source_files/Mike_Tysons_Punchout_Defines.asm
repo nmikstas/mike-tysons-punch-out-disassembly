@@ -41,7 +41,8 @@
 .alias MacDefense1      $76     ;Little Mac's defense. there are 2 values but they are always -->
 .alias MacDefense2      $77     ;written to the same value. Maybe there was plans for a left and -->
                                 ;right defense? #$FF=Dodge, #$08=Block, #$80=Duck.
- 
+
+.alias OppStateStatus   $91     ;Status of opponent's current state.
 .alias OppStateTimer    $92     ;Timer for opponents current state.
 .alias OppStateIndex    $93     ;Index to opponent current state data.
 .alias OppStBasePtr     $94     ;Pase pointer to opponent's current state data.
@@ -49,6 +50,7 @@
 .alias OppStBasePtrUB   $95     ;Pase pointer to opponent's current state data, upper byte.
 .alias OppStRepeatCntr  $96     ;Counter used to repeat the opponent's current state.
 .alias OppPunching      $97     ;#$00=Opponent not punching, #$01=Opponent punching.
+.alias OppPunchSts      $98     ;Same as OppLastPunchSts except #$80=punch active.
 
 .alias OppAnimSeg       $9A     ;Number of timed segments in opponent's current animation.
 .alias OppAnimSegTimer  $9B     ;Number of frames per segment in Opponent's animation.
@@ -72,6 +74,7 @@
 .alias OppHitDefenseLL  $B9     ;Amount to subtract from Little Mac left punch to stomach damage.
 
 .alias GameStatusBB     $BB     ;Various game statuses.
+                                ;#$00=No action.
                                 ;#$01=Referee moving on screen.
                                 ;#$02=Opponent throwing right hook.
                                 ;#$03=Opponent getting up.
@@ -81,12 +84,7 @@
                                 ;#$FF=Opponent victory dance.
 .alias MacCanPunch      $BC     ;#$00=Little Mac can't punch, #$01=Little Mac can punch.
 
-.alias OppLastPunchSts  $BD     ;Last punch status of opponent.
-                                ;#$00=No last status.
-                                ;#$01=Blocked by Little Mac.
-                                ;#$02=Ducked by Little Mac.
-                                ;#$03=Hit Little Mac.
-                                ;#$04=Dodged by Little Mac.
+.alias OppLastPunchSts  $BD     ;Last punch status of opponent. See punch statuses below.
                                 
 .alias CurrentCount     $C2     ;Current referee count. #$9A=1 through #$A2=9.
                                 
@@ -433,22 +431,43 @@
 .alias MAC_OPP_WAIT     $41     ;Opponent down wait.
 .alias MAC_ROUND_WAIT   $42     ;Round over.
 
+;Opponent punch side of Little Mac.
+.alias MAC_LEFT_SIDE    $00     ;Punch comming in on Little Mac's left side.
+.alias MAC_RIGHT_SIDE   $01     ;Punch comming in on Little Mac's right side.
+
 ;Opponent state functions.
 .alias ST_SPRITES       $00     ;Load sprite data for current opponent sub-state.
 .alias ST_SPRITES_XY    $10     ;Load sprite data and XY position for current opponent sub-state.
-.alias ST_SPRITES_MOVE  $70     ;Move opponent animation around on the screen. -->
+.alias ST_SPRT_MV_NU    $60     ;Move opponent sprites with no animation update.
+.alias ST_SPRTS_MOVE    $70     ;Move opponent animation around on the screen. -->
                                 ;Bits 0,1=frames between movements, bits 2,3=number of movements.
 .alias ST_TIMER         $80     ;Number of frames for sub-state to wait.
 .alias ST_CALL_FUNC     $E0     ;Call an opponent state subroutine.
 .alias ST_RETURN_FUNC   $E1     ;Return from an opponent state subroutine.
 .alias ST_VAR_TIME      $E4     ;Set opponent's state time to a varying amount.
 .alias ST_AUD_INIT      $EC     ;Play a SFX/music.
+.alias ST_PNCH_ACTIVE   $F0     ;Indicates an opponent's punch is active.
 .alias ST_CHK_BRANCH    $F2     ;Check memory for value and branch in state data if value found.
 .alias ST_CHK_REPEAT    $F3     ;Check if a sub-state needs to repeat.
 .alias ST_REPEAT        $F5     ;Load a repeat value for this sub-state.
+.alias ST_PUNCH_SIDE    $F6     ;Indicate what side of Little Mac a punch is approaching.
 .alias ST_DEFENSE       $F7     ;Load Opponent's defense from following 4 data bytes.
 .alias ST_PUNCH         $F9     ;Indicate the opponent is punching.
 .alias ST_WRITE_BYTE    $FA     ;Write a byte into zero page memory.
+.alias ST_END           $FF     ;Indicate the end of this state has been reached.
+
+;Opponent state status.
+.alias STAT_NONE        $00     ;Current state is not active.
+.alias STAT_ACTIVE      $80     ;Current state is active.
+.alias STAT_FINISHED    $83     ;Current state has finished.
+
+;Opponent punch status.
+.alias PUNCH_NONE       $00     ;No opponent punch being thrown.
+.alias PUNCH_BLOCKED    $01     ;Punch blocked by Little Mac.
+.alias PUNCH_DUCKED     $02     ;Punch is ducked by Little Mac.
+.alias PUNCH_LANDED     $03     ;Punch hit Little Mac.
+.alias PUNCH_DODGED     $04     ;Punch dodged by Little Mac.
+.alias PUNCH_ACTIVE     $80     ;Punch is initialized.
 
 ;Controller bits.
 .alias IN_RIGHT         $01     ;Right on the dpad.
@@ -473,6 +492,7 @@
 
 ;Misc. items.
 .alias NULL_PNTR        $0000   ;Null pointer.
+.alias NO_ACTION        $00     ;Idle memory byte.
 .alias SND_OFF          $80     ;Silences sound channel.
 .alias PPU_LEFT_EN      $06     ;Enable both left background column and left sprite column.
 .alias GAME_ENG_RUN     $00     ;Enables the main game engine.

@@ -2675,11 +2675,11 @@ LB555:  BEQ $B559
 LB557:  BPL $B580
 LB559:  LDA $05
 LB55B:  BNE $B586
-LB55D:  LDA $91
+LB55D:  LDA OppStateStatus
 LB55F:  AND $51
 LB561:  ROR
 LB562:  BCS $B575
-LB564:  LDA $91
+LB564:  LDA OppStateStatus
 LB566:  CMP #$82
 LB568:  BNE $B580
 LB56A:  LDA $51
@@ -2692,7 +2692,9 @@ LB576:  CMP #$83
 LB578:  BNE $B580
 LB57A:  JSR $B651
 LB57D:  JSR $B65A
+
 LB580:  RTS
+
 LB581:  LDA #$40
 LB583:  STA $00
 LB585:  RTS
@@ -2706,14 +2708,17 @@ LB592:  STA MacStatus
 LB594:  LDA #$81
 LB596:  STA $51
 LB598:  RTS
-LB599:  LDA $91
-LB59B:  CMP #$83
+
+LB599:  LDA OppStateStatus
+LB59B:  CMP #STAT_FINISHED
 LB59D:  BNE $B580
+
 LB59F:  LDA #$C1
 LB5A1:  STA $90
 LB5A3:  LDA #$81
-LB5A5:  STA $91
+LB5A5:  STA OppStateStatus
 LB5A7:  RTS
+
 LB5A8:  RTS
 LB5A9:  LDA #$01
 LB5AB:  STA MacCanPunch
@@ -2777,7 +2782,7 @@ LB62F:  STA MacStatus
 LB631:  STA $90
 LB633:  LDA #$81
 LB635:  STA $51
-LB637:  STA $91
+LB637:  STA OppStateStatus
 LB639:  LDA #$01
 LB63B:  STA $00
 LB63D:  RTS
@@ -2790,8 +2795,8 @@ LB64A:  STA $05
 LB64C:  LDA #$FF
 LB64E:  STA $00
 LB650:  RTS
-LB651:  LDA #$00
-LB653:  STA $91
+LB651:  LDA #STAT_NONE
+LB653:  STA OppStateStatus
 LB655:  LDA #$81
 LB657:  STA $90
 LB659:  RTS
@@ -4518,9 +4523,9 @@ LC46A:  RTS                     ;End outline color change.
 
 LC46B:  AND #$7F
 LC46D:  STA $90
-LC46F:  LDA #$80
-LC471:  ORA $91
-LC473:  STA $91
+LC46F:  LDA #STAT_ACTIVE
+LC471:  ORA OppStateStatus
+LC473:  STA OppStateStatus
 LC475:  LDY #$92
 LC477:  LDX #$09
 LC479:  JSR $AEF8
@@ -4656,7 +4661,7 @@ LC55C:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC562:  .word ChngOppSprites,  SpritesNxtXYState, $C5B3,           $C5B7
-LC56A:  .word $C5C8,           $C5CE,             $C5D4,           OppMoveSprites
+LC56A:  .word $C5C8,           $C5CE,             SprtMove,        OppMoveSprites
 LC572:  .word $C5F9,           $C600,             $C61E,           OppStateUpdate1
 LC57A:  .word OppStateUpdate1, OppStateUpdate1,   OppStateUpdate1, OppStateUpdate2
 
@@ -4746,7 +4751,8 @@ LC5D2:  BNE $C59B
 
 ;----------------------------------------------------------------------------------------------------
 
-LC5D4:  STX OppStateTimer
+SprtMove:
+LC5D4:  STX OppStateTimer       ;Update the time for this sub-state.
 
 SprtUpdateXY:
 LC5D6:  LDA (OppStBasePtr),Y    ;Get X and Y movement values.
@@ -4964,19 +4970,22 @@ LC70B:  RTS
 ;----------------------------------------------------------------------------------------------------
 
 InitAudio:
-LC70C:  LDA (OppStBasePtr),Y
-LC70E:  INC OppStateIndex
-LC710:  TAY
-LC711:  AND #$03
-LC713:  TAX
-LC714:  TYA
-LC715:  AND #$FC
-LC717:  BMI $C71B
+LC70C:  LDA (OppStBasePtr),Y    ;Get byte indicating which SFX/music to play.
+LC70E:  INC OppStateIndex       ;
 
-LC719:  LSR
-LC71A:  LSR
+LC710:  TAY                     ;
+LC711:  AND #$03                ;Lowest 2 bits are the SFX/music type.
+LC713:  TAX                     ;
 
-LC71B:  STA SoundInitBase,X
+LC714:  TYA                     ;Is audio being turned off?
+LC715:  AND #$FC                ;
+LC717:  BMI SetAudioInit        ;If so, branch to disable the audio channel.
+
+LC719:  LSR                     ;Audio is to be played. Transfer upper bits to lower bits.
+LC71A:  LSR                     ;
+
+SetAudioInit:
+LC71B:  STA SoundInitBase,X     ;Init/end audio.
 LC71D:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
@@ -4985,40 +4994,58 @@ OppStateUpdate2:
 LC720:  TXA                     ;Get index into table below.
 LC721:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC724:  .word $C744, $C770,    ChkMemAndBranch, $C7A7
-LC72C:  .word $C7B6, $C7BB,    $C7C2,           OppDefInline
-LC734:  .word $C7E1, OppPunch, WriteZPageByte,  $C806
-LC73C:  .word $C80C, $C816,    $C81D,           $C821
+LC724:  .word PunchActive, $C770,    ChkMemAndBranch, ChkRepeatState
+LC72C:  .word $C7B6,       $C7BB,    OppPunchDirDmg,  OppDefInline
+LC734:  .word $C7E1,       OppPunch, WriteZPageByte,  $C806
+LC73C:  .word $C80C,       $C816,    $C81D,           StateDone
 
 ;----------------------------------------------------------------------------------------------------
 
-LC744:  LDX $98
-LC746:  BMI $C74E
-LC748:  BNE $C751
-LC74A:  LDA #$80
-LC74C:  STA $98
-LC74E:  DEC OppStateIndex
-LC750:  RTS
-LC751:  CPX #$03
-LC753:  BEQ $C76A
-LC755:  BCC $C758
-LC757:  DEX
-LC758:  DEX
-LC759:  TXA
-LC75A:  CLC
-LC75B:  ADC OppStateIndex
-LC75D:  TAY
-LC75E:  LDA (OppStBasePtr),Y
-LC760:  TAY
-LC761:  LDA #$00
-LC763:  STA $98
-LC765:  STY OppStateIndex
+PunchActive:
+LC744:  LDX OppPunchSts         ;Is the punch initialized but not yet processed?
+LC746:  BMI PunchInit           ;If so, branch.
+
+LC748:  BNE PunchResults        ;Has punch been processed? If so, branch.
+
+LC74A:  LDA #PUNCH_ACTIVE       ;Indicate a punch is active.
+LC74C:  STA OppPunchSts         ;
+
+PunchInit:
+LC74E:  DEC OppStateIndex       ;Stay on this state and exit.
+LC750:  RTS                     ;
+
+PunchResults:
+LC751:  CPX #PUNCH_LANDED       ;Was punch landed?
+LC753:  BEQ PunchLanded         ;If so, branch.
+
+LC755:  BCC PunchBlckDck        ;Was punch blocked or ducked? If so, branch.
+
+PunchDodged:
+LC757:  DEX                     ;Dodged punch must have index increased by 2 (4-2=2).
+
+PunchBlckDck:
+LC758:  DEX                     ;Only decrement punch status by 1 for block/duck.
+LC759:  TXA                     ;
+LC75A:  CLC                     ;
+LC75B:  ADC OppStateIndex       ;Get the index to jump to for blocked/ducked or dodged punches.
+LC75D:  TAY                     ;
+LC75E:  LDA (OppStBasePtr),Y    ;
+
+EndPunch:
+LC760:  TAY                     ;Indicate the puch processing is done.
+LC761:  LDA #PUNCH_NONE         ;
+LC763:  STA OppPunchSts         ;Update the state index.
+
+UpdateStateIndex3:
+LC765:  STY OppStateIndex       ;
 LC767:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
-LC76A:  TYA
-LC76B:  CLC
-LC76C:  ADC #$03
-LC76E:  BNE $C760
+PunchLanded:
+LC76A:  TYA                     ;
+LC76B:  CLC                     ;Move past the active punch sub-state.
+LC76C:  ADC #$03                ;
+
+LC76E:  BNE EndPunch            ;Branch always.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5031,9 +5058,10 @@ LC778:  INY
 LC779:  LDA (OppStBasePtr),Y
 LC77B:  TAY
 LC77C:  LDA $E0
+
 LC77E:  STA OppStBasePtrUB
 LC780:  STX OppStBasePtrLB
-LC782:  BNE $C765
+LC782:  BNE UpdateStateIndex3
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5072,17 +5100,20 @@ LC7A5:  BNE UpdateStateIndex2   ;
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7A7:  DEC OppStRepeatCntr
-LC7A9:  BEQ $C7B3
+ChkRepeatState:
+LC7A7:  DEC OppStRepeatCntr     ;Decrement sub-state repeat counter.
+LC7A9:  BEQ ChkRepeatEnd        ;Does state need to be repeated? If not, branch to exit.
 
-LC7AB:  LDA (OppStBasePtr),Y
-LC7AD:  TAY
+LC7AB:  LDA (OppStBasePtr),Y    ;Get index to jump to for repeating.
+LC7AD:  TAY                     ;
 
-LC7AE:  STY OppStateIndex
+RepeatIndexUpdate:
+LC7AE:  STY OppStateIndex       ;Update the state index with the new index.
 LC7B0:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
-LC7B3:  INY
-LC7B4:  BNE $C7AE
+ChkRepeatEnd:
+LC7B3:  INY                     ;Increment past the next byte. Not time to repeat.
+LC7B4:  BNE RepeatIndexUpdate   ;Branch always.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -5099,12 +5130,14 @@ LC7C1:  RTS
 
 ;----------------------------------------------------------------------------------------------------
 
-LC7C2:  LDA (OppStBasePtr),Y
-LC7C4:  INY
-LC7C5:  STA OppPunchSide
-LC7C7:  LDA (OppStBasePtr),Y
-LC7C9:  INY
-LC7CA:  STA OppPunchDamage
+OppPunchDirDmg:
+LC7C2:  LDA (OppStBasePtr),Y    ;
+LC7C4:  INY                     ;Indicate which side of Little Mac the punch is coming from.
+LC7C5:  STA OppPunchSide        ;
+
+LC7C7:  LDA (OppStBasePtr),Y    ;
+LC7C9:  INY                     ;Get the damage the punch will do. Added to base damage.
+LC7CA:  STA OppPunchDamage      ;
 
 UpdateStateIndex1:
 LC7CC:  STY OppStateIndex       ;Update index to opponent state data.
@@ -5188,14 +5221,17 @@ LC81C:  RTS
 ;----------------------------------------------------------------------------------------------------
 
 LC81D:  LDA #$82
-LC81F:  BNE $C825
+LC81F:  BNE UpdateStateStat
 
 ;----------------------------------------------------------------------------------------------------
 
-LC821:  DEC OppStateIndex
-LC823:  LDA #$83
-LC825:  STA $91
-LC827:  RTS
+StateDone:
+LC821:  DEC OppStateIndex       ;
+LC823:  LDA #STAT_FINISHED      ;Indicate the end of the current state has been reached.
+
+UpdateStateStat:
+LC825:  STA OppStateStatus      ;
+LC827:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
