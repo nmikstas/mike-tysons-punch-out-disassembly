@@ -923,7 +923,7 @@ LA7F6:  STA $03FE
 LA7F9:  LDA $03FC
 LA7FC:  STA $03FF
 LA7FF:  RTS
-LA800:  LDX $06
+LA800:  LDX RoundNumber
 LA802:  DEX
 LA803:  TXA
 LA804:  ASL
@@ -967,7 +967,7 @@ LA84D:  JSR $AEF8
 LA850:  JSR $AAE5
 LA853:  JSR $AB4E
 LA856:  JSR $BAE3
-LA859:  LDX $06
+LA859:  LDX RoundNumber
 LA85B:  DEX
 LA85C:  BEQ $A864
 LA85E:  JSR $BBC3
@@ -989,7 +989,7 @@ LA87B:  LDA $03D8
 LA87E:  BNE $A885
 LA880:  LDA #$80
 LA882:  STA $03D8
-LA885:  LDX $06
+LA885:  LDX RoundNumber
 LA887:  DEX
 LA888:  BEQ $A8A6
 LA88A:  LDA $04BE
@@ -1043,7 +1043,7 @@ LA8FB:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LA8FD:  STA SprtBkgUpdt         ;
 
 LA8FF:  LDA #$01
-LA901:  LDY $06
+LA901:  LDY RoundNumber
 LA903:  CPY #$04
 LA905:  BNE $A909
 LA907:  STA $F3
@@ -1120,8 +1120,8 @@ LA9A0:  LDA $09
 LA9A2:  BEQ $A9B8
 LA9A4:  JSR $AD0F
 LA9A7:  JMP $A850
-LA9AA:  INC $06
-LA9AC:  LDA $06
+LA9AA:  INC RoundNumber
+LA9AC:  LDA RoundNumber
 LA9AE:  CMP #$04
 LA9B0:  BEQ $A9CB
 LA9B2:  JMP $A853
@@ -1294,7 +1294,7 @@ LAAE0:  LDX #$EA
 LAAE2:  STX CurrentCount
 LAAE4:  RTS
 LAAE5:  JSR $AA1D
-LAAE8:  STA $06
+LAAE8:  STA RoundNumber
 LAAEA:  JSR $AE89
 LAAED:  LDA $01
 LAAEF:  ASL
@@ -1361,7 +1361,7 @@ LAB76:  LDA #$01
 LAB78:  JSR $C118
 LAB7B:  LDA #$02
 LAB7D:  JSR $C118
-LAB80:  LDA $06
+LAB80:  LDA RoundNumber
 LAB82:  CMP #$04
 LAB84:  BNE $AB8B
 LAB86:  LDA #$03
@@ -1421,7 +1421,7 @@ LAC07:  JSR $AE5F
 LAC0A:  LDX #$20
 LAC0C:  LDY #$93
 LAC0E:  JSR $AF2E
-LAC11:  LDA $06
+LAC11:  LDA RoundNumber
 LAC13:  CMP #$04
 LAC15:  BCC $AC1D
 LAC17:  JSR $AAC1
@@ -2341,7 +2341,7 @@ LB2A0:  DEY
 LB2A1:  BPL $B29A
 LB2A3:  INC $8F
 LB2A5:  INC $03D0
-LB2A8:  LDX $06
+LB2A8:  LDX RoundNumber
 LB2AA:  INC $03DC,X
 LB2AD:  LDA $8F
 LB2AF:  CMP #$03
@@ -2403,7 +2403,7 @@ LB324:  CPX #MAC_SUPER_PUNCH
 LB326:  BEQ $B33F
 LB328:  BNE $B342
 LB32A:  BPL $B338
-LB32C:  LDX $06
+LB32C:  LDX RoundNumber
 LB32E:  DEX
 LB32F:  BNE $B342
 LB331:  LDX $0302
@@ -2722,12 +2722,12 @@ LB5A7:  RTS
 LB5A8:  RTS
 LB5A9:  LDA #$01
 LB5AB:  STA MacCanPunch
-LB5AD:  LDA $06
+LB5AD:  LDA RoundNumber
 LB5AF:  CMP #$04
 LB5B1:  BCC $B5B6
 LB5B3:  JMP $B621
 LB5B6:  ASL
-LB5B7:  ADC $06
+LB5B7:  ADC RoundNumber
 LB5B9:  TAX
 LB5BA:  CMP #$03
 LB5BC:  BEQ $B5CB
@@ -2761,7 +2761,7 @@ LB601:  INY
 LB602:  INX
 LB603:  CPY #$04
 LB605:  BNE $B5EF
-LB607:  LDA $06
+LB607:  LDA RoundNumber
 LB609:  ASL
 LB60A:  TAX
 LB60B:  LDA $05D8,X
@@ -3216,7 +3216,7 @@ LBA10:  JSR $BC8E
 LBA13:  LDX #$21
 LBA15:  LDY #$96
 LBA17:  JSR $AF2E
-LBA1A:  LDX $06
+LBA1A:  LDX RoundNumber
 LBA1C:  INX
 LBA1D:  STX PPUIOReg
 LBA20:  LDX $03D3
@@ -3371,7 +3371,7 @@ LBB5F:  LDA $0A
 LBB61:  BEQ $BB68
 LBB63:  LDA #$0D
 LBB65:  JSR $C113
-LBB68:  LDA $06
+LBB68:  LDA RoundNumber
 LBB6A:  CLC
 LBB6B:  ADC #$08
 LBB6D:  JSR $C113
@@ -4660,7 +4660,7 @@ LC55B:  INY                     ;
 LC55C:  JSR Div16               ;($BF99)Shift upper nibble to lower nibble.
 LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
-LC562:  .word ChngOppSprites,  SpritesNxtXYState, $C5B3,           $C5B7
+LC562:  .word OppLoadSprites,  SpritesNxtXYState, $C5B3,           $C5B7
 LC56A:  .word $C5C8,           $C5CE,             SprtMove,        OppMoveSprites
 LC572:  .word OppSetTimer,     $C600,             $C61E,           OppStateUpdate1
 LC57A:  .word OppStateUpdate1, OppStateUpdate1,   OppStateUpdate1, OppStateUpdate2
@@ -4678,7 +4678,7 @@ LC58A:  BNE OppStateUpdate      ;($C550)Advance to the opponent's next state.
 ChngSpritesExit:
 LC58C:  RTS                     ;Done setting data to change opponent sprites.
 
-ChngOppSprites:
+OppLoadSprites:
 LC58D:  STX OppStateTimer       ;Store the number of frames for the next animation.
 
 LC58F:  LDA (OppStBasePtr),Y    ;Get the index for the next animation frame data.
@@ -4840,6 +4840,7 @@ LC645:  RTS
 
 LC646:  INY
 LC647:  BNE $C643
+
 LC649:  BPL $C660
 LC64B:  EOR #$FF
 LC64D:  CLC

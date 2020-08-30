@@ -9,6 +9,8 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
+.alias RoundNumber		$06		;Current round number.
+
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
 
