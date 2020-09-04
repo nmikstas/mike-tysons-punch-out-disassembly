@@ -8293,7 +8293,6 @@ LF66F:  .byte $38, $00, $00, $00, $00
 ;register. A new value is loaded every 4th frame.
 
 SQDCEnvTbl:
-
 ;The most common data used by most music.
 LF674:  .byte $DA, $DA, $DA, $D9, $D9, $D9, $D8, $D8, $D8, $D7, $D7, $D7, $D6, $D6, $D6, $D5
 
@@ -8365,32 +8364,50 @@ LF774:  .byte $B0, $0C          ;Grunt.  Address: $EC00. Length: 192  bytes.
 ;----------------------------------------------------------------------------------------------------
 
 ;The following is sweep data loaded into SQ1Cntrl1 during the SQ1_FALL SFX.
-
 FallSFXSweepTbl:
 LF776:  .byte $8D, $84, $84, $84, $84, $8C, $8C, $8C
 
-;----------------------------------------------------------------------------------------------------
-
+;The following table contains the noise data for the SQ1_PUNCH_MISS1 SFX. The lower nibble in
+;each byte is loaded into NoiseCntrl2 and the upper nibble is loaded into  NoiseCntrl0.
 PnchMs1SFXTbl:
 LF77E:  .byte $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F, $2F, $1F
 
+;The following table contains the noise data for the SQ1_PUNCH_MISS2 SFX. The lower nibble in
+;each byte is loaded into NoiseCntrl2 and the upper nibble is loaded into  NoiseCntrl0.
 PnchMs2SFXTbl:
-LF78C:  .byte $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F, $93, $95, $97, $99, $64, $64
+LF78E:  .byte $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F
 
-LF79C:  .byte $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64
+;The following table contains values loaded into SQ1Cntrl0 during the SQ1_TALK1 SFX.
+Talk1CntrlTbl:
+LF798:  .byte $93, $95, $97, $99
 
-LF7AC:  .byte $4C, $42, $58, $50, $3E, $54, $4E, $5E, $4E, $48, $52, $44, $5C, $4A, $60, $40
+;The following table contains the notes to use in the SQ1_TALK1 SFX. The notes are all the same.
+Talk1NoteTbl:
+LF79C:  .byte SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6
+LF7A4:  .byte SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6, SQ_C_6
+
+;The following table contains the notes to use in the SQ1_TALK2 SFX.
+Talk2NoteTbl:
+LF7AC:  .byte SQ_C_5,       SQ_G_4,       SQ_F_SHARP_5, SQ_D_5
+LF7B0:  .byte SQ_F_4,       SQ_E_5,       SQ_C_SHARP_5, SQ_A_5
+LF7B4:  .byte SQ_C_SHARP_5, SQ_A_SHARP_4, SQ_D_SHARP_5, SQ_G_SHARP_4
+LF7B8:  .byte SQ_G_SHARP_5, SQ_B_4,       SQ_A_SHARP_5, SQ_F_SHARP_4
+
+;The following table contains the notes to use in the SQ1_TALK3 SFX.
+Talk3NoteTbl:
 LF7BC:  .byte $24, $2A, $1C, $34, $2E, $20, $32, $22, $38, $2C, $1E, $30, $26, $2C, $3C, $28
-LF7CC:  .byte $16, $19, $10, $10, $1B, $1D, $1F, $1B, $17, $18, $19, $1A, $1B, $10, $10, $1C
-LF7DC:  .byte $1D, $1E, $10, $10, $1C, $1D, $1E, $1F, $18, $1A, $1C, $1E, $1C, $1A, $B0, $E0
-LF7EC:  .byte $D8, $00, $00, $50, $48, $18, $10, $D0, $C0, $B0, $A0, $90, $00, $00, $40, $50
-LF7FC:  .byte $60, $00, $00, $20, $30, $40, $13, $00, $10, $20, $30, $40, $50, $90, $F8, $E6
-LF80C:  .byte $AA, $8B, $4C, $85, $84, $84, $84, $84, $8C, $8C, $8C, $04, $08, $0C, $10, $18
-LF81C:  .byte $30, $28, $1F, $E2, $1D, $FE, $40, $08, $10, $18, $20, $28, $30, $38, $40, $48
-LF82C:  .byte $50, $58, $60, $01, $03, $05, $08, $0A, $0F, $D0, $D1, $D2, $D3, $D4, $D5, $D6
-LF83C:  .byte $D7, $D8, $D9, $DA, $DB, $DC, $DD, $DE, $DF, $50, $51, $52, $53, $54, $55, $56
-LF84C:  .byte $57, $58, $59, $5A, $5B, $5C, $5D, $5E, $5F, $08, $09, $08, $09, $10, $11, $11
-LF85C:  .byte $12, $13, $14, $15, $16, $17, $18, $19, $1A, $17, $18, $19, $1A
+
+LF7CC:  .byte $16, $19
+LF7CE:  .byte $10, $10, $1B, $1D, $1F, $1B, $17, $18, $19, $1A, $1B, $10, $10, $1C, $1D, $1E 
+LF7DE:  .byte $10, $10, $1C, $1D, $1E, $1F, $18, $1A, $1C, $1E, $1C, $1A, $B0, $E0, $D8, $00
+LF7EE:  .byte $00, $50, $48, $18, $10, $D0, $C0, $B0, $A0, $90, $00, $00, $40, $50, $60, $00
+LF7FE:  .byte $00, $20, $30, $40, $13, $00, $10, $20, $30, $40, $50, $90, $F8, $E6, $AA, $8B
+LF80E:  .byte $4C, $85, $84, $84, $84, $84, $8C, $8C, $8C, $04, $08, $0C, $10, $18, $30, $28
+LF81E:  .byte $1F, $E2, $1D, $FE, $40, $08, $10, $18, $20, $28, $30, $38, $40, $48, $50, $58
+LF82E:  .byte $60, $01, $03, $05, $08, $0A, $0F, $D0, $D1, $D2, $D3, $D4, $D5, $D6, $D7, $D8
+LF83E:  .byte $D9, $DA, $DB, $DC, $DD, $DE, $DF, $50, $51, $52, $53, $54, $55, $56, $57, $58
+LF84E:  .byte $59, $5A, $5B, $5C, $5D, $5E, $5F, $08, $09, $08, $09, $10, $11, $11, $12, $13
+LF85E:  .byte $14, $15, $16, $17, $18, $19, $1A, $17, $18, $19, $1A
 
 ;----------------------------------------------------------------------------------------------------
 
