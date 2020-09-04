@@ -2666,7 +2666,7 @@ LB53C:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LB53F:  .word $B549, $B5A8, $B5A8, $B5A9, $B63E
 
-LB549:  LDA $0301
+LB549:  LDA RoundTmrCntrl
 LB54C:  BMI $B581
 LB54E:  LDA OppCurState
 LB550:  BEQ $B580
@@ -4662,7 +4662,7 @@ LC55F:  JSR IndFuncJump         ;($AED4)Indirect jump to desired function below.
 
 LC562:  .word OppLoadSprites,  SpritesNxtXYState, $C5B3,           $C5B7
 LC56A:  .word $C5C8,           $C5CE,             SprtMove,        OppMoveSprites
-LC572:  .word OppSetTimer,     $C600,             $C61E,           OppStateUpdate1
+LC572:  .word OppSetTimer,     $C600,             OppBigMove,      OppStateUpdate1
 LC57A:  .word OppStateUpdate1, OppStateUpdate1,   OppStateUpdate1, OppStateUpdate2
 
 ;----------------------------------------------------------------------------------------------------
@@ -4731,17 +4731,18 @@ LC5BB:  BCC $C5C5
 LC5BD:  LDA (OppStBasePtr),Y
 LC5BF:  TAY
 
+UpdateStateIndex4:
 LC5C0:  STY OppStateIndex
 LC5C2:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 LC5C5:  INY
-LC5C6:  BNE $C5C0
+LC5C6:  BNE UpdateStateIndex4
 
 ;----------------------------------------------------------------------------------------------------
 
 LC5C8:  LDA #$01
 LC5CA:  STA $A2
-LC5CC:  BNE $C58D
+LC5CC:  BNE OppLoadSprites
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -4816,23 +4817,28 @@ LC61B:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 
 ;----------------------------------------------------------------------------------------------------
 
+OppBigMove:
 LC61E:  STX OppStateTimer
 LC620:  LDX #$00
 LC622:  LDA OppBaseSprite,X
 LC624:  SEC
 LC625:  SBC $04D0,X
 LC628:  JSR $C649
+
 LC62B:  STA $B0,X
 LC62D:  INX
 LC62E:  CPX #$02
 LC630:  BNE $C622
+
 LC632:  LDX #$00
 LC634:  LDA OppBaseSprite,X
 LC636:  CMP $04D0,X
 LC639:  BNE $C646
+
 LC63B:  INX
 LC63C:  CPX #$02
 LC63E:  BNE $C634
+
 LC640:  LDA (OppStBasePtr),Y
 LC642:  TAY
 LC643:  STY OppStateIndex
@@ -4842,12 +4848,15 @@ LC646:  INY
 LC647:  BNE $C643
 
 LC649:  BPL $C660
+
 LC64B:  EOR #$FF
 LC64D:  CLC
 LC64E:  ADC #$01
 LC650:  CMP $04D2,X
 LC653:  BCC $C658
+
 LC655:  LDA $04D2,X
+
 LC658:  STA $E7
 LC65A:  LDA OppBaseSprite,X
 LC65C:  CLC
@@ -4856,7 +4865,9 @@ LC65F:  RTS
 
 LC660:  CMP $04D2,X
 LC663:  BCC $C668
+
 LC665:  LDA $04D2,X
+
 LC668:  STA $E7
 LC66A:  LDA OppBaseSprite,X
 LC66C:  SEC
@@ -4931,6 +4942,7 @@ LC6C7:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
 LC6CA:  LDA PPU0Load
 LC6CC:  AND #$DF
 LC6CE:  LDX #$08
+
 LC6D0:  STA PPU0Load
 LC6D2:  STX $80
 LC6D4:  JMP OppStateUpdate      ;($C550)Advance to the opponent's next state.
@@ -4960,10 +4972,10 @@ LC6F1:  BNE $C6F6
 LC6F3:  STA $0300
 LC6F6:  EOR #$01
 LC6F8:  STA $E7
-LC6FA:  LDA $0301
+LC6FA:  LDA RoundTmrCntrl
 LC6FD:  AND #$FE
 LC6FF:  ORA $E7
-LC701:  STA $0301
+LC701:  STA RoundTmrCntrl
 LC704:  INC OppStateIndex
 LC706:  LDA #$64
 LC708:  STA $0306
@@ -7999,6 +8011,8 @@ LF449:  STA SQ1Cntrl3,X         ;Update channel frequency upper bits hardware.
 GetNoteDone:
 LF44C:  RTS                     ;Done updating the given channel's note to play.
 
+;----------------------------------------------------------------------------------------------------
+
 ;The following arelogarithmic sweep functions.  They increase the frequency.  As the frequency -->
 ;gets higher, the change in frequency gets less. The functions set the delta frequency to -->
 ;different amounts. The higher the divide number, the slower the frequency sweeps. These -->
@@ -8026,6 +8040,8 @@ LF459:* TYA                     ;
 LF45A:  SEC                     ;Return the logarithmic increase in the frequency in A.
 LF45B:  SBC GenByteE0           ;
 LF45D:  RTS                     ;
+
+;----------------------------------------------------------------------------------------------------
 
 LF45E:  LDA SQ1SFXTimer
 LF461:  BNE $F466
@@ -8113,9 +8129,11 @@ LF4E9:  SBC #$0A
 LF4EB:  STA SQ2Cntrl2
 LF4EE:  RTS
 
+;----------------------------------------------------------------------------------------------------
+
 InitSQ1SFX:
-LF4EF:  STY SFXIndexSQ1
-LF4F1:  STA SQ1SFXTimer
+LF4EF:  STY SFXIndexSQ1			;Save timer value for length of SFX.
+LF4F1:  STA SQ1SFXTimer			;Save index to SFX.
 
 LF4F4:  LDA #$01
 LF4F6:  STA SQ1InUse
@@ -8137,23 +8155,31 @@ LF512:  LDA #$00
 LF514:  STA SQ2InUse
 LF517:  RTS
 
-LF518:  STY SFXIndexSQ1
-LF51A:  STA SQ1SFXTimer
-LF51D:  LDA #$00
-LF51F:  STA SQ1InUse
-LF522:  LDA SQ2InUse
-LF525:  BEQ $F531
+;----------------------------------------------------------------------------------------------------
 
-LF527:  LDA #$10
-LF529:  STA SQ2Cntrl0
-LF52C:  LDA #$00
-LF52E:  STA SQ2InUse
+InitSQ1SQ2SFX:
+LF518:  STY SFXIndexSQ1			;Save the length of the SFX.
+LF51A:  STA SQ1SFXTimer			;
 
-LF531:  LDA #$10
-LF533:  STA SQ1Cntrl0
-LF536:  LDA #$01
-LF538:  STA NoiseInUse
-LF53B:  RTS
+LF51D:  LDA #$00				;Indicate SQ1 channel is not in use.
+LF51F:  STA SQ1InUse			;
+
+LF522:  LDA SQ2InUse			;Is SQ2 channel in use?
+LF525:  BEQ SetNoiseInUse		;If not, branch.
+
+LF527:  LDA #$10				;Silence SQ2 channel.
+LF529:  STA SQ2Cntrl0			;
+
+LF52C:  LDA #$00				;Indicate SQ2 channel is not in use.
+LF52E:  STA SQ2InUse			;
+
+SetNoiseInUse:
+LF531:  LDA #$10				;Silence SQ1 channel.
+LF533:  STA SQ1Cntrl0			;
+
+LF536:  LDA #$01				;
+LF538:  STA NoiseInUse			;Indicate the noise channel is in use.
+LF53B:  RTS						;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -8336,10 +8362,21 @@ LF770:  .byte $C5, $18          ;Laugh4. Address: $F140. Length: 384  bytes.
 LF772:  .byte $CB, $0F          ;Laugh5. Address: $F2C0. Length: 240  bytes.
 LF774:  .byte $B0, $0C          ;Grunt.  Address: $EC00. Length: 192  bytes.
 
+;----------------------------------------------------------------------------------------------------
+
+;The following is sweep data loaded into SQ1Cntrl1 during the SQ1_FALL SFX.
+
+FallSFXSweepTbl:
 LF776:  .byte $8D, $84, $84, $84, $84, $8C, $8C, $8C
 
+;----------------------------------------------------------------------------------------------------
+
+PnchMs1SFXTbl:
 LF77E:  .byte $FE, $FC, $EA, $E8, $D7, $C9, $9A, $8B, $7C, $7D, $5E, $5F, $3E, $3F, $2F, $1F
+
+PnchMs2SFXTbl:
 LF78C:  .byte $FB, $E9, $D7, $C9, $9A, $8B, $7C, $5D, $3E, $2F, $93, $95, $97, $99, $64, $64
+
 LF79C:  .byte $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64, $64
 
 LF7AC:  .byte $4C, $42, $58, $50, $3E, $54, $4E, $5E, $4E, $48, $52, $44, $5C, $4A, $60, $40

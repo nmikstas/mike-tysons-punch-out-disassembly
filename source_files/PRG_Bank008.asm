@@ -18,15 +18,18 @@
 .alias LogDiv16                 $F44F
 .alias LogDiv8                  $F450
 .alias InitSQ1SFX               $F4EF
+.alias InitSQ1SQ2SFX			$F518
 .alias SQDCEnvTbl               $F674
 .alias NoiseDecayTbl            $F714
 .alias NoiseDatTbl              $F73C
 .alias DMCSamplePtrTbl          $F768
+.alias FallSFXSweepTbl			$F776
+.alias PnchMs1SFXTbl			$F77E
 
 ;-----------------------------------------[ Start Of Code ]------------------------------------------
 
 SoundEngine:
-L8000:  LDA #$C0                ;Set APU into 5-step mode.
+L8000:  LDA #$C0                ;Set APU to 5-step mode.
 L8002:  STA APUCommonCntrl1     ;
 
 L8005:  JSR PlayDMCSFX          ;($8025)Initialize or play DMC SFX.
@@ -128,50 +131,55 @@ L8084:  RTS                     ;DMC channel disabled, exit.
 ;|                                          SQ1 SFX Player                                          |
 ;----------------------------------------------------------------------------------------------------
 
-;Punch SFX during intr after the start button has been pressed.
+;Punch SFX during intro after the start button has been pressed.
 
 SQ1IntroPunchInit:
 L8085:  LDA #$40                ;SFX will last for 64 frames.
 L8087:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L808A:  LDA #$1A
-L808C:  STA SQ1SFXByte
+L808A:  LDA #$1A				;Load initial timer data.
+L808C:  STA SQ1SFXByte			;
 
-L808F:  LDX #$9F
-L8091:  LDY #$83
+L808F:  LDX #$9F				;50% duty, length cntr disabled, const. volume, volume=15(max).
+L8091:  LDY #$83				;Enable sweep, 1 half frame, shift count=3.
 L8093:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
 
 SQ1IntroPunchCont:
-L8096:  LDA SQ1SFXTimer
-L8099:  CMP #$40
-L809B:  BCS $80A4
+L8096:  LDA SQ1SFXTimer			;Is this the first frame of the SFX?
+L8099:  CMP #$40				;If so, branch to skip updating the volume.
+L809B:  BCS ChkIntroPunchUpdt	;
 
-L809D:  LSR
-L809E:  LSR
-L809F:  ORA #$90
-L80A1:  STA SQ1Cntrl0
+L809D:  LSR						;Decrease volume by 1 every 4th frame.
+L809E:  LSR						;
+L809F:  ORA #$90				;Ensure 50% duty cycle with a constant volume.
+L80A1:  STA SQ1Cntrl0			;
 
-L80A4:  LDA SQ1SFXTimer
-L80A7:  AND #$07
-L80A9:  BNE $80C7
+ChkIntroPunchUpdt:
+L80A4:  LDA SQ1SFXTimer			;Update the SFX every 8 frames.
+L80A7:  AND #$07				;Is it time to update the SFX?
+L80A9:  BNE SQ1IntroPunchEnd	;If not, branch to exit for this frame.
 
-L80AB:  LDA SQ1SFXByte
-L80AE:  LSR
-L80AF:  LSR
-L80B0:  LSR
-L80B1:  LSR
-L80B2:  SEC
-L80B3:  ADC SQ1SFXByte
-L80B6:  STA SQ1SFXByte
-L80B9:  ROL
-L80BA:  ROL
-L80BB:  ROL
-L80BC:  STA SQ1Cntrl2
-L80BF:  ROL
-L80C0:  AND #$07
-L80C2:  ORA #$08
-L80C4:  STA SQ1Cntrl3
+L80AB:  LDA SQ1SFXByte			;
+L80AE:  LSR						;
+L80AF:  LSR						;Transfer upper nibble of SQ1SFXByte to lower nibble.
+L80B0:  LSR						;
+L80B1:  LSR						;
 
+L80B2:  SEC						;Add lower nibble back into byte + 1.
+L80B3:  ADC SQ1SFXByte			;Sequence: $1A, $1C, $1E, $20, $23, $26.
+L80B6:  STA SQ1SFXByte			;
+
+L80B9:  ROL						;
+L80BA:  ROL						;Multiply by 8 to ensure channel is never muted.
+L80BB:  ROL						;
+L80BC:  STA SQ1Cntrl2			;Save lower timer value into control register.
+
+L80BF:  ROL						;Rotate in the data for the upper timer value.
+L80C0:  AND #$07				;Ensure only upper timer data is used.
+L80C2:  ORA #$08				;Set length counter load to 1.
+L80C4:  STA SQ1Cntrl3			;
+
+SQ1IntroPunchEnd:
 L80C7:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
@@ -187,70 +195,79 @@ L80D2:  BEQ SQ1IntroPunchInit   ;
 L80D4:  CMP #SQ1_INTRO_PUNCH    ;Is the SQ1 intro punch SFX already playing?
 L80D6:  BEQ SQ1IntroPunchCont   ;If so, branch to continue SFX.
 
-L80D8:  CPY #SQ1_FALL
-L80DA:  BEQ $80EB
-L80DC:  CMP #SQ1_FALL
-L80DE:  BEQ $80F9
+L80D8:  CPY #SQ1_FALL         	;Does the SQ1 fall SFX need to be started?
+L80DA:  BEQ SQ1FallInit    		;If so, branch to initialize.
+L80DC:  CMP #SQ1_FALL    		;Is the SQ1 fall SFX already playing?
+L80DE:  BEQ SQ1FallCont   		;If so, branch to continue SFX.
 
-L80E0:  CPY #SQ1_PUNCH1
-L80E2:  BEQ $8124
-L80E4:  CMP #SQ1_PUNCH1
-L80E6:  BEQ $8132
+L80E0:  CPY #SQ1_PUNCH1         ;Does the SQ1 punch1 SFX need to be started?
+L80E2:  BEQ SQ1Punch1Init    	;If so, branch to initialize.
+L80E4:  CMP #SQ1_PUNCH1    		;Is the SQ1 punch1 SFX already playing?
+L80E6:  BEQ SQ1Punch1Cont   	;If so, branch to continue SFX.
 
 L80E8:  JMP ChkSQ1SFX2          ;($81C7)Second phase of checking for SFX to play/continue.
 
 ;----------------------------------------------------------------------------------------------------
 
-L80EB:  LDA #$7F
+SQ1FallInit:
+L80EB:  LDA #$7F                ;SFX will last for 127 frames.
 L80ED:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L80F0:  LDX #$9C
-L80F2:  LDY #$7F
-L80F4:  LDA #$62
+L80F0:  LDX #$9C				;50% duty cycle, no length counter, const. vol, vol=12.
+L80F2:  LDY #$7F				;Disable Sweep.
+L80F4:  LDA #SQ_B_5				;Note B5.
 L80F6:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
-L80F9:  LDA SQ1SFXTimer
-L80FC:  CMP #$6C
-L80FE:  BEQ $8121
+SQ1FallCont:
+L80F9:  LDA SQ1SFXTimer			;Is this the 20th frame of the SFX?
+L80FC:  CMP #$6C				;
+L80FE:  BEQ SQ1FallEnd			;If so, branch to end for this frame.
 
-L8100:  BCC $810D
+L8100:  BCC Fall2ndPart			;Is SFX been playing for more than 20 frames? If so, branch.
 
-L8102:  AND #$07
-L8104:  TAY
-L8105:  LDA $F776,Y
-L8108:  STA SQ1Cntrl1
-L810B:  BNE $8121
+L8102:  AND #$07				;Get lower three bits of timer and use as index into FallSFXSweepTbl.
+L8104:  TAY						;
 
-L810D:  CMP #$6B
-L810F:  BNE $8116
+L8105:  LDA FallSFXSweepTbl,Y	;Set sweep data for SQ1.
+L8108:  STA SQ1Cntrl1			;
+L810B:  BNE SQ1FallEnd			;Branch always.
 
-L8111:  LDY #$A5
-L8113:  STY SQ1Cntrl1
-L8116:  CMP #$30
-L8118:  BCS $8121
+Fall2ndPart:
+L810D:  CMP #$6B				;Is this the 21st frame of the SFX?
+L810F:  BNE +					;If not, branch.
 
-L811A:  LSR
-L811B:  LSR
-L811C:  ORA #$90
-L811E:  STA SQ1Cntrl0
+L8111:  LDY #$A5				;Enable sweep. divider period=3 half frames, shift count=5, down.
+L8113:  STY SQ1Cntrl1			;
+
+L8116:* CMP #$30				;Is this the 80th or greater frame of the SFX?
+L8118:  BCS SQ1FallEnd			;If so, branch.
+
+L811A:  LSR						;Use timer to set volume.
+L811B:  LSR						;
+L811C:  ORA #$90				;Ensure 50% duty cycle and constant volume.
+L811E:  STA SQ1Cntrl0			;
+
+SQ1FallEnd:
 L8121:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
 
-L8124:  LDA #$16
+SQ1Punch1Init:
+L8124:  LDA #$16                ;SFX will last for 22 frames.
 L8126:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L8129:  LDX #$5F
-L812B:  LDY #$8B
-L812D:  LDA #$12
+L8129:  LDX #$5F				;25% duty cycle, no len. counter, const. vol, vol=15(max).
+L812B:  LDY #$8B				;Enable sweep, divider period=1 half frame, shift count=3, up.
+L812D:  LDA #SQ_G_2				;Note G2.
 L812F:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
-L8132:  LDA SQ1SFXTimer
-L8135:  CMP #$10
-L8137:  BCS FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+SQ1Punch1Cont:
+L8132:  LDA SQ1SFXTimer			;Is this the final 16 frames of the SFX?
+L8135:  CMP #$10				;
+L8137:  BCS FinishSQ1SFXFrame   ;If not, branch to finish processing SQ1 SFX for this frame.
 
-L8139:  ORA #$50
-L813B:  STA SQ1Cntrl0
+L8139:  ORA #$50				;12.5% duty cycle, constant volume.
+L813B:  STA SQ1Cntrl0			;
 
 FinishSQ1SFXFrame:
 L813E:  DEC SQ1SFXTimer         ;Decrement SQ1 SFX timer.
@@ -288,83 +305,103 @@ L816F:  RTS                     ;Finished processing SQ1 SFX. return.
 
 ;----------------------------------------------------------------------------------------------------
 
-L8170:  LDA #$04
-L8172:  JSR $F518
+SQ1PunchBlockInit:
+L8170:  LDA #$04                ;SFX will last for 4 frames.
+L8172:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
 
-L8175:  LDX #$0A
-L8177:  LDA #$1A
-L8179:  LDY #$08
-L817B:  STY NoiseCntrl3
-L817E:  STX NoiseCntrl2
-L8181:  STA NoiseCntrl0
+L8175:  LDX #$0A				;No loop, period=10.
+L8177:  LDA #$1A				;Length counter halt, Volume=10.
+L8179:  LDY #$08				;Length counter=1.
 
-L8184:  LDX #$DA
-L8186:  LDY #$85
-L8188:  LDA #$24
+L817B:  STY NoiseCntrl3			;
+L817E:  STX NoiseCntrl2			;Update npise channel.
+L8181:  STA NoiseCntrl0			;
+
+L8184:  LDX #$DA				;25% duty cycle, constant volume, volume=10.
+L8186:  LDY #$85				;Enable sweep, shift count=5, down.
+L8188:  LDA #SQ_E_3				;Note E3.
 L818A:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
+SQ1PunchBlockCont:
 L818D:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
 
-L8190:  LDA #$20
+SQ1OppPunch1Init:
+L8190:  LDA #$20                ;SFX will last for 32 frames.
 L8192:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L8195:  LDA #$FF
-L8197:  STA SQ1SFXByte
+L8195:  LDA #$FF				;Load initial value used for SQ1 timer value.
+L8197:  STA SQ1SFXByte			;
 
-L819A:  LDX #$1E
-L819C:  LDY #$81
+L819A:  LDX #$1E				;12.5% duty cycle, const. vol, vol=14.
+L819C:  LDY #$81				;Enable sweep, down, shift count=1.
 L819E:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
 
-L81A1:  LDA SQ1SFXByte
-L81A4:  TAY
+SQ1OppPunch1Cont:
+L81A1:  LDA SQ1SFXByte			;Prepare to decrease SQ1SFXByte.
+L81A4:  TAY						;
 L81A5:  JSR LogDiv8             ;($F450)Logarithmically increase frequency.
-L81A8:  STA SQ1SFXByte
-L81AB:  ROL
-L81AC:  ROL
-L81AD:  STA SQ1Cntrl2
-L81B0:  ROL
-L81B1:  AND #$03
-L81B3:  ORA #$08
-L81B5:  STA SQ1Cntrl3
-L81B8:  LDA SQ1SFXTimer
-L81BB:  CMP #$0E
-L81BD:  BCS $81C4
-L81BF:  ORA #$90
-L81C1:  STA SQ1Cntrl0
-L81C4:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+
+L81A8:  STA SQ1SFXByte			;Update SQ1SFXByte with new value.
+
+L81AB:  ROL						;
+L81AC:  ROL						;Update lower timer value.
+L81AD:  STA SQ1Cntrl2			;
+
+L81B0:  ROL						;Update upper timer value(only 3 bits).
+L81B1:  AND #$03				;
+
+L81B3:  ORA #$08				;Length counter=1.
+L81B5:  STA SQ1Cntrl3			;
+
+L81B8:  LDA SQ1SFXTimer			;Is SQ1SFXTimer at its minimum value?
+L81BB:  CMP #$0E				;
+L81BD:  BCS +					;If so, branch.
+
+L81BF:  ORA #$90				;Ensure 25% duty cycle and constant volume.
+L81C1:  STA SQ1Cntrl0			;
+L81C4:* JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
 
 ChkSQ1SFX2:
-L81C7:  CPY #$04
-L81C9:  BEQ $8170
-L81CB:  CMP #$04
-L81CD:  BEQ $818D
-L81CF:  CPY #$05
-L81D1:  BEQ $8190
-L81D3:  CMP #$05
-L81D5:  BEQ $81A1
-L81D7:  CPY #$06
-L81D9:  BEQ $81F2
-L81DB:  CMP #$06
-L81DD:  BEQ $81F7
-L81DF:  CPY #$07
-L81E1:  BEQ $8215
-L81E3:  CMP #$07
-L81E5:  BEQ $821A
-L81E7:  CPY #$08
-L81E9:  BEQ $8222
-L81EB:  CMP #$08
-L81ED:  BEQ $8230
+L81C7:  CPY #SQ1_PUNCH_BLOCK    ;Does the SQ1 punch block SFX need to be started?
+L81C9:  BEQ SQ1PunchBlockInit	;If so, branch to initialize.
+L81CB:  CMP #SQ1_PUNCH_BLOCK    ;Is the SQ1 punch block SFX already playing?
+L81CD:  BEQ SQ1PunchBlockCont   ;If so, branch to continue SFX.
+
+L81CF:  CPY #SQ1_OPP_PUNCH1    	;Does the SQ1 opp punch1 SFX need to be started?
+L81D1:  BEQ SQ1OppPunch1Init	;If so, branch to initialize.
+L81D3:  CMP #SQ1_OPP_PUNCH1    	;Is the SQ1 opp punch1 SFX already playing?
+L81D5:  BEQ SQ1OppPunch1Cont   	;If so, branch to continue SFX.
+
+L81D7:  CPY #SQ1_PUNCH_MISS1    ;Does the SQ1 punch miss1 SFX need to be started?
+L81D9:  BEQ SQ1PunchMiss1Init	;If so, branch to initialize.
+L81DB:  CMP #SQ1_PUNCH_MISS1    ;Is the SQ1 punch miss1 SFX already playing?
+L81DD:  BEQ SQ1PunchMiss1Cont   ;If so, branch to continue SFX.
+
+L81DF:  CPY #SQ1_PUNCH_MISS2    ;Does the SQ1 punch miss2 SFX need to be started?
+L81E1:  BEQ SQ1PunchMiss2Init	;If so, branch to initialize.
+L81E3:  CMP #SQ1_PUNCH_MISS2    ;Is the SQ1 punch miss2 SFX already playing?
+L81E5:  BEQ SQ1PunchMiss2Cont   ;If so, branch to continue SFX.
+
+L81E7:  CPY #SQ1_PUNCH2    		;Does the SQ1 punch2 SFX need to be started?
+L81E9:  BEQ SQ1Punch2Init		;If so, branch to initialize.
+L81EB:  CMP #SQ1_PUNCH2    		;Is the SQ1 punch2 SFX already playing?
+L81ED:  BEQ SQ1Punch2Cont   	;If so, branch to continue SFX.
 
 L81EF:  JMP ChkSQ1SFX3          ;($827F)Third phase of checking for SFX to play/continue.
 
-L81F2:  LDA #$10
-L81F4:  JSR $F518
+;----------------------------------------------------------------------------------------------------
+
+SQ1PunchMiss1Init:
+L81F2:  LDA #$10                ;SFX will last for 16 frames.
+L81F4:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+
+SQ1PunchMiss1Cont:
 L81F7:  LDY SQ1SFXTimer
-L81FA:  LDA $F77D,Y
+L81FA:  LDA PnchMs1SFXTbl-1,Y
 L81FD:  TAX
 L81FE:  AND #$0F
 L8200:  STA NoiseCntrl2
@@ -379,18 +416,31 @@ L820D:  LDA #$08
 L820F:  STA NoiseCntrl3
 L8212:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
+;----------------------------------------------------------------------------------------------------
+
+SQ1PunchMiss2Init:
 L8215:  LDA #$0A
-L8217:  JSR $F518
+L8217:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+
+SQ1PunchMiss2Cont:
 L821A:  LDY SQ1SFXTimer
 L821D:  LDA $F78D,Y
 L8220:  BNE $81FD
+
+;----------------------------------------------------------------------------------------------------
+
+SQ1Punch2Init:
 L8222:  LDA #$10
 L8224:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 L8227:  LDX #$43
 L8229:  LDY #$84
 L822B:  LDA #$4C
 L822D:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
+
+SQ1Punch2Cont:
 L8230:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+
+;----------------------------------------------------------------------------------------------------
 
 L8233:  LDA #$04
 L8235:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
@@ -407,6 +457,8 @@ L824C:  LDY SQ1SFXTimer
 L824F:  LDA $F797,Y
 L8252:  STA SQ1Cntrl0
 L8255:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
+
+;----------------------------------------------------------------------------------------------------
 
 L8258:  LDA #$04
 L825A:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
@@ -428,21 +480,24 @@ L827C:  JMP $824C
 ;----------------------------------------------------------------------------------------------------
 
 ChkSQ1SFX3:
-L827F:  CPY #$09
+L827F:  CPY #SQ1_TALK1
 L8281:  BEQ $8233
-L8283:  CMP #$09
+L8283:  CMP #SQ1_TALK1
 L8285:  BEQ $824C
-L8287:  CPY #$0A
+
+L8287:  CPY #SQ1_TALK2
 L8289:  BEQ $8258
-L828B:  CMP #$0A
+L828B:  CMP #SQ1_TALK2
 L828D:  BEQ $827C
-L828F:  CPY #$0B
+
+L828F:  CPY #SQ1_TALK3
 L8291:  BEQ $8258
-L8293:  CMP #$0B
+L8293:  CMP #SQ1_TALK3
 L8295:  BEQ $827C
-L8297:  CPY #$0C
+
+L8297:  CPY #SQ1_BELL1
 L8299:  BEQ $82A2
-L829B:  CMP #$0C
+L829B:  CMP #SQ1_BELL1
 L829D:  BEQ $82BE
 
 L829F:  JMP ChkSQ1SFX4          ;($8316)Fourth phase of checking for SFX to play/continue.
@@ -509,30 +564,37 @@ L8316:  CPY #$0D
 L8318:  BEQ $82D0
 L831A:  CMP #$0D
 L831C:  BEQ $82DA
+
 L831E:  CPY #$0E
 L8320:  BEQ $82F2
 L8322:  CMP #$0E
 L8324:  BEQ $82DA
+
 L8326:  CPY #$0F
 L8328:  BEQ $82FE
 L832A:  CMP #$0F
 L832C:  BEQ $82DA
+
 L832E:  CPY #$10
 L8330:  BEQ $830A
 L8332:  CMP #$10
 L8334:  BEQ $82DA
+
 L8336:  CPY #$11
 L8338:  BEQ $8359
 L833A:  CMP #$11
 L833C:  BEQ $835E
+
 L833E:  CPY #$12
 L8340:  BEQ $8367
 L8342:  CMP #$12
 L8344:  BEQ $8375
+
 L8346:  CPY #$13
 L8348:  BEQ $8378
 L834A:  CMP #$13
 L834C:  BEQ $8386
+
 L834E:  CPY #$14
 L8350:  BEQ $8395
 L8352:  CMP #$14
@@ -543,7 +605,8 @@ L8356:  JMP ChkSQ1SFX5          ;($8402)Fifth phase of checking for SFX to play/
 ;----------------------------------------------------------------------------------------------------
 
 L8359:  LDA #$05
-L835B:  JSR $F518
+L835B:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+
 L835E:  LDY SQ1SFXTimer
 L8361:  LDA $F809,Y
 L8364:  JMP $81FD
@@ -674,8 +737,9 @@ L843D:* JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame
 
 ;Glove punching hole in introduction SQ1 SFX.
 
-L8440:  LDA #$20
-L8442:  JSR $F518
+L8440:  LDA #$20                ;SFX will last for 32 frames.
+L8442:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+
 L8445:  LDA #$09
 L8447:  STA NoiseCntrl0
 L844A:  LDA #$0F
@@ -1124,6 +1188,7 @@ L87CE:  BEQ $87D3
 L87D0:  DEC SQ2SFXByte2
 L87D3:  JMP $8514
 L87D6:  JMP $8753
+
 L87D9:  CPY #$10
 L87DB:  BEQ $87D6
 L87DD:  CMP #$10
@@ -1958,7 +2023,7 @@ L8FFC:  .byte $00, $00, $00, $00
 ;----------------------------------------------------------------------------------------------------
 
 ;The following table represent the indexes to find the sequences to play for the various music
-;in the game.  The index number is referenced from the start of this table but always look
+;in the game.  The index number is referenced from the start of this table but always looks
 ;in the table below it.
 
 MusSeqIndexTbl:
@@ -2055,7 +2120,7 @@ L9071:  .byte $5D, $40, $7B, $00, $60
 
 ;Init attract/end music part 2:
 L9076:  .byte $17
-L9077:  .word $91EF
+L9077:  .word AttractMusic2
 L9079:  .byte $5D, $24, $7E, $70, $60
 
 ;Init Intro/attract/end music, part 2:
@@ -2240,18 +2305,27 @@ L91EE:  .byte DRUM_BEAT_10      ;Drum beat 10.
 
 ;----------------------------------------------------------------------------------------------------
 
-L91EF:  .byte $83
-L91F0:  .byte $54, $84, $4C, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82, $02, $83
-L9200:  .byte $42, $56, $84, $50, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82, $02
-L9210:  .byte $83, $42, $00, $83, $02, $80, $42, $44, $46, $48, $4A, $4C, $54, $56, $54, $56
+AttractMusic2:
+
+AttractMusic2SQ2:
+L91EF:  .byte $83, $54, $84, $4C, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82, $02
+L91F0:  .byte $83, $42, $56, $84, $50, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82
+L9200:  .byte $02, $83, $42, $00
+
+L9213:	.byte $83, $02, $80, $42, $44, $46, $48, $4A, $4C, $54, $56, $54, $56
 L9220:  .byte $54, $56, $54, $56, $54, $56, $54, $56, $54, $56, $54, $56, $82, $54, $83, $02
 L9230:  .byte $02, $80, $46, $48, $4A, $4C, $4E, $50, $56, $5A, $56, $5A, $56, $5A, $56, $5A
-L9240:  .byte $56, $5A, $56, $5A, $56, $5A, $56, $5A, $82, $56, $83, $02, $82, $34, $42, $2A
+L9240:  .byte $56, $5A, $56, $5A, $56, $5A, $56, $5A, $82, $56, $83, $02
+
+L924C:	.byte $82, $34, $42, $2A
 L9250:  .byte $42, $34, $42, $2A, $42, $34, $42, $2A, $42, $34, $42, $2A, $42, $38, $42, $2A
-L9260:  .byte $42, $38, $42, $2A, $42, $38, $42, $2A, $42, $38, $42, $2A, $42, $82, $1A, $1A
-L9270:  .byte $83, $26, $82, $1A, $80, $1A, $1A, $82, $1E, $1A, $1A, $1A, $1E, $1A, $1A, $1A
-L9280:  .byte $1E, $1A, $1A, $1A, $83, $26, $82, $1A, $1A, $1E, $80, $1A, $1A, $82, $1A, $1A
-L9290:  .byte $1E, $1A, $1A, $1A, $1E, $1A, $83
+L9260:  .byte $42, $38, $42, $2A, $42, $38, $42, $2A, $42, $38, $42, $2A, $42
+
+L926D:	.byte $82, $1A, $1A, $83, $26, $82, $1A, $80, $1A, $1A, $82, $1E, $1A, $1A, $1A, $1E
+L9270:  .byte $1A, $1A, $1A, $1E, $1A, $1A, $1A, $83, $26, $82, $1A, $1A, $1E, $80, $1A, $1A
+L9280:  .byte $82, $1A, $1A, $1E, $1A, $1A, $1A, $1E, $1A, $83
+
+;----------------------------------------------------------------------------------------------------
 
 L9296:  .byte $5A, $84, $54, $82, $02, $4A, $4C, $83, $50
 L92A0:  .byte $4C, $4A, $82, $46, $44, $42, $44, $46, $48, $83, $4A, $54, $85, $4C, $02, $00
@@ -2260,12 +2334,16 @@ L92C0:  .byte $5C, $5C, $5E, $5C, $5E, $5C, $5E, $5C, $5E, $83, $40, $82, $40, $
 L92D0:  .byte $3E, $3C, $83, $38, $32, $82, $34, $80, $50, $54, $56, $5A, $5E, $62, $83, $64
 L92E0:  .byte $02, $82
 
+;----------------------------------------------------------------------------------------------------
+
 L92E2:  .byte $34, $42, $2A, $42, $34, $44, $3C, $44, $26, $3E, $34, $3E, $28, $40
 L92F0:  .byte $34, $40, $2A, $2C, $2E, $30, $32, $42, $3C, $42, $34, $80, $20, $24, $26, $2A
 L9300:  .byte $2E, $32, $82, $34, $02, $34, $02, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E
 L9310:  .byte $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E
 L9320:  .byte $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $82, $1E, $80, $1E, $1E, $85
 L9330:  .byte $26, $83, $26, $26, $86, $26, $83, $26
+
+;----------------------------------------------------------------------------------------------------
 
 L9338:  .byte $83, $5A, $84, $54, $82, $02, $4A, $4C
 L9340:  .byte $83, $50, $4C, $4A, $82, $46, $44, $83, $42, $44, $46, $4A, $00, $80, $58, $5A
