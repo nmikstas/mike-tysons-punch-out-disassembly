@@ -9,7 +9,11 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
+.alias FightBank		$02		;The memory bank containing the data for the current fight
+.alias FightOffset		$03		;Offset of the current fight within its memory bank
 .alias RoundNumber		$06		;Current round number.
+.alias CurrPRGBank		$0D		;The current PRG bank mapped to $8000-$9FFF
+.alias SavedPRGBank		$0E		;The last PRG bank to
 
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
@@ -24,7 +28,7 @@
                                 ;#$02 - Stop all game processing.
                                 ;#$03 - Process only audio.
                                 ;#$FF - Run non-playable portions of game(intro, cut scenes, etc).
-                                
+
 .alias FrameCounter     $1E     ;Increments every frame and rolls over when maxed out.
 .alias TransTimer       $1F     ;Countdown timer for various transitions.
 
@@ -43,7 +47,7 @@
 .alias MacDefense1      $76     ;Little Mac's defense. there are 2 values but they are always -->
 .alias MacDefense2      $77     ;written to the same value. Maybe there was plans for a left and -->
                                 ;right defense? #$FF=Dodge, #$08=Block, #$80=Duck.
-                                
+
 .alias OppCurState      $90     ;Opponent's current state. Set MSB=initialize new state.
 .alias OppStateStatus   $91     ;Status of opponent's current state.
 .alias OppStateTimer    $92     ;Timer for opponents current state.
@@ -88,11 +92,11 @@
 .alias MacCanPunch      $BC     ;#$00=Little Mac can't punch, #$01=Little Mac can punch.
 
 .alias OppLastPunchSts  $BD     ;Last punch status of opponent. See punch statuses below.
-                                
+
 .alias CurrentCount     $C2     ;Current referee count. #$9A=1 through #$A2=9.
-                                
+
 .alias OppGetUpCount    $C4     ;Count opponent will get up on. #$9A=1 through #$A2=9.
- 
+
 .alias Joy1Buttons      $D0     ;Controller 1 button presses.
 .alias Joy2Buttons      $D1     ;Controller 2 button presses.
 
@@ -101,7 +105,7 @@
                                 ;#$00=Not pressed.                            -->
                                 ;#$01=Dpad not released since last change.    -->
                                 ;#$81=Dpad/button first press since last release.
-                                
+
 .alias DPad1Status      $D2     ;Controller 1 dpad status.
 .alias DPad1History     $D3     ;Controller 1 dpad history.
 .alias A1Status         $D4     ;Controller 1 A button status.
@@ -501,7 +505,7 @@
 ;Opponent state flags
 .alias OPP_CHNG_NONE    $00     ;Done changing opponent sprites.
 .alias OPP_CHNG_POS     $01     ;Move opponent's sprites on the screen.
-.alias OPP_CHNG_SPRT    $80     ;Change opponent's sprites(Next animation sequence). 
+.alias OPP_CHNG_SPRT    $80     ;Change opponent's sprites(Next animation sequence).
 .alias OPP_CHNG_BOTH    $81     ;Change both position and sprites.
 .alias OPP_RGHT_HOOK    $02     ;Indicate a right hook is being thrown.
 
