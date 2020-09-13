@@ -975,9 +975,9 @@ L90FE:  .byte $02              ;Sprite data index.
 
 ;Index #$02.
 L90FF:  .byte ST_CHK_BRANCH     ;Check memory value and branch if a match is found.
-L9100:  .byte SprtBkgUpdt		;
-L9101:  .byte $00				;Are the sprites and background enabled?
-L9102:  .byte $00				;If not, jump back to index 0.
+L9100:  .byte SprtBkgUpdt       ;
+L9101:  .byte $00               ;Are the sprites and background enabled?
+L9102:  .byte $00               ;If not, jump back to index 0.
 
 ;Index #$06.
 L9103:  .byte ST_CHK_BRANCH, $06

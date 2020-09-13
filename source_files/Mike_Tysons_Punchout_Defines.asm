@@ -9,13 +9,13 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
-.alias FightBank		$02		;The memory bank containing the data for the current fight
-.alias FightOffset		$03		;Offset of the current fight within its memory bank
-.alias KnockdownSts		$05		;Knockdown status #$01=Opp down, #$02=Mac down
-.alias RoundNumber		$06		;Current round number.
-.alias MacLosses		$0A		;Number of losses on Mac's record
-.alias CurrPRGBank		$0D		;The current PRG bank mapped to $8000-$9FFF
-.alias SavedPRGBank		$0E		;The last PRG bank to be loaded
+.alias FightBank        $02     ;The memory bank containing the data for the current fight
+.alias FightOffset      $03     ;Offset of the current fight within its memory bank
+.alias KnockdownSts     $05     ;Knockdown status #$01=Opp down, #$02=Mac down
+.alias RoundNumber      $06     ;Current round number.
+.alias MacLosses        $0A     ;Number of losses on Mac's record
+.alias CurrPRGBank      $0D     ;The current PRG bank mapped to $8000-$9FFF
+.alias SavedPRGBank     $0E     ;The last PRG bank to be loaded
 
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
@@ -167,9 +167,7 @@
 
 .alias StarCountDown    $0347   ;Must count down to 1 before stars will be given.
 
-.alias HeartDispStatus  $0325   ;Hearts display status, MSB=needs update
-.alias HeartDisplayUD   $0326   ;Hearts display digit index, upper digit
-.alias HeartDisplayLD   $0327   ;Hearts display digit index, lower digit
+.alias healthpoints     $0390
 .alias MacNextHP        $0391   ;Next value to assign to Little Mac HP.
 .alias MacCurrentHP     $0392   ;Current vlaue of Little Mac's HP.
 .alias MacDisplayedHP   $0393   ;Displayed HP for Little Mac.
@@ -362,11 +360,13 @@
 
 ;------------------------------------------[MMC Registers]-------------------------------------------
 
+.alias BankSelect       $AFFF
+
 ;--------------------------------------------[Constants]---------------------------------------------
 
 ;Silent note indexes.
-.alias NO_NOTE1			$00		;Silent note.
-.alias NO_NOTE2			$02		;Silent note.
+.alias NO_NOTE1         $00     ;Silent note.
+.alias NO_NOTE2         $02     ;Silent note.
 
 ;Sound channel indexes.
 .alias AUD_SQ1_INDEX    $00     ;Square wave 1 channel index.
@@ -511,7 +511,7 @@
 .alias ST_SPRTS_MOVE    $70     ;Move opponent animation around on the screen. -->
                                 ;Bits 0,1=frames between movements, bits 2,3=number of movements.
 .alias ST_TIMER         $80     ;Number of frames for sub-state to wait.
-.alias ST_SPRT_BIG_MV	$A0		;Move opponent around the screen large lengths.
+.alias ST_SPRT_BIG_MV   $A0     ;Move opponent around the screen large lengths.
 .alias ST_CALL_FUNC     $E0     ;Call an opponent state subroutine.
 .alias ST_RETURN_FUNC   $E1     ;Return from an opponent state subroutine.
 .alias ST_VAR_TIME      $E4     ;Set opponent's state time to a varying amount.
@@ -575,65 +575,65 @@
 .alias PAL_UPDATE       $81     ;Update palettes flag.
 
 ;Musical note indexes SQ1, SQ2.
-.alias SQ_C_2			$04		;C2
-.alias SQ_C_SHARP_2		$06		;C#2
-.alias SQ_D_2  			$08		;D2
-.alias SQ_D_SHARP_2		$0A		;D#2
-.alias SQ_E_2  			$0C		;E2
-.alias SQ_F_2  			$0E		;F2
-.alias SQ_F_SHARP_2 	$10		;F#2
-.alias SQ_G_2  			$12		;G2
-.alias SQ_G_SHARP_2 	$14		;G#2
-.alias SQ_A_2  			$16		;A2
-.alias SQ_A_SHARP_2 	$18		;A#2
-.alias SQ_B_2  			$1A		;B2
-.alias SQ_C_3  			$1C		;C3
-.alias SQ_C_SHARP_3 	$1E		;C#3
-.alias SQ_D_3  			$20		;D3
-.alias SQ_D_SHARP_3 	$22		;D#3
-.alias SQ_E_3  			$24		;E3
-.alias SQ_F_3  			$26		;F3
-.alias SQ_F_SHARP_3 	$28		;F#3
-.alias SQ_G_3  			$2A		;G3
-.alias SQ_G_SHARP_3 	$2C		;G#3
-.alias SQ_A_3  			$2E		;A3
-.alias SQ_A_SHARP_3 	$30		;A#3
-.alias SQ_B_3  			$32		;B3
-.alias SQ_C_4  			$34		;C4
-.alias SQ_C_SHARP_4 	$36		;C#4
-.alias SQ_D_4  			$38		;D4
-.alias SQ_D_SHARP_4 	$3A		;D#4
-.alias SQ_E_4  			$3C		;E4
-.alias SQ_F_4  			$3E		;F4
-.alias SQ_F_SHARP_4 	$40		;F#4
-.alias SQ_G_4  			$42		;G4
-.alias SQ_G_SHARP_4 	$44		;G#4
-.alias SQ_A_4  			$46		;A4
-.alias SQ_A_SHARP_4 	$48		;A#4
-.alias SQ_B_4  			$4A		;B4
-.alias SQ_C_5  			$4C		;C5
-.alias SQ_C_SHARP_5 	$4E		;C#5
-.alias SQ_D_5  			$50		;D5
-.alias SQ_D_SHARP_5 	$52		;D#5
-.alias SQ_E_5  			$54		;E5
-.alias SQ_F_5  			$56		;F5
-.alias SQ_F_SHARP_5 	$58		;F#5
-.alias SQ_G_5  			$5A		;G5
-.alias SQ_G_SHARP_5 	$5C		;G#5
-.alias SQ_A_5  			$5E		;A5
-.alias SQ_A_SHARP_5 	$60		;A#5
-.alias SQ_B_5  			$62		;B5
-.alias SQ_C_6  			$64		;C6
-.alias SQ_C_SHARP_6 	$66		;C#6
-.alias SQ_D_6  			$68		;D6
-.alias SQ_D_SHARP_6 	$6A		;D#6
-.alias SQ_E_6  			$6C		;E6
-.alias SQ_F_6  			$6E		;F6
-.alias SQ_F_SHARP_6 	$70		;F#6
-.alias SQ_G_6  			$72		;G6
-.alias SQ_G_SHARP_6 	$74		;G#6
-.alias SQ_A_6  			$76		;A6
-.alias SQ_A_SHARP_6 	$78		;A#6
-.alias SQ_B_6  			$7A		;B6
-.alias SQ_C_7  			$7C		;C7
-.alias SQ_C_SHARP_7 	$7E		;C#7
+.alias SQ_C_2           $04     ;C2
+.alias SQ_C_SHARP_2     $06     ;C#2
+.alias SQ_D_2           $08     ;D2
+.alias SQ_D_SHARP_2     $0A     ;D#2
+.alias SQ_E_2           $0C     ;E2
+.alias SQ_F_2           $0E     ;F2
+.alias SQ_F_SHARP_2     $10     ;F#2
+.alias SQ_G_2           $12     ;G2
+.alias SQ_G_SHARP_2     $14     ;G#2
+.alias SQ_A_2           $16     ;A2
+.alias SQ_A_SHARP_2     $18     ;A#2
+.alias SQ_B_2           $1A     ;B2
+.alias SQ_C_3           $1C     ;C3
+.alias SQ_C_SHARP_3     $1E     ;C#3
+.alias SQ_D_3           $20     ;D3
+.alias SQ_D_SHARP_3     $22     ;D#3
+.alias SQ_E_3           $24     ;E3
+.alias SQ_F_3           $26     ;F3
+.alias SQ_F_SHARP_3     $28     ;F#3
+.alias SQ_G_3           $2A     ;G3
+.alias SQ_G_SHARP_3     $2C     ;G#3
+.alias SQ_A_3           $2E     ;A3
+.alias SQ_A_SHARP_3     $30     ;A#3
+.alias SQ_B_3           $32     ;B3
+.alias SQ_C_4           $34     ;C4
+.alias SQ_C_SHARP_4     $36     ;C#4
+.alias SQ_D_4           $38     ;D4
+.alias SQ_D_SHARP_4     $3A     ;D#4
+.alias SQ_E_4           $3C     ;E4
+.alias SQ_F_4           $3E     ;F4
+.alias SQ_F_SHARP_4     $40     ;F#4
+.alias SQ_G_4           $42     ;G4
+.alias SQ_G_SHARP_4     $44     ;G#4
+.alias SQ_A_4           $46     ;A4
+.alias SQ_A_SHARP_4     $48     ;A#4
+.alias SQ_B_4           $4A     ;B4
+.alias SQ_C_5           $4C     ;C5
+.alias SQ_C_SHARP_5     $4E     ;C#5
+.alias SQ_D_5           $50     ;D5
+.alias SQ_D_SHARP_5     $52     ;D#5
+.alias SQ_E_5           $54     ;E5
+.alias SQ_F_5           $56     ;F5
+.alias SQ_F_SHARP_5     $58     ;F#5
+.alias SQ_G_5           $5A     ;G5
+.alias SQ_G_SHARP_5     $5C     ;G#5
+.alias SQ_A_5           $5E     ;A5
+.alias SQ_A_SHARP_5     $60     ;A#5
+.alias SQ_B_5           $62     ;B5
+.alias SQ_C_6           $64     ;C6
+.alias SQ_C_SHARP_6     $66     ;C#6
+.alias SQ_D_6           $68     ;D6
+.alias SQ_D_SHARP_6     $6A     ;D#6
+.alias SQ_E_6           $6C     ;E6
+.alias SQ_F_6           $6E     ;F6
+.alias SQ_F_SHARP_6     $70     ;F#6
+.alias SQ_G_6           $72     ;G6
+.alias SQ_G_SHARP_6     $74     ;G#6
+.alias SQ_A_6           $76     ;A6
+.alias SQ_A_SHARP_6     $78     ;A#6
+.alias SQ_B_6           $7A     ;B6
+.alias SQ_C_7           $7C     ;C7
+.alias SQ_C_SHARP_7     $7E     ;C#7

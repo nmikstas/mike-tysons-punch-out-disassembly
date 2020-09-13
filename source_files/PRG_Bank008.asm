@@ -18,18 +18,18 @@
 .alias LogDiv16                 $F44F
 .alias LogDiv8                  $F450
 .alias InitSQ1SFX               $F4EF
-.alias InitSQ1SQ2SFX			$F518
+.alias InitSQ1SQ2SFX            $F518
 .alias SQDCEnvTbl               $F674
 .alias NoiseDecayTbl            $F714
 .alias NoiseDatTbl              $F73C
 .alias DMCSamplePtrTbl          $F768
-.alias FallSFXSweepTbl			$F776
-.alias PnchMs1SFXTbl			$F77E
-.alias PnchMs2SFXTbl			$F78E
-.alias Talk1CntrlTbl			$F798
-.alias Talk1NoteTbl				$F79C
-.alias Talk2NoteTbl				$F7AC
-.alias Talk3NoteTbl				$F7BC
+.alias FallSFXSweepTbl          $F776
+.alias PnchMs1SFXTbl            $F77E
+.alias PnchMs2SFXTbl            $F78E
+.alias Talk1CntrlTbl            $F798
+.alias Talk1NoteTbl             $F79C
+.alias Talk2NoteTbl             $F7AC
+.alias Talk3NoteTbl             $F7BC
 
 ;-----------------------------------------[ Start Of Code ]------------------------------------------
 
@@ -142,47 +142,47 @@ SQ1IntroPunchInit:
 L8085:  LDA #$40                ;SFX will last for 64 frames.
 L8087:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L808A:  LDA #$1A				;Load initial timer data.
-L808C:  STA SQ1SFXByte			;
+L808A:  LDA #$1A                ;Load initial timer data.
+L808C:  STA SQ1SFXByte          ;
 
-L808F:  LDX #$9F				;50% duty, length cntr disabled, const. volume, volume=15(max).
-L8091:  LDY #$83				;Enable sweep, 1 half frame, shift count=3.
+L808F:  LDX #$9F                ;50% duty, length cntr disabled, const. volume, volume=15(max).
+L8091:  LDY #$83                ;Enable sweep, 1 half frame, shift count=3.
 L8093:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
 
 SQ1IntroPunchCont:
-L8096:  LDA SQ1SFXTimer			;Is this the first frame of the SFX?
-L8099:  CMP #$40				;If so, branch to skip updating the volume.
-L809B:  BCS ChkIntroPunchUpdt	;
+L8096:  LDA SQ1SFXTimer         ;Is this the first frame of the SFX?
+L8099:  CMP #$40                ;If so, branch to skip updating the volume.
+L809B:  BCS ChkIntroPunchUpdt   ;
 
-L809D:  LSR						;Decrease volume by 1 every 4th frame.
-L809E:  LSR						;
-L809F:  ORA #$90				;Ensure 50% duty cycle with a constant volume.
-L80A1:  STA SQ1Cntrl0			;
+L809D:  LSR                     ;Decrease volume by 1 every 4th frame.
+L809E:  LSR                     ;
+L809F:  ORA #$90                ;Ensure 50% duty cycle with a constant volume.
+L80A1:  STA SQ1Cntrl0           ;
 
 ChkIntroPunchUpdt:
-L80A4:  LDA SQ1SFXTimer			;Update the SFX every 8 frames.
-L80A7:  AND #$07				;Is it time to update the SFX?
-L80A9:  BNE SQ1IntroPunchEnd	;If not, branch to exit for this frame.
+L80A4:  LDA SQ1SFXTimer         ;Update the SFX every 8 frames.
+L80A7:  AND #$07                ;Is it time to update the SFX?
+L80A9:  BNE SQ1IntroPunchEnd    ;If not, branch to exit for this frame.
 
-L80AB:  LDA SQ1SFXByte			;
-L80AE:  LSR						;
-L80AF:  LSR						;Transfer upper nibble of SQ1SFXByte to lower nibble.
-L80B0:  LSR						;
-L80B1:  LSR						;
+L80AB:  LDA SQ1SFXByte          ;
+L80AE:  LSR                     ;
+L80AF:  LSR                     ;Transfer upper nibble of SQ1SFXByte to lower nibble.
+L80B0:  LSR                     ;
+L80B1:  LSR                     ;
 
-L80B2:  SEC						;Add lower nibble back into byte + 1.
-L80B3:  ADC SQ1SFXByte			;Sequence: $1A, $1C, $1E, $20, $23, $26.
-L80B6:  STA SQ1SFXByte			;
+L80B2:  SEC                     ;Add lower nibble back into byte + 1.
+L80B3:  ADC SQ1SFXByte          ;Sequence: $1A, $1C, $1E, $20, $23, $26.
+L80B6:  STA SQ1SFXByte          ;
 
-L80B9:  ROL						;
-L80BA:  ROL						;Multiply by 8 to ensure channel is never muted.
-L80BB:  ROL						;
-L80BC:  STA SQ1Cntrl2			;Save lower timer value into control register.
+L80B9:  ROL                     ;
+L80BA:  ROL                     ;Multiply by 8 to ensure channel is never muted.
+L80BB:  ROL                     ;
+L80BC:  STA SQ1Cntrl2           ;Save lower timer value into control register.
 
-L80BF:  ROL						;Rotate in the data for the upper timer value.
-L80C0:  AND #$07				;Ensure only upper timer data is used.
-L80C2:  ORA #$08				;Set length counter load to 1.
-L80C4:  STA SQ1Cntrl3			;
+L80BF:  ROL                     ;Rotate in the data for the upper timer value.
+L80C0:  AND #$07                ;Ensure only upper timer data is used.
+L80C2:  ORA #$08                ;Set length counter load to 1.
+L80C4:  STA SQ1Cntrl3           ;
 
 SQ1IntroPunchEnd:
 L80C7:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
@@ -200,15 +200,15 @@ L80D2:  BEQ SQ1IntroPunchInit   ;
 L80D4:  CMP #SQ1_INTRO_PUNCH    ;Is the SQ1 intro punch SFX already playing?
 L80D6:  BEQ SQ1IntroPunchCont   ;If so, branch to continue SFX.
 
-L80D8:  CPY #SQ1_FALL         	;Does the SQ1 fall SFX need to be started?
-L80DA:  BEQ SQ1FallInit    		;If so, branch to initialize.
-L80DC:  CMP #SQ1_FALL    		;Is the SQ1 fall SFX already playing?
-L80DE:  BEQ SQ1FallCont   		;If so, branch to continue SFX.
+L80D8:  CPY #SQ1_FALL           ;Does the SQ1 fall SFX need to be started?
+L80DA:  BEQ SQ1FallInit         ;If so, branch to initialize.
+L80DC:  CMP #SQ1_FALL           ;Is the SQ1 fall SFX already playing?
+L80DE:  BEQ SQ1FallCont         ;If so, branch to continue SFX.
 
 L80E0:  CPY #SQ1_PUNCH1         ;Does the SQ1 punch1 SFX need to be started?
-L80E2:  BEQ SQ1Punch1Init    	;If so, branch to initialize.
-L80E4:  CMP #SQ1_PUNCH1    		;Is the SQ1 punch1 SFX already playing?
-L80E6:  BEQ SQ1Punch1Cont   	;If so, branch to continue SFX.
+L80E2:  BEQ SQ1Punch1Init       ;If so, branch to initialize.
+L80E4:  CMP #SQ1_PUNCH1         ;Is the SQ1 punch1 SFX already playing?
+L80E6:  BEQ SQ1Punch1Cont       ;If so, branch to continue SFX.
 
 L80E8:  JMP ChkSQ1SFX2          ;($81C7)Second phase of checking for SFX to play/continue.
 
@@ -218,39 +218,39 @@ SQ1FallInit:
 L80EB:  LDA #$7F                ;SFX will last for 127 frames.
 L80ED:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L80F0:  LDX #$9C				;50% duty cycle, no length counter, const. vol, vol=12.
-L80F2:  LDY #$7F				;Disable Sweep.
-L80F4:  LDA #SQ_B_5				;Note B5.
+L80F0:  LDX #$9C                ;50% duty cycle, no length counter, const. vol, vol=12.
+L80F2:  LDY #$7F                ;Disable Sweep.
+L80F4:  LDA #SQ_B_5             ;Note B5.
 L80F6:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
 SQ1FallCont:
-L80F9:  LDA SQ1SFXTimer			;Is this the 20th frame of the SFX?
-L80FC:  CMP #$6C				;
-L80FE:  BEQ SQ1FallEnd			;If so, branch to end for this frame.
+L80F9:  LDA SQ1SFXTimer         ;Is this the 20th frame of the SFX?
+L80FC:  CMP #$6C                ;
+L80FE:  BEQ SQ1FallEnd          ;If so, branch to end for this frame.
 
-L8100:  BCC Fall2ndPart			;Is SFX been playing for more than 20 frames? If so, branch.
+L8100:  BCC Fall2ndPart         ;Is SFX been playing for more than 20 frames? If so, branch.
 
-L8102:  AND #$07				;Get lower three bits of timer and use as index into FallSFXSweepTbl.
-L8104:  TAY						;
+L8102:  AND #$07                ;Get lower three bits of timer and use as index into FallSFXSweepTbl.
+L8104:  TAY                     ;
 
-L8105:  LDA FallSFXSweepTbl,Y	;Set sweep data for SQ1.
-L8108:  STA SQ1Cntrl1			;
-L810B:  BNE SQ1FallEnd			;Branch always.
+L8105:  LDA FallSFXSweepTbl,Y   ;Set sweep data for SQ1.
+L8108:  STA SQ1Cntrl1           ;
+L810B:  BNE SQ1FallEnd          ;Branch always.
 
 Fall2ndPart:
-L810D:  CMP #$6B				;Is this the 21st frame of the SFX?
-L810F:  BNE +					;If not, branch.
+L810D:  CMP #$6B                ;Is this the 21st frame of the SFX?
+L810F:  BNE +                   ;If not, branch.
 
-L8111:  LDY #$A5				;Enable sweep. divider period=3 half frames, shift count=5, down.
-L8113:  STY SQ1Cntrl1			;
+L8111:  LDY #$A5                ;Enable sweep. divider period=3 half frames, shift count=5, down.
+L8113:  STY SQ1Cntrl1           ;
 
-L8116:* CMP #$30				;Is this the 80th or greater frame of the SFX?
-L8118:  BCS SQ1FallEnd			;If so, branch.
+L8116:* CMP #$30                ;Is this the 80th or greater frame of the SFX?
+L8118:  BCS SQ1FallEnd          ;If so, branch.
 
-L811A:  LSR						;Use timer to set volume.
-L811B:  LSR						;
-L811C:  ORA #$90				;Ensure 50% duty cycle and constant volume.
-L811E:  STA SQ1Cntrl0			;
+L811A:  LSR                     ;Use timer to set volume.
+L811B:  LSR                     ;
+L811C:  ORA #$90                ;Ensure 50% duty cycle and constant volume.
+L811E:  STA SQ1Cntrl0           ;
 
 SQ1FallEnd:
 L8121:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
@@ -261,18 +261,18 @@ SQ1Punch1Init:
 L8124:  LDA #$16                ;SFX will last for 22 frames.
 L8126:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L8129:  LDX #$5F				;25% duty cycle, no len. counter, const. vol, vol=15(max).
-L812B:  LDY #$8B				;Enable sweep, divider period=1 half frame, shift count=3, up.
-L812D:  LDA #SQ_G_2				;Note G2.
+L8129:  LDX #$5F                ;25% duty cycle, no len. counter, const. vol, vol=15(max).
+L812B:  LDY #$8B                ;Enable sweep, divider period=1 half frame, shift count=3, up.
+L812D:  LDA #SQ_G_2             ;Note G2.
 L812F:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
 SQ1Punch1Cont:
-L8132:  LDA SQ1SFXTimer			;Is this the final 16 frames of the SFX?
-L8135:  CMP #$10				;
+L8132:  LDA SQ1SFXTimer         ;Is this the final 16 frames of the SFX?
+L8135:  CMP #$10                ;
 L8137:  BCS FinishSQ1SFXFrame   ;If not, branch to finish processing SQ1 SFX for this frame.
 
-L8139:  ORA #$50				;12.5% duty cycle, constant volume.
-L813B:  STA SQ1Cntrl0			;
+L8139:  ORA #$50                ;12.5% duty cycle, constant volume.
+L813B:  STA SQ1Cntrl0           ;
 
 FinishSQ1SFXFrame:
 L813E:  DEC SQ1SFXTimer         ;Decrement SQ1 SFX timer.
@@ -312,19 +312,19 @@ L816F:  RTS                     ;Finished processing SQ1 SFX. return.
 
 SQ1PunchBlockInit:
 L8170:  LDA #$04                ;SFX will last for 4 frames.
-L8172:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+L8172:  JSR InitSQ1SQ2SFX       ;($F518)Use noise channel for SFX, disable SQ1, SQ2.
 
-L8175:  LDX #$0A				;No loop, period=10.
-L8177:  LDA #$1A				;Length counter halt, Volume=10.
-L8179:  LDY #$08				;Length counter=1.
+L8175:  LDX #$0A                ;No loop, period=10.
+L8177:  LDA #$1A                ;Length counter halt, Volume=10.
+L8179:  LDY #$08                ;Length counter=1.
 
-L817B:  STY NoiseCntrl3			;
-L817E:  STX NoiseCntrl2			;Update npise channel.
-L8181:  STA NoiseCntrl0			;
+L817B:  STY NoiseCntrl3         ;
+L817E:  STX NoiseCntrl2         ;Update npise channel.
+L8181:  STA NoiseCntrl0         ;
 
-L8184:  LDX #$DA				;25% duty cycle, constant volume, volume=10.
-L8186:  LDY #$85				;Enable sweep, shift count=5, down.
-L8188:  LDA #SQ_E_3				;Note E3.
+L8184:  LDX #$DA                ;25% duty cycle, constant volume, volume=10.
+L8186:  LDY #$85                ;Enable sweep, shift count=5, down.
+L8188:  LDA #SQ_E_3             ;Note E3.
 L818A:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
 SQ1PunchBlockCont:
@@ -336,65 +336,65 @@ SQ1OppPunch1Init:
 L8190:  LDA #$20                ;SFX will last for 32 frames.
 L8192:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L8195:  LDA #$FF				;Load initial value used for SQ1 timer value.
-L8197:  STA SQ1SFXByte			;
+L8195:  LDA #$FF                ;Load initial value used for SQ1 timer value.
+L8197:  STA SQ1SFXByte          ;
 
-L819A:  LDX #$1E				;12.5% duty cycle, const. vol, vol=14.
-L819C:  LDY #$81				;Enable sweep, down, shift count=1.
+L819A:  LDX #$1E                ;12.5% duty cycle, const. vol, vol=14.
+L819C:  LDY #$81                ;Enable sweep, down, shift count=1.
 L819E:  JSR SetSQ1Control       ;($F40B)Set control bits for the SQ1 channel.
 
 SQ1OppPunch1Cont:
-L81A1:  LDA SQ1SFXByte			;Prepare to decrease SQ1SFXByte.
-L81A4:  TAY						;
+L81A1:  LDA SQ1SFXByte          ;Prepare to decrease SQ1SFXByte.
+L81A4:  TAY                     ;
 L81A5:  JSR LogDiv8             ;($F450)Logarithmically increase frequency.
 
-L81A8:  STA SQ1SFXByte			;Update SQ1SFXByte with new value.
+L81A8:  STA SQ1SFXByte          ;Update SQ1SFXByte with new value.
 
-L81AB:  ROL						;
-L81AC:  ROL						;Update lower timer value.
-L81AD:  STA SQ1Cntrl2			;
+L81AB:  ROL                     ;
+L81AC:  ROL                     ;Update lower timer value.
+L81AD:  STA SQ1Cntrl2           ;
 
-L81B0:  ROL						;Update upper timer value(only 3 bits).
-L81B1:  AND #$03				;
+L81B0:  ROL                     ;Update upper timer value(only 3 bits).
+L81B1:  AND #$03                ;
 
-L81B3:  ORA #$08				;Length counter=1.
-L81B5:  STA SQ1Cntrl3			;
+L81B3:  ORA #$08                ;Length counter=1.
+L81B5:  STA SQ1Cntrl3           ;
 
-L81B8:  LDA SQ1SFXTimer			;Is SQ1SFXTimer at its minimum value?
-L81BB:  CMP #$0E				;
-L81BD:  BCS +					;If so, branch.
+L81B8:  LDA SQ1SFXTimer         ;Is SQ1SFXTimer at its minimum value?
+L81BB:  CMP #$0E                ;
+L81BD:  BCS +                   ;If so, branch.
 
-L81BF:  ORA #$90				;Ensure 25% duty cycle and constant volume.
-L81C1:  STA SQ1Cntrl0			;
+L81BF:  ORA #$90                ;Ensure 25% duty cycle and constant volume.
+L81C1:  STA SQ1Cntrl0           ;
 L81C4:* JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
 
 ChkSQ1SFX2:
 L81C7:  CPY #SQ1_PUNCH_BLOCK    ;Does the SQ1 punch block SFX need to be started?
-L81C9:  BEQ SQ1PunchBlockInit	;If so, branch to initialize.
+L81C9:  BEQ SQ1PunchBlockInit   ;If so, branch to initialize.
 L81CB:  CMP #SQ1_PUNCH_BLOCK    ;Is the SQ1 punch block SFX already playing?
 L81CD:  BEQ SQ1PunchBlockCont   ;If so, branch to continue SFX.
 
-L81CF:  CPY #SQ1_OPP_PUNCH1    	;Does the SQ1 opp punch1 SFX need to be started?
-L81D1:  BEQ SQ1OppPunch1Init	;If so, branch to initialize.
-L81D3:  CMP #SQ1_OPP_PUNCH1    	;Is the SQ1 opp punch1 SFX already playing?
-L81D5:  BEQ SQ1OppPunch1Cont   	;If so, branch to continue SFX.
+L81CF:  CPY #SQ1_OPP_PUNCH1     ;Does the SQ1 opp punch1 SFX need to be started?
+L81D1:  BEQ SQ1OppPunch1Init    ;If so, branch to initialize.
+L81D3:  CMP #SQ1_OPP_PUNCH1     ;Is the SQ1 opp punch1 SFX already playing?
+L81D5:  BEQ SQ1OppPunch1Cont    ;If so, branch to continue SFX.
 
 L81D7:  CPY #SQ1_PUNCH_MISS1    ;Does the SQ1 punch miss1 SFX need to be started?
-L81D9:  BEQ SQ1PunchMiss1Init	;If so, branch to initialize.
+L81D9:  BEQ SQ1PunchMiss1Init   ;If so, branch to initialize.
 L81DB:  CMP #SQ1_PUNCH_MISS1    ;Is the SQ1 punch miss1 SFX already playing?
 L81DD:  BEQ SQ1PunchMiss1Cont   ;If so, branch to continue SFX.
 
 L81DF:  CPY #SQ1_PUNCH_MISS2    ;Does the SQ1 punch miss2 SFX need to be started?
-L81E1:  BEQ SQ1PunchMiss2Init	;If so, branch to initialize.
+L81E1:  BEQ SQ1PunchMiss2Init   ;If so, branch to initialize.
 L81E3:  CMP #SQ1_PUNCH_MISS2    ;Is the SQ1 punch miss2 SFX already playing?
 L81E5:  BEQ SQ1PunchMiss2Cont   ;If so, branch to continue SFX.
 
-L81E7:  CPY #SQ1_PUNCH2    		;Does the SQ1 punch2 SFX need to be started?
-L81E9:  BEQ SQ1Punch2Init		;If so, branch to initialize.
-L81EB:  CMP #SQ1_PUNCH2    		;Is the SQ1 punch2 SFX already playing?
-L81ED:  BEQ SQ1Punch2Cont   	;If so, branch to continue SFX.
+L81E7:  CPY #SQ1_PUNCH2         ;Does the SQ1 punch2 SFX need to be started?
+L81E9:  BEQ SQ1Punch2Init       ;If so, branch to initialize.
+L81EB:  CMP #SQ1_PUNCH2         ;Is the SQ1 punch2 SFX already playing?
+L81ED:  BEQ SQ1Punch2Cont       ;If so, branch to continue SFX.
 
 L81EF:  JMP ChkSQ1SFX3          ;($827F)Third phase of checking for SFX to play/continue.
 
@@ -402,41 +402,41 @@ L81EF:  JMP ChkSQ1SFX3          ;($827F)Third phase of checking for SFX to play/
 
 SQ1PunchMiss1Init:
 L81F2:  LDA #$10                ;SFX will last for 16 frames.
-L81F4:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+L81F4:  JSR InitSQ1SQ2SFX       ;($F518)Use noise channel for SFX, disable SQ1, SQ2.
 
 SQ1PunchMiss1Cont:
-L81F7:  LDY SQ1SFXTimer			;Get noise data from table based on SFX timer.
-L81FA:  LDA PnchMs1SFXTbl-1,Y	;
+L81F7:  LDY SQ1SFXTimer         ;Get noise data from table based on SFX timer.
+L81FA:  LDA PnchMs1SFXTbl-1,Y   ;
 
 ParseNoiseData:
-L81FD:  TAX						;Save a copy of the data.
+L81FD:  TAX                     ;Save a copy of the data.
 
-L81FE:  AND #$0F				;Set period of noise channel.
-L8200:  STA NoiseCntrl2			;
+L81FE:  AND #$0F                ;Set period of noise channel.
+L8200:  STA NoiseCntrl2         ;
 
-L8203:  TXA						;
-L8204:  LSR						;
-L8205:  LSR						;Move upper nibble to lower nibble.
-L8206:  LSR						;
-L8207:  LSR						;
+L8203:  TXA                     ;
+L8204:  LSR                     ;
+L8205:  LSR                     ;Move upper nibble to lower nibble.
+L8206:  LSR                     ;
+L8207:  LSR                     ;
 
-L8208:  ORA #$10				;Ensure the length counter is halted.
-L820A:  STA NoiseCntrl0			;Set volume of noise channel.
+L8208:  ORA #$10                ;Ensure the length counter is halted.
+L820A:  STA NoiseCntrl0         ;Set volume of noise channel.
 
-L820D:  LDA #$08				;Set length of counter to 1.
-L820F:  STA NoiseCntrl3			;
+L820D:  LDA #$08                ;Set length of counter to 1.
+L820F:  STA NoiseCntrl3         ;
 L8212:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
 
 SQ1PunchMiss2Init:
 L8215:  LDA #$0A                ;SFX will last for 10 frames.
-L8217:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+L8217:  JSR InitSQ1SQ2SFX       ;($F518)Use noise channel for SFX, disable SQ1, SQ2.
 
 SQ1PunchMiss2Cont:
-L821A:  LDY SQ1SFXTimer			;Get noise data from table.
-L821D:  LDA PnchMs2SFXTbl-1,Y	;
-L8220:  BNE ParseNoiseData		;Branch always.
+L821A:  LDY SQ1SFXTimer         ;Get noise data from table.
+L821D:  LDA PnchMs2SFXTbl-1,Y   ;
+L8220:  BNE ParseNoiseData      ;Branch always.
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -444,9 +444,9 @@ SQ1Punch2Init:
 L8222:  LDA #$10                ;SFX will last for 16 frames.
 L8224:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L8227:  LDX #$43				;25% duty cycle. length count, const vol disabled, vol=3.
-L8229:  LDY #$84				;Sweep enabled, shift count=4, down.
-L822B:  LDA #SQ_C_5				;Note C5.
+L8227:  LDX #$43                ;25% duty cycle. length count, const vol disabled, vol=3.
+L8229:  LDY #$84                ;Sweep enabled, shift count=4, down.
+L822B:  LDA #SQ_C_5             ;Note C5.
 L822D:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
 SQ1Punch2Cont:
@@ -458,21 +458,21 @@ SQ1Talk1Init:
 L8233:  LDA #$04                ;SFX will last for 4 frames.
 L8235:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L8238:  LDA #$7F				;Disable sweep.
-L823A:  STA SQ1Cntrl1			;
+L8238:  LDA #$7F                ;Disable sweep.
+L823A:  STA SQ1Cntrl1           ;
 
-L823D:  INC SQ1SFXByte			;Increment SQ1SFXByte. Doesn't matter where it starts.
-L8240:  LDA SQ1SFXByte			;
-L8243:  AND #$0F				;Get last 4 bits of SQ1SFXByte.
+L823D:  INC SQ1SFXByte          ;Increment SQ1SFXByte. Doesn't matter where it starts.
+L8240:  LDA SQ1SFXByte          ;
+L8243:  AND #$0F                ;Get last 4 bits of SQ1SFXByte.
 
-L8245:  TAY						;Grab a note from the table. All the notes are C6.
-L8246:  LDA Talk1NoteTbl,Y		;
+L8245:  TAY                     ;Grab a note from the table. All the notes are C6.
+L8246:  LDA Talk1NoteTbl,Y      ;
 L8249:  JSR UpdateSQ1Note       ;($F429)Update SQ1 note frequency.
 
 SQ1Talk1Cont:
-L824C:  LDY SQ1SFXTimer			;Load a new value for SQ1Cntrl0 based on the SFX timer.
-L824F:  LDA Talk1CntrlTbl-1,Y	;
-L8252:  STA SQ1Cntrl0			;
+L824C:  LDY SQ1SFXTimer         ;Load a new value for SQ1Cntrl0 based on the SFX timer.
+L824F:  LDA Talk1CntrlTbl-1,Y   ;
+L8252:  STA SQ1Cntrl0           ;
 L8255:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
 ;----------------------------------------------------------------------------------------------------
@@ -504,30 +504,30 @@ SetTalk23Note:
 L8279:  JSR UpdateSQ1Note       ;($F429)Update SQ1 note frequency.
 
 SQ1Talk23Cont:
-L827C:  JMP SQ1Talk1Cont		;($824C)Load SQ1Cntrl0 based on the SFX timer.
+L827C:  JMP SQ1Talk1Cont        ;($824C)Load SQ1Cntrl0 based on the SFX timer.
 
 ;----------------------------------------------------------------------------------------------------
 
 ChkSQ1SFX3:
-L827F:  CPY #SQ1_TALK1    		;Does the SQ1 talk1 SFX need to be started?
-L8281:  BEQ SQ1Talk1Init		;If so, branch to initialize.
-L8283:  CMP #SQ1_TALK1    		;Is the talk1 SFX already playing?
-L8285:  BEQ SQ1Talk1Cont   		;If so, branch to continue SFX.
+L827F:  CPY #SQ1_TALK1          ;Does the SQ1 talk1 SFX need to be started?
+L8281:  BEQ SQ1Talk1Init        ;If so, branch to initialize.
+L8283:  CMP #SQ1_TALK1          ;Is the talk1 SFX already playing?
+L8285:  BEQ SQ1Talk1Cont        ;If so, branch to continue SFX.
 
-L8287:  CPY #SQ1_TALK2    		;Does the SQ1 talk2 SFX need to be started?
-L8289:  BEQ SQ2Talk23Init		;If so, branch to initialize.
-L828B:  CMP #SQ1_TALK2    		;Is the talk2 SFX already playing?
-L828D:  BEQ SQ1Talk23Cont   	;If so, branch to continue SFX.
+L8287:  CPY #SQ1_TALK2          ;Does the SQ1 talk2 SFX need to be started?
+L8289:  BEQ SQ2Talk23Init       ;If so, branch to initialize.
+L828B:  CMP #SQ1_TALK2          ;Is the talk2 SFX already playing?
+L828D:  BEQ SQ1Talk23Cont       ;If so, branch to continue SFX.
 
-L828F:  CPY #SQ1_TALK3    		;Does the SQ1 talk3 SFX need to be started?
-L8291:  BEQ SQ2Talk23Init		;If so, branch to initialize.
-L8293:  CMP #SQ1_TALK3    		;Is the talk3 SFX already playing?
-L8295:  BEQ SQ1Talk23Cont   	;If so, branch to continue SFX.
+L828F:  CPY #SQ1_TALK3          ;Does the SQ1 talk3 SFX need to be started?
+L8291:  BEQ SQ2Talk23Init       ;If so, branch to initialize.
+L8293:  CMP #SQ1_TALK3          ;Is the talk3 SFX already playing?
+L8295:  BEQ SQ1Talk23Cont       ;If so, branch to continue SFX.
 
-L8297:  CPY #SQ1_BELL1    		;Does the SQ1 bell1 SFX need to be started?
-L8299:  BEQ SQ1Bell1Init		;If so, branch to initialize.
-L829B:  CMP #SQ1_BELL1    		;Is the bell1 SFX already playing?
-L829D:  BEQ SQ1Bell1Cont   		;If so, branch to continue SFX.
+L8297:  CPY #SQ1_BELL1          ;Does the SQ1 bell1 SFX need to be started?
+L8299:  BEQ SQ1Bell1Init        ;If so, branch to initialize.
+L829B:  CMP #SQ1_BELL1          ;Is the bell1 SFX already playing?
+L829D:  BEQ SQ1Bell1Cont        ;If so, branch to continue SFX.
 
 L829F:  JMP ChkSQ1SFX4          ;($8316)Fourth phase of checking for SFX to play/continue.
 
@@ -639,7 +639,7 @@ L8356:  JMP ChkSQ1SFX5          ;($8402)Fifth phase of checking for SFX to play/
 ;----------------------------------------------------------------------------------------------------
 
 L8359:  LDA #$05
-L835B:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+L835B:  JSR InitSQ1SQ2SFX       ;($F518)Use noise channel for SFX, disable SQ1, SQ2.
 
 L835E:  LDY SQ1SFXTimer
 L8361:  LDA $F809,Y
@@ -734,26 +734,26 @@ L83FF:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame
 ;----------------------------------------------------------------------------------------------------
 
 ChkSQ1SFX5:
-L8402:  CPY #SQ1_BELL3    		;Does the SQ1 bell3 SFX need to be started?
-L8404:  BEQ SQ1Bell3Init		;If so, branch to initialize.
-L8406:  CMP #SQ1_BELL3    		;Is the SQ1 bell3 SFX already playing?
-L8408:  BEQ SQ1Bell3Cont   		;If so, branch to continue SFX.
+L8402:  CPY #SQ1_BELL3          ;Does the SQ1 bell3 SFX need to be started?
+L8404:  BEQ SQ1Bell3Init        ;If so, branch to initialize.
+L8406:  CMP #SQ1_BELL3          ;Is the SQ1 bell3 SFX already playing?
+L8408:  BEQ SQ1Bell3Cont        ;If so, branch to continue SFX.
 
-L840A:  CPY #SQ1_STAR_PUNCH    	;Does the star punch SFX need to be started?
-L840C:  BEQ SQ1StarPunchInit	;If so, branch to initialize.
-L840E:  CMP #SQ1_STAR_PUNCH    	;Is the star punch SFX already playing?
-L8410:  BEQ SQ1StarPunchCont   	;If so, branch to continue SFX.
+L840A:  CPY #SQ1_STAR_PUNCH     ;Does the star punch SFX need to be started?
+L840C:  BEQ SQ1StarPunchInit    ;If so, branch to initialize.
+L840E:  CMP #SQ1_STAR_PUNCH     ;Is the star punch SFX already playing?
+L8410:  BEQ SQ1StarPunchCont    ;If so, branch to continue SFX.
 
-L8412:  CPY #SQ1_HIPPO_TALK    	;Does the hippo talk SFX need to be started?
-L8414:  BEQ SQ1HippoTalkInit	;If so, branch to initialize.
-L8416:  CMP #SQ1_HIPPO_TALK    	;Is the hippo talk SFX already playing?
-L8418:  BEQ SQ1HippoTalkCont   	;If so, branch to continue SFX.
+L8412:  CPY #SQ1_HIPPO_TALK     ;Does the hippo talk SFX need to be started?
+L8414:  BEQ SQ1HippoTalkInit    ;If so, branch to initialize.
+L8416:  CMP #SQ1_HIPPO_TALK     ;Is the hippo talk SFX already playing?
+L8418:  BEQ SQ1HippoTalkCont    ;If so, branch to continue SFX.
 
-L841A:  CPY #SQ1_HOLE_PUNCH    	;Does the hole punch SFX need to be started?
-L841C:  BEQ SQ1HolePunchInit	;If so, branch to initialize.
-L841E:  CMP #SQ1_HOLE_PUNCH    	;Is the hole punch SFX already playing?
-L8420:  BEQ SQ1HolePunchCont   	;If so, branch to continue SFX.
-L8422:  RTS
+L841A:  CPY #SQ1_HOLE_PUNCH     ;Does the hole punch SFX need to be started?
+L841C:  BEQ SQ1HolePunchInit    ;If so, branch to initialize.
+L841E:  CMP #SQ1_HOLE_PUNCH     ;Is the hole punch SFX already playing?
+L8420:  BEQ SQ1HolePunchCont    ;If so, branch to continue SFX.
+L8422:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
@@ -763,17 +763,17 @@ SQ1HippoTalkInit:
 L8423:  LDA #$10                ;SFX will last for 16 frames.
 L8425:  JSR InitSQ1SFX          ;($F4EF)Initialize SQ1 SFX.
 
-L8428:  LDX #$82				;50% duty cycle, length cntr=en, const vol=dis, vol=2.
-L842A:  LDY #$A2				;Sweep enabled, divider period=3 half frames, shift counter=2.
-L842C:  LDA #SQ_F_5				;Note F5.
+L8428:  LDX #$82                ;50% duty cycle, length cntr=en, const vol=dis, vol=2.
+L842A:  LDY #$A2                ;Sweep enabled, divider period=3 half frames, shift counter=2.
+L842C:  LDA #SQ_F_5             ;Note F5.
 L842E:  JSR UpdateSQ1           ;($F426)Update SQ1 control and note bytes.
 
 SQ1HippoTalkCont:
-L8431:  LDA SQ1SFXTimer			;Is the SFX timer on the 14th frame from the end?
-L8434:  CMP #$0E				;
-L8436:  BNE +					;If not, branch.
+L8431:  LDA SQ1SFXTimer         ;Is the SFX timer on the 14th frame from the end?
+L8434:  CMP #$0E                ;
+L8436:  BNE +                   ;If not, branch.
 
-L8438:  LDA #SQ_F_4				;Note F4.
+L8438:  LDA #SQ_F_4             ;Note F4.
 L843A:  JSR UpdateSQ1Note       ;($F429)Update SQ1 note frequency.
 L843D:* JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
 
@@ -783,25 +783,25 @@ L843D:* JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame
 
 SQ1HolePunchInit:
 L8440:  LDA #$20                ;SFX will last for 32 frames.
-L8442:  JSR InitSQ1SQ2SFX		;($F518)Use noise channel for SFX, disable SQ1, SQ2.
+L8442:  JSR InitSQ1SQ2SFX       ;($F518)Use noise channel for SFX, disable SQ1, SQ2.
 
-L8445:  LDA #$09				;length counter, const vol disabled, vol=9.
-L8447:  STA NoiseCntrl0			;
+L8445:  LDA #$09                ;length counter, const vol disabled, vol=9.
+L8447:  STA NoiseCntrl0         ;
 
-L844A:  LDA #$0F				;Mode 0, period=15.
-L844C:  STA NoiseCntrl2			;
+L844A:  LDA #$0F                ;Mode 0, period=15.
+L844C:  STA NoiseCntrl2         ;
 
-L844F:  LDA #$08				;Length counter=1.
-L8451:  STA NoiseCntrl3			;
+L844F:  LDA #$08                ;Length counter=1.
+L8451:  STA NoiseCntrl3         ;
 
-L8454:  LDA #$0F				;Length counter=enabled, lin. cntr=15.
-L8456:  STA TriangleCntrl0		;
+L8454:  LDA #$0F                ;Length counter=enabled, lin. cntr=15.
+L8456:  STA TriangleCntrl0      ;
 
-L8459:  LDA #$00				;Timer low=0.
-L845B:  STA TriangleCntrl2		;
+L8459:  LDA #$00                ;Timer low=0.
+L845B:  STA TriangleCntrl2      ;
 
-L845E:  LDA #$09				;timer high=1, Length counter load=1.
-L8460:  STA TriangleCntrl3		;
+L845E:  LDA #$09                ;timer high=1, Length counter load=1.
+L8460:  STA TriangleCntrl3      ;
 
 SQ1HolePunchCont:
 L8463:  JMP FinishSQ1SFXFrame   ;($813E)Finish processing SQ1 SFX for this frame.
@@ -2363,16 +2363,16 @@ L91EF:  .byte $83, $54, $84, $4C, $82, $02, $42, $44, $83, $46, $82, $44, $83, $
 L91F0:  .byte $83, $42, $56, $84, $50, $82, $02, $42, $44, $83, $46, $82, $44, $83, $42, $82
 L9200:  .byte $02, $83, $42, $00
 
-L9213:	.byte $83, $02, $80, $42, $44, $46, $48, $4A, $4C, $54, $56, $54, $56
+L9213:  .byte $83, $02, $80, $42, $44, $46, $48, $4A, $4C, $54, $56, $54, $56
 L9220:  .byte $54, $56, $54, $56, $54, $56, $54, $56, $54, $56, $54, $56, $82, $54, $83, $02
 L9230:  .byte $02, $80, $46, $48, $4A, $4C, $4E, $50, $56, $5A, $56, $5A, $56, $5A, $56, $5A
 L9240:  .byte $56, $5A, $56, $5A, $56, $5A, $56, $5A, $82, $56, $83, $02
 
-L924C:	.byte $82, $34, $42, $2A
+L924C:  .byte $82, $34, $42, $2A
 L9250:  .byte $42, $34, $42, $2A, $42, $34, $42, $2A, $42, $34, $42, $2A, $42, $38, $42, $2A
 L9260:  .byte $42, $38, $42, $2A, $42, $38, $42, $2A, $42, $38, $42, $2A, $42
 
-L926D:	.byte $82, $1A, $1A, $83, $26, $82, $1A, $80, $1A, $1A, $82, $1E, $1A, $1A, $1A, $1E
+L926D:  .byte $82, $1A, $1A, $83, $26, $82, $1A, $80, $1A, $1A, $82, $1E, $1A, $1A, $1A, $1E
 L9270:  .byte $1A, $1A, $1A, $1E, $1A, $1A, $1A, $83, $26, $82, $1A, $1A, $1E, $80, $1A, $1A
 L9280:  .byte $82, $1A, $1A, $1E, $1A, $1A, $1A, $1E, $1A, $83
 

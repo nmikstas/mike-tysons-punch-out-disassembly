@@ -170,7 +170,7 @@ LA1DA:  STA PPUControl0         ;
 LA1DD:  LDA #%00000110          ;Turn off screen, enable bg and sprites on left 8 pixel columns.
 LA1DF:  STA PPUControl1         ;
 
-LA1E2:  JSR PushPRGBank07       ;($AA54)
+LA1E2:  JSR LoadPRGBank07       ;($AA54)
 
 LA1E5:  LDA #$00
 LA1E7:  STA $013E
@@ -267,7 +267,7 @@ LA289:  STA GameStatus
 LA28B:  JSR $AF02
 LA28E:  LDA $013F
 LA291:  BNE $A2AC
-LA293:  JSR PushPRGBank06       ;($AA50)
+LA293:  JSR LoadPRGBank06       ;($AA50)
 LA296:  LDA #$02
 LA298:  STA GameStatus
 LA29A:  JSR $9000
@@ -329,24 +329,24 @@ LA30C:  LDA #$00
 LA30E:  STA $04
 LA310:  JSR $BF7E
 LA313:  JMP $A4CC
-LA316:  JSR PushPRGBank0C       ;($AA64)
+LA316:  JSR LoadPRGBank0C       ;($AA64)
 LA319:  LDA #$05
 LA31B:  JSR $BC5F
 LA31E:  LDY #$97
 LA320:  LDA #$0D
 LA322:  JSR $BFF6
-LA325:  JSR PushPRGBank07       ;($AA54)
+LA325:  JSR LoadPRGBank07       ;($AA54)
 LA328:  JSR $801B
 LA32B:  LDX #$00
 LA32D:  STX $04C0
 LA330:  BEQ $A2FA
-LA332:  JSR PushPRGBank0C       ;($AA64)
+LA332:  JSR LoadPRGBank0C       ;($AA64)
 LA335:  LDA #$06
 LA337:  JSR $BC5F
 LA33A:  LDY #$6E
 LA33C:  LDA #$0D
 LA33E:  JSR $BFF6
-LA341:  JSR PushPRGBank07       ;($AA54)
+LA341:  JSR LoadPRGBank07       ;($AA54)
 LA344:  JSR $8024
 LA347:  JSR $8021
 LA34A:  LDX #$00
@@ -385,7 +385,7 @@ LA393:  LDA #$09
 LA395:  LDY #$0B
 LA397:  STA $0120,X
 LA39A:  STY $F0
-LA39C:  JSR PushPRGBank07       ;($AA54)
+LA39C:  JSR LoadPRGBank07       ;($AA54)
 LA39F:  JSR $8027
 LA3A2:  JMP $A2FA
 LA3A5:  INC $04C2
@@ -421,7 +421,7 @@ LA3E7:  LDA $04C0
 LA3EA:  BEQ $A3DC
 LA3EC:  LDA $04C2
 LA3EF:  BNE $A400
-LA3F1:  JSR PushPRGBank07       ;($AA54)
+LA3F1:  JSR LoadPRGBank07       ;($AA54)
 
 LA3F4:  JSR DoCircuitPassword   ;($8042)Check if user entered another world circuit password.
 LA3F7:  BEQ $A46A
@@ -463,7 +463,7 @@ LA43F:  BEQ $A457
 
 LA441:  BNE $A427
 
-LA443:  JSR PushPRGBank07       ;($AA54)
+LA443:  JSR LoadPRGBank07       ;($AA54)
 LA446:  JSR $8033
 LA449:  BNE $A42D
 LA44B:  JSR $8036
@@ -495,7 +495,7 @@ LA47C:  LDA #SND_OFF            ;Stop any playing music.
 LA47E:  STA MusicInit           ;
 
 LA480:  JSR $AEA5
-LA483:  JSR PushPRGBank0C       ;($AA64)
+LA483:  JSR LoadPRGBank0C       ;($AA64)
 LA486:  LDA #$81
 LA488:  STA $04B0
 LA48B:  JSR $AF02
@@ -1213,7 +1213,7 @@ LAA4F:  RTS
 
 LoadPRGBank06:
 LAA50:  LDA #$06
-LAA52:  BNE SetPRGBank
+LAA52:  BNE LoadPRGBank
 
 LoadPRGBank07:
 LAA54:  LDA #$07
@@ -1412,7 +1412,7 @@ LABD5:  DEX
 LABD6:  STX $37
 LABD8:  LDX #$01
 LABDA:  STX PointsStatus        ;($03E0)
-LABDD:  JSR PushPRGBank07       ;($AA54)
+LABDD:  JSR LoadPRGBank07       ;($AA54)
 LABE0:  JSR $8006
 LABE3:  LDA #$00
 LABE5:  STA MacCurrentHP
@@ -1476,7 +1476,7 @@ LAC64:  STA GameStatus
 LAC66:  JSR $AE91
 LAC69:  JSR $BF7E
 LAC6C:  JMP $A2AC
-LAC6F:  JSR PushPRGBank07       ;($AA54)
+LAC6F:  JSR LoadPRGBank07       ;($AA54)
 LAC72:  JSR $803C
 LAC75:  JSR $802A
 LAC78:  JSR $802D
@@ -1589,7 +1589,7 @@ LAD5E:  STA $0410
 LAD61:  JSR $C013
 LAD64:  LDX #$F3
 LAD66:  JSR $ADB6
-LAD69:  JSR PushPRGBank07       ;($AA54)
+LAD69:  JSR LoadPRGBank07       ;($AA54)
 LAD6C:  JSR $803C
 LAD6F:  JSR $802A
 LAD72:  JSR $802D
@@ -2844,7 +2844,7 @@ LB69D:  DEY
 LB69E:  BPL $B697
 LB6A0:  RTS
 LB6A1:  JSR $B666
-LB6A4:  JSR PushPRGBank09       ;($AA5C)
+LB6A4:  JSR LoadPRGBank09       ;($AA5C)
 LB6A7:  JSR $800E
 LB6AA:  LDX #$20
 LB6AC:  LDY #$09
@@ -2857,7 +2857,7 @@ LB6BA:  JSR $BF21
 LB6BD:  LDA #$00
 LB6BF:  LDX #$02
 LB6C1:  JSR $BF0D
-LB6C4:  JMP PushPRGBank0C       ;($AA64)
+LB6C4:  JMP LoadPRGBank0C       ;($AA64)
 
 LB6C7:  .byte $00, $FE, $00, $00
 
@@ -2926,7 +2926,7 @@ LB754:  STA PPU1Load
 LB756:  RTS
 
 LB757:  JSR $B666
-LB75A:  JSR PushPRGBank09       ;($AA5C)
+LB75A:  JSR LoadPRGBank09       ;($AA5C)
 LB75D:  LDA #$FF
 LB75F:  JSR $BFAE
 LB762:  JSR $BFB2
@@ -2938,9 +2938,9 @@ LB76E:  JSR $C113
 LB771:  LDA #$00
 LB773:  LDX #$01
 LB775:  JSR $BF0D
-LB778:  JSR PushPRGBank07       ;($AA54)
+LB778:  JSR LoadPRGBank07       ;($AA54)
 LB77B:  JSR $805A
-LB77E:  JSR PushPRGBank0C       ;($AA64)
+LB77E:  JSR LoadPRGBank0C       ;($AA64)
 
 LB781:  LDA #SPRT_BKG_ON        ;Enable sprites and background.
 LB783:  STA SprtBkgUpdt         ;
@@ -2976,7 +2976,7 @@ LB7C6:  STY $03D4
 LB7C9:  LDA #$03
 LB7CB:  STA GameStatus
 LB7CD:  JSR $AF38
-LB7D0:  JSR PushPRGBank09       ;($AA5C)
+LB7D0:  JSR LoadPRGBank09       ;($AA5C)
 LB7D3:  LDA #$0B
 LB7D5:  LDX #$04
 LB7D7:  JSR $BF21
@@ -3025,7 +3025,7 @@ LB832:  JSR $B695
 LB835:  LDA #$1A
 LB837:  LDX #$01
 LB839:  JSR $BF0D
-LB83C:  JSR PushPRGBank09       ;($AA5C)
+LB83C:  JSR LoadPRGBank09       ;($AA5C)
 LB83F:  LDA #$0F
 LB841:  JSR $C113
 LB844:  LDX #$26
@@ -3412,7 +3412,7 @@ LBBA0:  JSR $C113
 LBBA3:  LDA #$00
 LBBA5:  LDX #$03
 LBBA7:  JMP $BF0D
-LBBAA:  JSR PushPRGBank09       ;($AA5C)
+LBBAA:  JSR LoadPRGBank09       ;($AA5C)
 LBBAD:  LDA #$04
 LBBAF:  JSR $C105
 LBBB2:  LDA #$0B
@@ -3421,7 +3421,7 @@ LBBB6:  LDX #$0D
 LBBB8:  JSR $BEC9
 LBBBB:  LDA #PAL_UPDATE
 LBBBD:  STA UpdatePalFlag
-LBBC0:  JMP PushPRGBank0C       ;($AA64)
+LBBC0:  JMP LoadPRGBank0C       ;($AA64)
 LBBC3:  LDA MacKDFight          ;($03D0)
 LBBC6:  BEQ $BBD2
 LBBC8:  LDA #$04
@@ -3541,7 +3541,7 @@ LBCAF:  RTS
 
 LBCB0:  .byte $01, $01, $03, $06, $05, $09, $07, $02, $09, $03, $0A, $08, $0A, $0A
 
-LBCBE:  JSR PushPRGBank09       ;($AA5C)
+LBCBE:  JSR LoadPRGBank09       ;($AA5C)
 LBCC1:  LDX #$00
 LBCC3:  JSR $BF9E
 LBCC6:  LDY $05CD
@@ -3599,7 +3599,7 @@ LBD35:  JSR $C85C
 LBD38:  LDA #$02
 LBD3A:  STA OppBaseAnimIndex
 LBD3C:  JSR $C85C
-LBD3F:  JMP PushPRGBank0C       ;($AA64)
+LBD3F:  JMP LoadPRGBank0C       ;($AA64)
 LBD42:  JSR $BF3C
 LBD45:  LDX #$00
 LBD47:  LDA #$00
@@ -3693,7 +3693,7 @@ LBE02:  STA $20
 LBE04:  LDA #$01
 LBE06:  STA $17
 LBE08:  RTS
-LBE09:  JSR PushPRGBank0A       ;($AA60)
+LBE09:  JSR LoadPRGBank0A       ;($AA60)
 LBE0C:  LDA $04B0
 LBE0F:  BEQ $BE14
 LBE11:  JMP $8000
@@ -3858,7 +3858,7 @@ LBF49:  JSR $AF38
 LBF4C:  LDA #$00
 LBF4E:  STA OppBaseXSprite
 LBF50:  STA OppBaseYSprite
-LBF52:  JMP PushPRGBank0C       ;($AA64)
+LBF52:  JMP LoadPRGBank0C       ;($AA64)
 LBF55:  STA $E000
 LBF58:  LDA #$00
 LBF5A:  STA $D000
@@ -3944,7 +3944,7 @@ LBFF1:  RTS
 LBFF2:  LDY #$53
 LBFF4:  LDA #$1B
 LBFF6:  STA $E2
-LBFF8:  JSR PushPRGBank0C       ;($AA64)
+LBFF8:  JSR LoadPRGBank0C       ;($AA64)
 LBFFB:  LDX #$06
 LBFFD:  JSR $BF9E
 LC000:  LDX #$00
@@ -8142,8 +8142,8 @@ LF4EE:  RTS
 ;----------------------------------------------------------------------------------------------------
 
 InitSQ1SFX:
-LF4EF:  STY SFXIndexSQ1			;Save timer value for length of SFX.
-LF4F1:  STA SQ1SFXTimer			;Save index to SFX.
+LF4EF:  STY SFXIndexSQ1         ;Save timer value for length of SFX.
+LF4F1:  STA SQ1SFXTimer         ;Save index to SFX.
 
 LF4F4:  LDA #$01
 LF4F6:  STA SQ1InUse
@@ -8168,28 +8168,28 @@ LF517:  RTS
 ;----------------------------------------------------------------------------------------------------
 
 InitSQ1SQ2SFX:
-LF518:  STY SFXIndexSQ1			;Save the length of the SFX.
-LF51A:  STA SQ1SFXTimer			;
+LF518:  STY SFXIndexSQ1         ;Save the length of the SFX.
+LF51A:  STA SQ1SFXTimer         ;
 
-LF51D:  LDA #$00				;Indicate SQ1 channel is not in use.
-LF51F:  STA SQ1InUse			;
+LF51D:  LDA #$00                ;Indicate SQ1 channel is not in use.
+LF51F:  STA SQ1InUse            ;
 
-LF522:  LDA SQ2InUse			;Is SQ2 channel in use?
-LF525:  BEQ SetNoiseInUse		;If not, branch.
+LF522:  LDA SQ2InUse            ;Is SQ2 channel in use?
+LF525:  BEQ SetNoiseInUse       ;If not, branch.
 
-LF527:  LDA #$10				;Silence SQ2 channel.
-LF529:  STA SQ2Cntrl0			;
+LF527:  LDA #$10                ;Silence SQ2 channel.
+LF529:  STA SQ2Cntrl0           ;
 
-LF52C:  LDA #$00				;Indicate SQ2 channel is not in use.
-LF52E:  STA SQ2InUse			;
+LF52C:  LDA #$00                ;Indicate SQ2 channel is not in use.
+LF52E:  STA SQ2InUse            ;
 
 SetNoiseInUse:
-LF531:  LDA #$10				;Silence SQ1 channel.
-LF533:  STA SQ1Cntrl0			;
+LF531:  LDA #$10                ;Silence SQ1 channel.
+LF533:  STA SQ1Cntrl0           ;
 
-LF536:  LDA #$01				;
-LF538:  STA NoiseInUse			;Indicate the noise channel is in use.
-LF53B:  RTS						;
+LF536:  LDA #$01                ;
+LF538:  STA NoiseInUse          ;Indicate the noise channel is in use.
+LF53B:  RTS                     ;
 
 ;----------------------------------------------------------------------------------------------------
 
