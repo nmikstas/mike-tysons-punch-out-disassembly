@@ -126,11 +126,25 @@
                                 ;that after A+B+select were pressed. The second 10 bytes are normal
                                 ;password data entered by the user.
 
-.alias RoundTmrCntrl	$0301	;Round timer control.#$01=halt timer, non-zero=End round.
+.alias RoundTmrStart    $0300   ;Round timer started: 0=Not started, 1=Started, MSB=needs reset
+.alias RoundTmrCntrl    $0301   ;Round timer control. 0=running, 1=halt, 2=flash clock
+.alias RoundClock       $0301   ;Base address for clock values
 .alias RoundMinute      $0302   ;Current minute in round.
-.alias RoundColon       $0303   ;Colon tile index used to separate minutes from seconds.
+.alias RoundColon       $0303   ;Colon tile pointer used to separate minutes from seconds.
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
+
+.alias RoundTimerUB     $0306   ;Underlying timer behind round clock, upper byte
+.alias RoundTimerLB     $0307   ;Underlying timer behind round clock, lower byte
+.alias ClockRateUB      $0308   ;Rate that RoundTimer advances per frame, upper byte
+.alias ClockRateLB      $0309   ;Rate that RoundTimer advances per frame, lower byte
+
+.alias ClockDispStatus  $030A   ;Whether the clock display requires an update, MSB=needs update
+.alias ClockDisplay     $030B   ;Base address for clock display values
+.alias ClockDispMin     $030B   ;Clock digit index for minutes
+.alias ClockDispColon   $030C   ;Clock digit index for the colon
+.alias ClockDispSecUD   $030D   ;Clock digit index for tens of seconds
+.alias ClockDispSecLD   $030E   ;Clock digit index for seconds
 
 .alias NewHeartsUD      $0321   ;New amount of hearts, upper digit(base 10).
 .alias NewHeartsLD      $0322   ;New amount of hearts, lower digit(base 10).

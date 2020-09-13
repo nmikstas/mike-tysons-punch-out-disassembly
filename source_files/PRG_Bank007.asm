@@ -6,7 +6,7 @@
 L8000:  JMP $8974
 L8003:  JMP $890D
 L8006:  JMP $881E
-L8009:  JMP $8759
+L8009:  JMP UpdateClock         ;($8759)
 L800C:  JMP $86D0
 L800F:  JMP $8A6F
 L8012:  JMP $85E9
@@ -63,7 +63,7 @@ L8079:  CMP #$80
 L807B:  BEQ $8090
 L807D:  CMP #$FF
 L807F:  BNE $8066
-L8081:  LDA $50
+L8081:  LDA MacStatus          ;($50)
 L8083:  STA $03B0
 L8086:  STY $03C5
 L8089:  LDX $05A0
@@ -71,7 +71,7 @@ L808C:  LDA #$04
 L808E:  BNE $809E
 
 L8090:  LDX $05A1
-L8093:  LDA $50
+L8093:  LDA MacStatus          ;($50)
 L8095:  CMP #$0E
 L8097:  BNE $809C
 L8099:  LDX $05A2
@@ -105,7 +105,7 @@ L80C7:  LDA #PUNCH_BLOCKED
 L80C9:  STA OppPunchSts
 L80CB:  STA OppLastPunchSts
 L80CD:  LDA #$88
-L80CF:  STA $50
+L80CF:  STA MacStatus          ;($50)
 L80D1:  LDA #$01
 L80D3:  JSR $843E
 L80D6:  LDA #$82
@@ -564,7 +564,7 @@ L84A5:  AND #$01
 L84A7:  ORA #$90
 L84A9:  CLC
 L84AA:  ADC $59
-L84AC:  STA $50
+L84AC:  STA MacStatus          ;($50)
 L84AE:  LDA #$25
 L84B0:  STA $048E
 L84B3:  LDA #$81
@@ -645,8 +645,8 @@ L8544:  STA $73,X
 L8546:  STA $B3,X
 L8548:  DEX
 L8549:  BNE $8544
-L854B:  STA $B8
-L854D:  STA $B9
+L854B:  STA OppHitDefenseLR     ;($B8)
+L854D:  STA OppHitDefenseLL     ;($B9)
 L854F:  RTS
 
 L8550:  LDA #$81
@@ -691,7 +691,7 @@ L859C:  RTS
 L859D:  JSR $85C9
 L85A0:  LDA #$25
 L85A2:  STA PPUIOReg
-L85A5:  LDA $0306
+L85A5:  LDA RoundTimerUB        ;($0306)
 L85A8:  AND #$F0
 L85AA:  LSR
 L85AB:  LSR
@@ -706,7 +706,7 @@ L85BA:  RTS
 L85BB:  .byte $01, $01, $03, $06, $05, $09, $07, $02, $09, $03, $0A, $08, $0A, $0A
 
 L85C9:  LDX #$00
-L85CB:  LDA $030B,X
+L85CB:  LDA ClockDisplay,X      ;($030B)
 L85CE:  STA PPUIOReg
 L85D1:  INX
 L85D2:  CPX #$04
@@ -722,7 +722,7 @@ L85E1:  RTS
 
 L85E2:  .byte $1E, $13, $17, $0F, $FF, $2B, $1C
 
-L85E9:  LDA $1E
+L85E9:  LDA FrameCounter        ;($1E)
 L85EB:  ROR
 L85EC:  STA $E8
 L85EE:  ROR
@@ -744,7 +744,7 @@ L8609:  LDA $EA
 L860B:  AND #$04
 L860D:  ORA $ED
 L860F:  STA $ED
-L8611:  LDA $1E
+L8611:  LDA FrameCounter        ;($1E)
 L8613:  ROL
 L8614:  STA $E8
 L8616:  ROL
@@ -891,104 +891,111 @@ L871F:  LDY #$FF
 L8721:  ADC #$01
 L8723:  BNE $870A
 
-L8725:  DEC $0307
+FlashRoundClock:
+L8725:  DEC RoundTimerLB        ;($0307)
 L8728:  BNE $8758
 L872A:  LDA #$08
-L872C:  STA $0307
+L872C:  STA RoundTimerLB        ;($0307)
 L872F:  LDY #$00
-L8731:  DEC $0306
+L8731:  DEC RoundTimerUB        ;($0306)
 L8734:  BEQ $8750
-L8736:  LDA $030B
+L8736:  LDA ClockDispMin        ;($030B)
 L8739:  CMP #$04
 L873B:  BNE $873F
 L873D:  LDY #$04
 L873F:  LDX #$00
 L8741:  LDA $87FE,Y
-L8744:  STA $030B,X
+L8744:  STA ClockDisplay,X      ;($030B)
 L8747:  INY
 L8748:  INX
 L8749:  CPX #$04
 L874B:  BNE $8741
 L874D:  JMP $87E4
-L8750:  STY $0300
+L8750:  STY RoundTmrStart       ;($0300)
 L8753:  BEQ $873D
 L8755:  JMP $87EA
 L8758:  RTS
 
-L8759:  LDA $0300
-L875C:  BEQ $8758
-L875E:  BMI $8755
-L8760:  LDA RoundTmrCntrl
-L8763:  BEQ $8780
-L8765:  BMI $8725
+UpdateClock:
+L8759:  LDA RoundTmrStart       ;($0300)
+L875C:  BEQ $8758               ;If the clock is not started, then return
+L875E:  BMI $8755               ;If MSB set, then reset the clock and return
+L8760:  LDA RoundTmrCntrl       ;($0301)
+L8763:  BEQ RoundTmrTick        ;If the clock is not paused, then tick
+L8765:  BMI FlashRoundClock     ;If MSB is set, then flash 3:00
 L8767:  CMP #$01
-L8769:  BEQ $8758
-L876B:  LDA $030A
-L876E:  BNE $8758
+L8769:  BEQ $8758               ;If the clock is paused, then return
+L876B:  LDA ClockDispStatus     ;$(030A)
+L876E:  BNE $8758               ;If the clock display requires an update, then return
 L8770:  LDA #$81
-L8772:  STA RoundTmrCntrl
-L8775:  LDA #$10
-L8777:  STA $0306
-L877A:  LDA #$08
-L877C:  STA $0307
+L8772:  STA RoundTmrCntrl       ;Initiate clock flash sequence
+L8775:  LDA #$10                ; Flash sequence has 16 steps
+L8777:  STA RoundTimerUB        ; 8 times "3:00" and 8 times "----", alternating
+L877A:  LDA #$08                ; One flash step every 8 frames
+L877C:  STA RoundTimerLB        ; Use Chrono to track where we are in the sequence
 L877F:  RTS
 
-L8780:  LDA $0307
-L8783:  CLC
-L8784:  ADC $0309
-L8787:  STA $0307
-L878A:  LDA $0306
-L878D:  ADC $0308
-L8790:  STA $0306
+RoundTmrTick:
+L8780:  LDA RoundTimerLB        ;Binary addition of 16-bit ClockRate into Chrono.     -->
+L8783:  CLC                     ;The clock rate is the number of chrono counts that   -->
+L8784:  ADC ClockRateLB         ;the chronometer advances each frame.  This is a more -->
+L8787:  STA RoundTimerLB        ;fine-grained timekeeper than the round clock, which  -->
+L878A:  LDA RoundTimerUB        ;derives its time from the chronometer. It is worth   -->
+L878D:  ADC ClockRateUB         ;noting that clock rate changes from round to round.
+L8790:  STA RoundTimerUB
 L8793:  CMP #$64
-L8795:  BCC $87E9
-L8797:  SBC #$64
-L8799:  STA $0306
+L8795:  BCC $87E9               ;If chronometer hasn't ticked past #$6400 counts, return
+L8797:  SBC #$64                ;Else subtract #$6400 from the current count
+L8799:  STA RoundTimerUB
 L879C:  DEC $0311
-L879F:  INC $0305
-L87A2:  LDA $0305
-L87A5:  CMP #$0A
-L87A7:  BNE $87D6
+L879F:  INC RoundLowerSec       ;Each time the chronometer ticks past $#6400, the  -->
+L87A2:  LDA RoundLowerSec       ;round clock is advanced by one second.
+L87A5:  CMP #$0A                ;If the lower digit of the second clock has not    -->
+L87A7:  BNE UpdateClockDisplay  ;reached 10 yet, then we are done.
 L87A9:  LDX #$00
-L87AB:  STX $0305
-L87AE:  INC $0304
-L87B1:  LDA $0304
+L87AB:  STX RoundLowerSec       ;If the lower digit has reached 10, then it wraps  -->
+L87AE:  INC RoundUpperSec       ;back around to zero and the digit in the tens     -->
+L87B1:  LDA RoundUpperSec       ;place is incremented
 L87B4:  CMP #$06
-L87B6:  BNE $87D6
-L87B8:  STX $0304
-L87BB:  INC $0302
-L87BE:  LDA $0302
+L87B6:  BNE UpdateClockDisplay  ;If the tens digit has not reached 6, then we are done
+L87B8:  STX RoundUpperSec       ;Else the tens digit wraps back around to zero    -->
+L87BB:  INC RoundMinute         ;and the minute is incremented.
+L87BE:  LDA RoundMinute
 L87C1:  CMP #$03
-L87C3:  BNE $87D6
-L87C5:  LDA #$02
-L87C7:  STA RoundTmrCntrl
+L87C3:  BNE UpdateClockDisplay ;If the round hasn't reached 3 minutes, then we are done
+L87C5:  LDA #$02                ;Else we have reached the end of the round, so    -->
+L87C7:  STA RoundTmrCntrl       ;set RoundTmrCntrl=2 to signal the clock flash sequence
 L87CA:  LDA #$00
 L87CC:  STA OppCurState
 L87CE:  STA OppStateStatus
 L87D0:  STA $51
 L87D2:  LDA #$C2
-L87D4:  STA $50
+L87D4:  STA MacStatus           ;($50)
+
+UpdateClockDisplay:
 L87D6:  CLC
 L87D7:  LDX #$04
-L87D9:  LDA $0301,X
+L87D9:  LDA RoundTmrCntrl,X     ;($0301)
 L87DC:  ADC #$01
-L87DE:  STA $030A,X
+L87DE:  STA ClockDispStatus,X   ;($030A)
 L87E1:  DEX
 L87E2:  BNE $87D9
 L87E4:  LDY #$80
-L87E6:  STY $030A
+L87E6:  STY ClockDispStatus     ;Set flag to update clock display
 L87E9:  RTS
 
+ResetRoundClock:
 L87EA:  LDA #$00
-L87EC:  STA $0300
+L87EC:  STA RoundTmrStart       ;($0300)
 L87EF:  LDX #$07
-L87F1:  STA $0300,X
+L87F1:  STA RoundTmrStart,X     ;($0300) Used as base address for clock values
 L87F4:  DEX
 L87F5:  BNE $87F1
 L87F7:  LDA #$2B
-L87F9:  STA $0303
-L87FC:  BNE $87D6
+L87F9:  STA RoundColon          ;($0303)
+L87FC:  BNE UpdateClockDisplay  ;($87D6)
 
+;Values for flashing clock: "3:00" and "----"
 L87FE:  .byte $04, $2C, $01, $01, $28, $28, $28, $28
 
 L8806:  AND #$7F
@@ -1251,7 +1258,7 @@ L8A4A:  RTS
 
 L8A4B:  AND #$7F
 L8A4D:  TAY
-L8A4E:  LDA $1E
+L8A4E:  LDA FrameCounter        ;($1E)
 L8A50:  AND #$0F
 L8A52:  BNE $8AD2
 L8A54:  TYA
@@ -1281,12 +1288,12 @@ L8A7D:  DEY
 L8A7E:  BEQ $8A8D
 L8A80:  DEY
 L8A81:  BNE $8AA2
-L8A83:  LDA $1E
+L8A83:  LDA FrameCounter        ;($1E)
 L8A85:  AND #$0F
 L8A87:  BNE $8A8D
 L8A89:  LDA #$04
 L8A8B:  STA $40
-L8A8D:  LDA $1E
+L8A8D:  LDA FrameCounter        ;($1E)
 L8A8F:  AND #$0F
 L8A91:  TAY
 L8A92:  LDA $048A
