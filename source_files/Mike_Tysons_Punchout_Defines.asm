@@ -9,7 +9,13 @@
 
 ;-----------------------------------------[Variable Defines]-----------------------------------------
 
+.alias FightBank		$02		;The memory bank containing the data for the current fight
+.alias FightOffset		$03		;Offset of the current fight within its memory bank
+.alias KnockdownSts		$05		;Knockdown status #$01=Opp down, #$02=Mac down
 .alias RoundNumber		$06		;Current round number.
+.alias MacLosses		$0A		;Number of losses on Mac's record
+.alias CurrPRGBank		$0D		;The current PRG bank mapped to $8000-$9FFF
+.alias SavedPRGBank		$0E		;The last PRG bank to be loaded
 
 .alias PPU0Load         $10     ;Value to load next into PPU control register 0.
 .alias PPU1Load         $11     ;Value to load next into PPU control register 1.
@@ -24,7 +30,7 @@
                                 ;#$02 - Stop all game processing.
                                 ;#$03 - Process only audio.
                                 ;#$FF - Run non-playable portions of game(intro, cut scenes, etc).
-                                
+
 .alias FrameCounter     $1E     ;Increments every frame and rolls over when maxed out.
 .alias TransTimer       $1F     ;Countdown timer for various transitions.
 
@@ -43,7 +49,7 @@
 .alias MacDefense1      $76     ;Little Mac's defense. there are 2 values but they are always -->
 .alias MacDefense2      $77     ;written to the same value. Maybe there was plans for a left and -->
                                 ;right defense? #$FF=Dodge, #$08=Block, #$80=Duck.
-                                
+
 .alias OppCurState      $90     ;Opponent's current state. Set MSB=initialize new state.
 .alias OppStateStatus   $91     ;Status of opponent's current state.
 .alias OppStateTimer    $92     ;Timer for opponents current state.
@@ -88,11 +94,11 @@
 .alias MacCanPunch      $BC     ;#$00=Little Mac can't punch, #$01=Little Mac can punch.
 
 .alias OppLastPunchSts  $BD     ;Last punch status of opponent. See punch statuses below.
-                                
+
 .alias CurrentCount     $C2     ;Current referee count. #$9A=1 through #$A2=9.
-                                
+
 .alias OppGetUpCount    $C4     ;Count opponent will get up on. #$9A=1 through #$A2=9.
- 
+
 .alias Joy1Buttons      $D0     ;Controller 1 button presses.
 .alias Joy2Buttons      $D1     ;Controller 2 button presses.
 
@@ -101,7 +107,7 @@
                                 ;#$00=Not pressed.                            -->
                                 ;#$01=Dpad not released since last change.    -->
                                 ;#$81=Dpad/button first press since last release.
-                                
+
 .alias DPad1Status      $D2     ;Controller 1 dpad status.
 .alias DPad1History     $D3     ;Controller 1 dpad history.
 .alias A1Status         $D4     ;Controller 1 A button status.
@@ -122,16 +128,33 @@
                                 ;that after A+B+select were pressed. The second 10 bytes are normal
                                 ;password data entered by the user.
 
-.alias RoundTmrCntrl	$0301	;Round timer control.#$01=halt timer, non-zero=End round.
+.alias RoundTmrStart    $0300   ;Round timer started: 0=Not started, 1=Started, MSB=needs reset
+.alias RoundTmrCntrl    $0301   ;Round timer control. 0=running, 1=halt, 2=flash clock
+.alias RoundClock       $0301   ;Base address for clock values
 .alias RoundMinute      $0302   ;Current minute in round.
-.alias RoundColon       $0303   ;Colon tile index used to separate minutes from seconds.
+.alias RoundColon       $0303   ;Colon tile pointer used to separate minutes from seconds.
 .alias RoundUpperSec    $0304   ;Current tens of seconds in round.
 .alias RoundLowerSec    $0305   ;Current second in round(base 10).
+
+.alias RoundTimerUB     $0306   ;Underlying timer behind round clock, upper byte
+.alias RoundTimerLB     $0307   ;Underlying timer behind round clock, lower byte
+.alias ClockRateUB      $0308   ;Rate that RoundTimer advances per frame, upper byte
+.alias ClockRateLB      $0309   ;Rate that RoundTimer advances per frame, lower byte
+
+.alias ClockDispStatus  $030A   ;Whether the clock display requires an update, MSB=needs update
+.alias ClockDisplay     $030B   ;Base address for clock display values
+.alias ClockDispMin     $030B   ;Clock digit index for minutes
+.alias ClockDispColon   $030C   ;Clock digit index for the colon
+.alias ClockDispSecUD   $030D   ;Clock digit index for tens of seconds
+.alias ClockDispSecLD   $030E   ;Clock digit index for seconds
 
 .alias NewHeartsUD      $0321   ;New amount of hearts, upper digit(base 10).
 .alias NewHeartsLD      $0322   ;New amount of hearts, lower digit(base 10).
 .alias CurHeartsUD      $0323   ;Current amount of hearts, upper digit(base 10).
 .alias CurHeartsLD      $0324   ;Current amount of hearts, lower digit(base 10).
+.alias HeartDispStatus  $0325   ;Hearts display status, MSB=needs update
+.alias HeartDisplayUD   $0326   ;Hearts display digit index, upper digit
+.alias HeartDisplayLD   $0327   ;Hearts display digit index, lower digit
 
 .alias HeartRecover     $032D   ;recover hearts this round, base address.
 .alias HeartNormRecUD   $032D   ;recover hearts this round, normal amount, upper digit(base 10).
@@ -144,6 +167,9 @@
 
 .alias StarCountDown    $0347   ;Must count down to 1 before stars will be given.
 
+.alias HeartDispStatus  $0325   ;Hearts display status, MSB=needs update
+.alias HeartDisplayUD   $0326   ;Hearts display digit index, upper digit
+.alias HeartDisplayLD   $0327   ;Hearts display digit index, lower digit
 .alias MacNextHP        $0391   ;Next value to assign to Little Mac HP.
 .alias MacCurrentHP     $0392   ;Current vlaue of Little Mac's HP.
 .alias MacDisplayedHP   $0393   ;Displayed HP for Little Mac.
@@ -153,6 +179,20 @@
 .alias OppNextHP        $0398   ;Next value to assign to opponent's HP.
 .alias OppCurrentHP     $0399   ;Current value of opponents HP.
 .alias OppDisplayedHP   $039A   ;Displayed value of opponent's HP.
+
+.alias MacKDRound       $03C9   ;Number of times Mac has been knocked down in this round
+.alias OppKDRound       $03CA   ;Number of times opponent has been knocked down this round
+.alias SpecialKD        $03CB   ;Special knockdown condition
+
+.alias MacKDFight       $03D0   ;Number of times Mac has been knocked down in this fight
+.alias OppKDFight       $03D1   ;Number of times opponent has been knocked down this fight
+.alias LastPunchSts     $03D2   ;Who made the last punch? #$81=Mac #$82=Opp
+
+.alias SelectRefill     $03D9   ;Amount of HP refill Mac will receive from pushing select
+
+.alias PointsStatus     $03E0   ;Status of points
+.alias PointsNew        $03E1   ;New points that should be added to the total (base 10)
+.alias PointsTotal      $03E8   ;Total points for this round (base 10)
 
 .alias ThisBkgPalette   $0480   ;Through $048F. Current background palette data.
 .alias ThisSprtPalette  $0490   ;Through $049F. Current sprite palette data.
@@ -166,11 +206,30 @@
 
 .alias TimerVal0585     $0585   ;A variable used to load special timer values.
 
+.alias HeartTable       $05A3   ;Table of heart values for this fight. (Indexing starts at 3)
+
 .alias StarCountReset   $05B0   ;Reset value for StarCountDown.
 
 .alias ReactTimer       $05B8   ;Opponents reaction time. Does not count on combos.
 
+.alias ComboDataPtrLB   $05C2   ;Pointer to combo data for the current opponent, lower byte
+.alias ComboDataPtrUB   $05C3   ;Pointer to combo data for the current opponent, upper byte
+
+.alias OppRefillPtr     $05D5   ;Pointer to beginning of table of random refill values
+.alias OppRefillPtrLB   $05D5   ;Pointer to random refill table, lower byte
+.alias OppRefillPtrUB   $05D6   ;Pointer to random refill table, upper byte
+.alias OppHPBoostCap    $05D7   ;Soft cap for HP boosts
+.alias ClockRateTable   $05D8   ;Table of values for this fight. (Indexing starts at 2)
+
+.alias OppGetUpTable    $05E0   ;Base address for opponent stand up times after knock down
+
 .alias OppOutline       $05EC   ;Base address for determining the opponent's outline color.
+
+.alias SelRefillPtrLB   $05EE   ;Pointer to refill table for pressing Select between rounds
+.alias SelRefillPtrUB   $05EF   ;Pointer to refill table for pressing Select between rounds
+
+.alias OppMessages      $05F0   ;Table of message indices for current opponent
+.alias TrainerMessages  $05F8   ;Table of message indices from trainer for this fight
 
 .alias JoyRawReads      $06A0   ;Through $06A8. Raw reads from controller 1 and 2. Even values -->
                                 ;are from controller 1 while odd values are from controller 2. -->
@@ -501,7 +560,7 @@
 ;Opponent state flags
 .alias OPP_CHNG_NONE    $00     ;Done changing opponent sprites.
 .alias OPP_CHNG_POS     $01     ;Move opponent's sprites on the screen.
-.alias OPP_CHNG_SPRT    $80     ;Change opponent's sprites(Next animation sequence). 
+.alias OPP_CHNG_SPRT    $80     ;Change opponent's sprites(Next animation sequence).
 .alias OPP_CHNG_BOTH    $81     ;Change both position and sprites.
 .alias OPP_RGHT_HOOK    $02     ;Indicate a right hook is being thrown.
 

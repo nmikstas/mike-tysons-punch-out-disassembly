@@ -6,7 +6,7 @@
 L8000:  JMP $8974
 L8003:  JMP $890D
 L8006:  JMP $881E
-L8009:  JMP $8759
+L8009:  JMP UpdateClock         ;($8759)
 L800C:  JMP $86D0
 L800F:  JMP $8A6F
 L8012:  JMP $85E9
@@ -63,7 +63,7 @@ L8079:  CMP #$80
 L807B:  BEQ $8090
 L807D:  CMP #$FF
 L807F:  BNE $8066
-L8081:  LDA $50
+L8081:  LDA MacStatus          ;($50)
 L8083:  STA $03B0
 L8086:  STY $03C5
 L8089:  LDX $05A0
@@ -71,7 +71,7 @@ L808C:  LDA #$04
 L808E:  BNE $809E
 
 L8090:  LDX $05A1
-L8093:  LDA $50
+L8093:  LDA MacStatus          ;($50)
 L8095:  CMP #$0E
 L8097:  BNE $809C
 L8099:  LDX $05A2
@@ -105,11 +105,11 @@ L80C7:  LDA #PUNCH_BLOCKED
 L80C9:  STA OppPunchSts
 L80CB:  STA OppLastPunchSts
 L80CD:  LDA #$88
-L80CF:  STA $50
+L80CF:  STA MacStatus           ;($50)
 L80D1:  LDA #$01
 L80D3:  JSR $843E
 L80D6:  LDA #$82
-L80D8:  STA $03D2
+L80D8:  STA LastPunchSts        ;($03D2)
 L80DB:  LDA #$02
 L80DD:  LDX MacCanPunch
 L80DF:  BNE $80E3
@@ -149,7 +149,7 @@ L811E:  STA OppPunchSts
 L8120:  STA OppLastPunchSts
 L8122:  LDA MacCanPunch
 L8124:  BNE $8131
-L8126:  LDA $05A3
+L8126:  LDA HeartTable          ;($05A3)
 L8129:  JSR $84B9
 L812C:  LDA #$01
 L812E:  STA $0329
@@ -168,7 +168,7 @@ L814D:  JSR $849F
 L8150:  LDA $03C5
 L8153:  BNE $816E
 L8155:  LDA #$82
-L8157:  STA $03D2
+L8157:  STA LastPunchSts        ;($03D2)
 L815A:  JSR $852B
 L815D:  LDA $E0
 L815F:  CLC
@@ -193,11 +193,11 @@ L8186:  JSR $843E
 L8189:  LDA #$FF
 L818B:  STA $0341
 L818E:  LDX #$00
-L8190:  LDA $03CB
+L8190:  LDA SpecialKD           ;($03CB)
 L8193:  CMP #$09
 L8195:  BEQ $8199
 L8197:  LDX #$81
-L8199:  STX $03D2
+L8199:  STX LastPunchSts        ;($03D2)
 L819C:  LDA $E1
 L819E:  LDA #$00
 L81A0:  JSR $84FF
@@ -205,7 +205,7 @@ L81A3:  BEQ $81A9
 L81A5:  LDX #$82
 L81A7:  BNE $81AC
 L81A9:  JSR $8404
-L81AC:  STX $03D2
+L81AC:  STX LastPunchSts        ;($03D2)
 L81AF:  JMP $815D
 L81B2:  LDA $58
 L81B4:  BMI $81B7
@@ -236,7 +236,7 @@ L81E8:  STA ComboTimer
 L81EA:  LDA #$01
 L81EC:  STA $03E5
 L81EF:  LDA #$80
-L81F1:  STA $03E0
+L81F1:  STA PointsStatus        ;($03E0)
 L81F4:  LDA ComboCountDown
 L81F6:  BEQ $820A
 L81F8:  DEC ComboCountDown
@@ -257,11 +257,11 @@ L8213:  JSR $8562
 L8216:  JSR $8550
 L8219:  JSR $842A
 L821C:  LDA #$81
-L821E:  LDX $03CB
+L821E:  LDX SpecialKD           ;($03CB)
 L8221:  CPX #$09
 L8223:  BNE $8227
 L8225:  LDA #$00
-L8227:  STA $03D2
+L8227:  STA LastPunchSts        ;($03D2)
 L822A:  LDA $05C5
 L822D:  JSR $84FF
 L8230:  BEQ $8236
@@ -354,20 +354,20 @@ L82DD:  JSR $843E
 L82E0:  LDA #$FF
 L82E2:  STA $0341
 L82E5:  LDA #$82
-L82E7:  STA $03D2
+L82E7:  STA LastPunchSts        ;($03D2)
 L82EA:  LDA $E1
 L82EC:  CLC
 L82ED:  ADC $05AF
 L82F0:  JSR $8503
 L82F3:  BEQ $8302
-L82F5:  LDA $03CB
+L82F5:  LDA SpecialKD           ;($03CB)
 L82F8:  LDX #$81
 L82FA:  CMP #$09
 L82FC:  BNE $8305
 L82FE:  LDX #$00
 L8300:  BEQ $8305
 L8302:  JSR $83EB
-L8305:  STX $03D2
+L8305:  STX LastPunchSts        ;($03D2)
 L8308:  LDA $E0
 L830A:  JSR $84FF
 L830D:  BEQ $8312
@@ -379,16 +379,16 @@ L8318:  RTS
 L8319:  LDA #$03
 L831B:  STA $58
 L831D:  LDA #$81
-L831F:  STA $03D2
+L831F:  STA LastPunchSts        ;($03D2)
 L8322:  LDA #$05
 L8324:  LDX #$04
 L8326:  LDY MacPunchType
 L8328:  BMI $832D
 L832A:  INX
 L832B:  LDA #$01
-L832D:  STA $03E0,X
+L832D:  STA PointsStatus,X      ;($03E0)
 L8330:  LDA #$80
-L8332:  STA $03E0
+L8332:  STA PointsStatus        ;($03E0)
 L8335:  LDA $BA
 L8337:  BEQ $8345
 L8339:  LDA #$00
@@ -396,7 +396,7 @@ L833B:  STA $0398
 L833E:  LDA #$8D
 L8340:  JSR $8562
 L8343:  BNE $8312
-L8345:  LDA $03CB
+L8345:  LDA SpecialKD           ;($03CB)
 L8348:  CMP #$01
 L834A:  BEQ $8352
 L834C:  CMP #$09
@@ -410,7 +410,7 @@ L835B:  BEQ $837C
 L835D:  LDA MacPunchType
 L835F:  BMI $8366
 L8361:  LDA #$00
-L8363:  STA $03D2
+L8363:  STA LastPunchSts        ;($03D2)
 L8366:  JSR $8525
 L8369:  LDA $E0
 L836B:  LDX MacPunchType
@@ -487,13 +487,13 @@ L8407:  JSR $8421
 L840A:  LDA #$01
 L840C:  STA $03E3
 L840F:  LDA #$80
-L8411:  STA $03E0
+L8411:  STA PointsStatus        ;($03E0)
 L8414:  LDX #$01
 L8416:  STX $05
 L8418:  STX $36
 L841A:  DEX
 L841B:  STX GameStatusBB
-L841D:  STX $03CB
+L841D:  STX SpecialKD           ;($03CB)
 L8420:  RTS
 
 L8421:  LDA RoundTmrCntrl
@@ -564,7 +564,7 @@ L84A5:  AND #$01
 L84A7:  ORA #$90
 L84A9:  CLC
 L84AA:  ADC $59
-L84AC:  STA $50
+L84AC:  STA MacStatus          ;($50)
 L84AE:  LDA #$25
 L84B0:  STA $048E
 L84B3:  LDA #$81
@@ -608,36 +608,36 @@ L8501:  BNE $8505
 
 L8503:  LDX #$02
 L8505:  STA $E7
-L8507:  LDA $0390,X
+L8507:  LDA HealthPoints,X      ;($0390)
 L850A:  DEX
 L850B:  SEC
 L850C:  SBC $E7
 L850E:  BEQ $8512
 L8510:  BPL $851F
-L8512:  LDY $03D2
+L8512:  LDY LastPunchSts        ;($03D2)
 L8515:  BEQ $851D
 L8517:  LDA #$00
-L8519:  STA $0390,X
+L8519:  STA HealthPoints,X      ;($0390)
 L851C:  RTS
 
 L851D:  LDA #$00
 
-L851F:  STA $0390,X
+L851F:  STA HealthPoints,X      ;($0390)
 L8522:  LDA #$01
 L8524:  RTS
 
 L8525:  LDA #$0F
 L8527:  LDX #$02
 L8529:  BNE $8530
-L852B:  LDA $05D7
+L852B:  LDA OppHPBoostCap          ;($05D7)
 L852E:  LDX #$09
-L8530:  CMP $0390,X
+L8530:  CMP HealthPoints,X      ;($0390)
 L8533:  BCC $853F
-L8535:  LDA $0390,X
+L8535:  LDA HealthPoints,X      ;($0390)
 L8538:  DEX
 L8539:  CLC
 L853A:  ADC #$04
-L853C:  STA $0390,X
+L853C:  STA HealthPoints,X      ;($0390)
 L853F:  RTS
 L8540:  LDA #$00
 L8542:  LDX #$04
@@ -645,8 +645,8 @@ L8544:  STA $73,X
 L8546:  STA $B3,X
 L8548:  DEX
 L8549:  BNE $8544
-L854B:  STA $B8
-L854D:  STA $B9
+L854B:  STA OppHitDefenseLR     ;($B8)
+L854D:  STA OppHitDefenseLL     ;($B9)
 L854F:  RTS
 
 L8550:  LDA #$81
@@ -691,7 +691,7 @@ L859C:  RTS
 L859D:  JSR $85C9
 L85A0:  LDA #$25
 L85A2:  STA PPUIOReg
-L85A5:  LDA $0306
+L85A5:  LDA RoundTimerUB        ;($0306)
 L85A8:  AND #$F0
 L85AA:  LSR
 L85AB:  LSR
@@ -706,7 +706,7 @@ L85BA:  RTS
 L85BB:  .byte $01, $01, $03, $06, $05, $09, $07, $02, $09, $03, $0A, $08, $0A, $0A
 
 L85C9:  LDX #$00
-L85CB:  LDA $030B,X
+L85CB:  LDA ClockDisplay,X      ;($030B)
 L85CE:  STA PPUIOReg
 L85D1:  INX
 L85D2:  CPX #$04
@@ -722,7 +722,7 @@ L85E1:  RTS
 
 L85E2:  .byte $1E, $13, $17, $0F, $FF, $2B, $1C
 
-L85E9:  LDA $1E
+L85E9:  LDA FrameCounter        ;($1E)
 L85EB:  ROR
 L85EC:  STA $E8
 L85EE:  ROR
@@ -744,7 +744,7 @@ L8609:  LDA $EA
 L860B:  AND #$04
 L860D:  ORA $ED
 L860F:  STA $ED
-L8611:  LDA $1E
+L8611:  LDA FrameCounter        ;($1E)
 L8613:  ROL
 L8614:  STA $E8
 L8616:  ROL
@@ -832,46 +832,46 @@ L86A8:  RTS
 
 L86A9:  LDX #$01
 L86AB:  STX $03E7
-L86AE:  STX $03E0
+L86AE:  STX PointsStatus        ;($03E0)
 L86B1:  CMP #$80
 L86B3:  BEQ $86C1
 L86B5:  LDA #$00
 L86B7:  LDX #$05
-L86B9:  STA $03E1,X
+L86B9:  STA PointsNew,X         ;($03E1)
 L86BC:  DEX
 L86BD:  BPL $86B9
 L86BF:  BMI $86DC
 L86C1:  LDA #$00
 L86C3:  LDX #$05
-L86C5:  STA $03E8,X
-L86C8:  STA $03E1,X
+L86C5:  STA PointsTotal,X       ;($03E8)
+L86C8:  STA PointsNew,X         ;($03E1)
 L86CB:  DEX
 L86CC:  BPL $86C5
 L86CE:  BMI $86DC
 L86D0:  LDA $03E7
 L86D3:  BEQ $871E
 L86D5:  BMI $86A9
-L86D7:  LDA $03E0
+L86D7:  LDA PointsStatus        ;($03E0)
 L86DA:  BEQ $871E
 L86DC:  CLC
 L86DD:  LDX #$05
-L86DF:  LDA $03E8,X
-L86E2:  ADC $03E1,X
+L86DF:  LDA PointsTotal,X       ;($03E8)
+L86E2:  ADC PointsNew,X         ;($03E1)
 L86E5:  CMP #$0A
 L86E7:  BCC $86EB
 L86E9:  SBC #$0A
-L86EB:  STA $03E8,X
+L86EB:  STA PointsTotal,X       ;($03E8)
 L86EE:  DEX
 L86EF:  BPL $86DF
 L86F1:  LDX #$06
 L86F3:  LDA #$00
-L86F5:  STA $03E0,X
+L86F5:  STA PointsStatus,X      ;($03E0)
 L86F8:  DEX
 L86F9:  BPL $86F5
 L86FB:  LDX #$00
 L86FD:  LDY #$06
 L86FF:  CLC
-L8700:  LDA $03E8,X
+L8700:  LDA PointsTotal,X       ;($03E8)
 L8703:  BNE $871F
 L8705:  DEY
 L8706:  BMI $8721
@@ -891,108 +891,115 @@ L871F:  LDY #$FF
 L8721:  ADC #$01
 L8723:  BNE $870A
 
-L8725:  DEC $0307
+FlashRoundClock:
+L8725:  DEC RoundTimerLB        ;($0307)
 L8728:  BNE $8758
 L872A:  LDA #$08
-L872C:  STA $0307
+L872C:  STA RoundTimerLB        ;($0307)
 L872F:  LDY #$00
-L8731:  DEC $0306
+L8731:  DEC RoundTimerUB        ;($0306)
 L8734:  BEQ $8750
-L8736:  LDA $030B
+L8736:  LDA ClockDispMin        ;($030B)
 L8739:  CMP #$04
 L873B:  BNE $873F
 L873D:  LDY #$04
 L873F:  LDX #$00
 L8741:  LDA $87FE,Y
-L8744:  STA $030B,X
+L8744:  STA ClockDisplay,X      ;($030B)
 L8747:  INY
 L8748:  INX
 L8749:  CPX #$04
 L874B:  BNE $8741
 L874D:  JMP $87E4
-L8750:  STY $0300
+L8750:  STY RoundTmrStart       ;($0300)
 L8753:  BEQ $873D
 L8755:  JMP $87EA
 L8758:  RTS
 
-L8759:  LDA $0300
-L875C:  BEQ $8758
-L875E:  BMI $8755
-L8760:  LDA RoundTmrCntrl
-L8763:  BEQ $8780
-L8765:  BMI $8725
+UpdateClock:
+L8759:  LDA RoundTmrStart       ;($0300)
+L875C:  BEQ $8758               ;If the clock is not started, then return
+L875E:  BMI $8755               ;If MSB set, then reset the clock and return
+L8760:  LDA RoundTmrCntrl       ;($0301)
+L8763:  BEQ RoundTmrTick        ;If the clock is not paused, then tick
+L8765:  BMI FlashRoundClock     ;If MSB is set, then flash 3:00
 L8767:  CMP #$01
-L8769:  BEQ $8758
-L876B:  LDA $030A
-L876E:  BNE $8758
+L8769:  BEQ $8758               ;If the clock is paused, then return
+L876B:  LDA ClockDispStatus     ;$(030A)
+L876E:  BNE $8758               ;If the clock display requires an update, then return
 L8770:  LDA #$81
-L8772:  STA RoundTmrCntrl
-L8775:  LDA #$10
-L8777:  STA $0306
-L877A:  LDA #$08
-L877C:  STA $0307
+L8772:  STA RoundTmrCntrl       ;Initiate clock flash sequence
+L8775:  LDA #$10                ; Flash sequence has 16 steps
+L8777:  STA RoundTimerUB        ; 8 times "3:00" and 8 times "----", alternating
+L877A:  LDA #$08                ; One flash step every 8 frames
+L877C:  STA RoundTimerLB        ; Use Chrono to track where we are in the sequence
 L877F:  RTS
 
-L8780:  LDA $0307
-L8783:  CLC
-L8784:  ADC $0309
-L8787:  STA $0307
-L878A:  LDA $0306
-L878D:  ADC $0308
-L8790:  STA $0306
+RoundTmrTick:
+L8780:  LDA RoundTimerLB        ;Binary addition of 16-bit ClockRate into Chrono.     -->
+L8783:  CLC                     ;The clock rate is the number of chrono counts that   -->
+L8784:  ADC ClockRateLB         ;the chronometer advances each frame.  This is a more -->
+L8787:  STA RoundTimerLB        ;fine-grained timekeeper than the round clock, which  -->
+L878A:  LDA RoundTimerUB        ;derives its time from the chronometer. It is worth   -->
+L878D:  ADC ClockRateUB         ;noting that clock rate changes from round to round.
+L8790:  STA RoundTimerUB
 L8793:  CMP #$64
-L8795:  BCC $87E9
-L8797:  SBC #$64
-L8799:  STA $0306
+L8795:  BCC $87E9               ;If chronometer hasn't ticked past #$6400 counts, return
+L8797:  SBC #$64                ;Else subtract #$6400 from the current count
+L8799:  STA RoundTimerUB
 L879C:  DEC $0311
-L879F:  INC $0305
-L87A2:  LDA $0305
-L87A5:  CMP #$0A
-L87A7:  BNE $87D6
+L879F:  INC RoundLowerSec       ;Each time the chronometer ticks past $#6400, the  -->
+L87A2:  LDA RoundLowerSec       ;round clock is advanced by one second.
+L87A5:  CMP #$0A                ;If the lower digit of the second clock has not    -->
+L87A7:  BNE UpdateClockDisplay  ;reached 10 yet, then we are done.
 L87A9:  LDX #$00
-L87AB:  STX $0305
-L87AE:  INC $0304
-L87B1:  LDA $0304
+L87AB:  STX RoundLowerSec       ;If the lower digit has reached 10, then it wraps  -->
+L87AE:  INC RoundUpperSec       ;back around to zero and the digit in the tens     -->
+L87B1:  LDA RoundUpperSec       ;place is incremented
 L87B4:  CMP #$06
-L87B6:  BNE $87D6
-L87B8:  STX $0304
-L87BB:  INC $0302
-L87BE:  LDA $0302
+L87B6:  BNE UpdateClockDisplay  ;If the tens digit has not reached 6, then we are done
+L87B8:  STX RoundUpperSec       ;Else the tens digit wraps back around to zero    -->
+L87BB:  INC RoundMinute         ;and the minute is incremented.
+L87BE:  LDA RoundMinute
 L87C1:  CMP #$03
-L87C3:  BNE $87D6
-L87C5:  LDA #$02
-L87C7:  STA RoundTmrCntrl
+L87C3:  BNE UpdateClockDisplay ;If the round hasn't reached 3 minutes, then we are done
+L87C5:  LDA #$02                ;Else we have reached the end of the round, so    -->
+L87C7:  STA RoundTmrCntrl       ;set RoundTmrCntrl=2 to signal the clock flash sequence
 L87CA:  LDA #$00
 L87CC:  STA OppCurState
 L87CE:  STA OppStateStatus
 L87D0:  STA $51
 L87D2:  LDA #$C2
-L87D4:  STA $50
+L87D4:  STA MacStatus           ;($50)
+
+UpdateClockDisplay:
 L87D6:  CLC
 L87D7:  LDX #$04
-L87D9:  LDA $0301,X
+L87D9:  LDA RoundTmrCntrl,X     ;($0301)
 L87DC:  ADC #$01
-L87DE:  STA $030A,X
+L87DE:  STA ClockDispStatus,X   ;($030A)
 L87E1:  DEX
 L87E2:  BNE $87D9
 L87E4:  LDY #$80
-L87E6:  STY $030A
+L87E6:  STY ClockDispStatus     ;Set flag to update clock display
 L87E9:  RTS
 
+ResetRoundClock:
 L87EA:  LDA #$00
-L87EC:  STA $0300
+L87EC:  STA RoundTmrStart       ;($0300)
 L87EF:  LDX #$07
-L87F1:  STA $0300,X
+L87F1:  STA RoundTmrStart,X     ;($0300) Used as base address for clock values
 L87F4:  DEX
 L87F5:  BNE $87F1
 L87F7:  LDA #$2B
-L87F9:  STA $0303
-L87FC:  BNE $87D6
+L87F9:  STA RoundColon          ;($0303)
+L87FC:  BNE UpdateClockDisplay  ;($87D6)
 
+;Values for flashing clock: "3:00" and "----"
 L87FE:  .byte $04, $2C, $01, $01, $28, $28, $28, $28
 
 L8806:  AND #$7F
-L8808:  STA $0390
+L8808:  STA HealthPoints        ;($0390)
 L880B:  LDA #$00
 L880D:  LDX #$0E
 L880F:  STA $0391,X
@@ -1003,7 +1010,7 @@ L8817:  STA $0391
 L881A:  STA $0398
 L881D:  RTS
 
-L881E:  LDA $0390
+L881E:  LDA HealthPoints        ;($0390)
 L8821:  BEQ $881D
 L8823:  BMI $8806
 L8825:  LDA $0391
@@ -1141,12 +1148,12 @@ L8932:  CLC
 L8933:  LDA CurHeartsUD
 L8936:  BEQ $894B
 L8938:  ADC #$40
-L893A:  STA $0326
+L893A:  STA HeartDisplayUD      ;($0326)
 L893D:  LDA CurHeartsLD
 L8940:  ADC #$40
-L8942:  STA $0327
+L8942:  STA HeartDisplayLD      ;($0327)
 L8945:  LDX #$80
-L8947:  STX $0325
+L8947:  STX HeartDispStatus     ;($0325)
 L894A:  RTS
 
 L894B:  LDA #$FC
@@ -1214,7 +1221,7 @@ L89D4:  STA $02FE
 L89D7:  LDX #$14
 L89D9:  STX IncStars
 L89DC:  BNE $89AB
-L89DE:  LDY $03E0
+L89DE:  LDY PointsStatus        ;($03E0)
 L89E1:  BNE $89FA
 L89E3:  STY $0344
 L89E6:  LDA #$F8
@@ -1223,7 +1230,7 @@ L89EB:  STY $0208
 L89EE:  INY
 L89EF:  STY $0341
 L89F2:  STY $03E4
-L89F5:  STY $03E0
+L89F5:  STY PointsStatus        ;($03E0)
 L89F8:  BNE $89B9
 L89FA:  INC IncStars
 L89FD:  RTS
@@ -1251,7 +1258,7 @@ L8A4A:  RTS
 
 L8A4B:  AND #$7F
 L8A4D:  TAY
-L8A4E:  LDA $1E
+L8A4E:  LDA FrameCounter        ;($1E)
 L8A50:  AND #$0F
 L8A52:  BNE $8AD2
 L8A54:  TYA
@@ -1281,12 +1288,12 @@ L8A7D:  DEY
 L8A7E:  BEQ $8A8D
 L8A80:  DEY
 L8A81:  BNE $8AA2
-L8A83:  LDA $1E
+L8A83:  LDA FrameCounter        ;($1E)
 L8A85:  AND #$0F
 L8A87:  BNE $8A8D
 L8A89:  LDA #$04
 L8A8B:  STA $40
-L8A8D:  LDA $1E
+L8A8D:  LDA FrameCounter        ;($1E)
 L8A8F:  AND #$0F
 L8A91:  TAY
 L8A92:  LDA $048A
